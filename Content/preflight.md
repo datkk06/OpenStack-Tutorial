@@ -1,6 +1,6 @@
 ###Initial server setup for an OpenStack deployment
 
-The x86_64 platform is currently the only supported architecture. Machine with at least 2GB RAM, processors with hardware virtualization extensions, and at least one network adapter. Both Intel and AMD CPU support virtualization technology which allows multiple operating systems to run simultaneously on an x86 computer in a safe and efficient manner using hardware virtualization. Use the following commands to verify that if hardware virtualization extensions is enabled or not in your BIOS.
+The x86_64 platform is currently the only supported architecture. Machine with at least 4GB RAM, processors with hardware virtualization extensions, and one or more network adapters. Both Intel and AMD CPU support virtualization technology which allows multiple operating systems to run simultaneously on an x86 computer in a safe and efficient manner using hardware virtualization. Use the following commands to verify that if hardware virtualization extensions is enabled or not in your BIOS.
 
 ####Verify CPU Virtualization Extensions
 Type the following command as root to verify that host cpu has support for Intel VT technology.
