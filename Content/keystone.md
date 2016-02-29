@@ -24,7 +24,6 @@ Start the openstack-keystone service and make sure the service is persistent.
 ```
 # systemctl start openstack-keystone
 # systemctl enable openstack-keystone
-ln -s '/usr/lib/systemd/system/openstack-keystone.service' '/etc/systemd/system/multi-user.target.wants/openstack-keystone.service'
 ```
 
 Do the same for the MariaDB service:
