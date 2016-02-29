@@ -1,27 +1,16 @@
 ###Initial server setup for an OpenStack deployment
 
-The x86_64 platform is currently the only supported architecture. Machine with at least 4GB RAM, processors with hardware virtualization extensions, and one or more network adapters. Both Intel and AMD CPU support virtualization technology which allows multiple operating systems to run simultaneously on an x86 computer in a safe and efficient manner using hardware virtualization. Use the following commands to verify that if hardware virtualization extensions is enabled or not in your BIOS.
+The x86_64 platform is currently the only supported architecture. Machine with at least 4GB RAM, processors with hardware virtualization extensions, and one or more network adapters. Both Intel and AMD CPU support virtualization technology which allows multiple operating systems to run simultaneously on an x86 computer in a safe and efficient manner using hardware virtualization. Use the following commands to verify that if hardware virtualization extensions is enabled or not in your BIOS. On the compute nodes type the following commands as root to verify that host cpu has support for Intel VT or AMD-V technology.
 
-####Verify CPU Virtualization Extensions
-Type the following command as root to verify that host cpu has support for Intel VT technology.
-
-``# grep --color vmx /proc/cpuinfo``
-
-If the output has the ``vmx`` flags, then Intel CPU host is capable of running hardware virtualization.
-
-Type the following command as root to verify that host cpu has support for AMD-V technology
-
-``# grep --color svm /proc/cpuinfo``
-
-Again, the output has the ``svm`` flags, then AND CPU host is capable of running hardware virtualization.
-
-####Check BIOS Settings
-Many, system manufacturers disable AMD or Intel virtualization technology in the BIOS by default. You need to reboot the system and turn it in the BIOS.
+```
+# grep --color vmx /proc/cpuinfo
+# grep --color svm /proc/cpuinfo
+```
 
 ####Install CentOS 7 minimal
-Install CentOS 7 minimal on the target server.
+Install CentOS 7 minimal on the target servers.
 
-Update the system
+Update the systems
 
 ``# yum update -y``
 
