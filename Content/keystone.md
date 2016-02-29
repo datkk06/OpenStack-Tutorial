@@ -1,5 +1,5 @@
 ###Keystone Authentication Service
-The Keystone identity service is a project providing identity, token, catalog, and policy services for use with Red Hat OpenStack. Keystone provides token- and password-based authentication and high-level authorization, and a central directory of users mapped to the services they can access. The following commands should be available on the command-line path:
+The Keystone identity service is a project providing identity, token, catalog, and policy services for use with RDO. Keystone provides token- and password-based authentication and high-level authorization, and a central directory of users mapped to the services they can access. The following commands should be available on the command-line path:
 
 * **keystone** the Keystone client, used to interact with Keystone
 * **keystone-manage** used to bootstrap Keystone data
@@ -9,59 +9,15 @@ You will find the configuration file in /etc/keystone/keystone.conf
 
 ###Deploying the Keystone Identity Service
 
-Install the openstack-keystone package and the openstack-selinux package that will provide the SELinux policy for Red Hat OpenStack.
+Install the openstack-keystone package and the openstack-selinux package that will provide the SELinux policy.
 
 ``# yum install -y openstack-keystone openstack-selinux``
 
-Install and start the MySQL server and enter _caldera_ for the root MySQL user
+Install and start the MySQL server (MariaDB)
 ```
 # yum install -y openstack-utils
 # openstack-db --init --service keystone
-mysql-server is not installed.  Would you like to install it now? (y/n): y
-...
-
-mysqld is not running.  Would you like to start it now? (y/n): y
-...
-Since this is a fresh installation of MySQL, please set a password for the 'root' mysql user.
-Enter new password for 'root' mysql user: caldera
-Enter new password again: <password>
-Verified connectivity to MySQL.
-Creating 'keystone' database.
-Initializing the keystone database, please wait...
-Complete!
 ```
-Set up the PKI infrastructure for Keystone:
-```
-# keystone-manage pki_setup --keystone-user keystone --keystone-group keystone
-Generating RSA private key, 2048 bit long modulus
-...
-Write out database with 1 new entries
-Data Base Updated
-```
-
-To be able to administrate the Keystone identity service, specify the SERVICE_TOKEN and SERVICE_ENDPOINT environment variables. Save the value of the generated SERVICE_TOKEN to a file
-
-```
-# export SERVICE_TOKEN=$(openssl rand -hex 10)
-# export SERVICE_ENDPOINT=http://caldera:35357/v2.0
-# echo $SERVICE_TOKEN > /root/ks_admin_token
-# cat /root/ks_admin_token
-ddc845b37f429757853e
-```
-
-Create the keystonerc_token script with the service token variables that bypass authentication. This file may be used during troubleshooting to reset the service token variables to allow manual modification or deletion of Keystone object records.
-
-```
-# cat >> /root/keystonerc_token << EOF
-> unset OS_USERNAME OS_TENANT_NAME OS_PASSWORD OS_AUTH_URL
-> export SERVICE_TOKEN=$(cat /root/ks_admin_token)
-> export SERVICE_ENDPOINT=http://caldera:35357/v2.0
-> export PS1='[\u@\h \W(keystone_token)]\$ '
-> EOF
-```
-The generated SERVICE_TOKEN must correspond to the admin_token setting in the /etc/keystone/keystone.conf file. OpenStack configuration files use the INI format, where there can be separate sections. Each section uses a name enclosed in square brackets e.g., [DEFAULT]. The OpenStack configuration files can be managed with the _crudini_ command. To set the SERVICE_TOKEN into [DEFAULT] section of keystone.conf file use the command:
-
-``crudini --set /etc/keystone/keystone.conf DEFAULT admin_token $SERVICE_TOKEN``
 
 Start the openstack-keystone service and make sure the service is persistent.
 
@@ -118,7 +74,7 @@ Check the output carefully for mistakes. If needed, delete the end point, then r
 
 ``# keystone endpoint-delete fc9f35131ae749f8b1577013d62f6d38 ``
 
-###Managing Users with the keystone Command
+###Managing Users with the keystone command
 To setup of the Keystone environment, create an admin user. The admin user of the admin tenant has to be associated with an admin role. A keystonerc_admin script makes authentication as the admin user easy.
 
 Create the admin user with a corresponding password <password>
@@ -162,19 +118,6 @@ Add the user from the admin tenant to the admin role
 
 ``# keystone user-role-add --user admin --role admin --tenant admin``
 
-Create the keystonerc_admin script. The service token variables must be unset since detection of those variables will override any authentication settings.
-
-```
-# cat >> /root/keystonerc_admin << EOF
-> unset SERVICE_TOKEN SERVICE_ENDPOINT
-> export OS_USERNAME=admin
-> export OS_TENANT_NAME=admin
-> export OS_PASSWORD=<password>
-> export OS_AUTH_URL=http://caldera:35357/v2.0/
-> export PS1='[\u@\h \W(keystone_admin)]\$ '
-> EOF
-```
-
 Test the keystonerc_admin file by running the command to list users, since only an administrator can perform this action.
 
 ```
@@ -187,18 +130,11 @@ Test the keystonerc_admin file by running the command to list users, since only 
 +----------------------------------+-------+---------+-------+
 ```
 
-Note
-To troubleshoot Keystone when /root/keystonerc_admin authentication does not work, export the two service token variables to bypass authentication.
-
-```
-# export SERVICE_TOKEN=$(cat /root/ks_admin_token)
-# export SERVICE_ENDPOINT=http://caldera:35357/v2.0
-```
-If the /root/keystonerc_token script was created, source the script to export the two service token variables.
+If the /root/keystonerc_token script was created, source the script
 
 ``# source /root/keystonerc_token``
 
-Now to practice, add a new user called myuser with Member role as part of myopenstack tenant. Before you begin, ensure the keystonerc_admin script exists and can be used to set the admin environment.
+Add a new user called myuser with Member role as part of myopenstack tenant. Before you begin, ensure the keystonerc_admin script exists and can be used to set the admin environment.
 
 Source the admin Keystone environment variables if not currently set. 
 
@@ -235,19 +171,6 @@ Source the admin Keystone environment variables if not currently set.
 
 [~(keystone_admin)]# keystone user-role-add --user myuser --role Member --tenant myopenstack
 [~(keystone_admin)]# keystone user-role-list --user myuser --tenant myopenstack
-```
-
-Create an appropriate /root/keystonerc_myuser script, similar to that created for the admin user. 
-
-```
-[~(keystone_admin)]# cat >> /root/keystonerc_myuser << EOF
-> unset SERVICE_TOKEN SERVICE_ENDPOINT
-> export OS_USERNAME=myuser
-> export OS_TENANT_NAME=myopenstack
-> export OS_PASSWORD=<password>
-> export OS_AUTH_URL=http://caldera:5000/v2.0/
-> export PS1='[\u@\h \W(keystone_myuser)]\$ '
-> EOF
 ```
 
 Verify the user is configured correctly by attempting to obtain a Keystone token. Since non-admin users are not able to list users, use token-get to test whether the user exists and has correctly set environment variables in the keystonerc_myuser script.
