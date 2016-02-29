@@ -1,5 +1,5 @@
 ###Keystone Authentication Service
-The Keystone identity service is a project providing identity, token, catalog, and policy services for use with RDO. Keystone provides token- and password-based authentication and high-level authorization, and a central directory of users mapped to the services they can access. The following commands should be available on the command-line path:
+The Keystone identity service is a project providing identity, token, catalog, and policy services for use with OpenStack. Keystone provides token and password-based authentication and high-level authorization, and a central directory of users mapped to the services they can access. The following commands should be available on the command-line path:
 
 * **keystone** the Keystone client, used to interact with Keystone
 * **keystone-manage** used to bootstrap Keystone data
