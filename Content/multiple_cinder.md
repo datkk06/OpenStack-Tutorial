@@ -4,7 +4,7 @@ Configuring multiple-storage backends, allows to create several backend storage 
 The name of the backend is declared as an extra-specification of a volume type. When a volume is created, the scheduler chooses an appropriate backend to handle the request, according to the volume type specified by the user.
 To enable a multiple-storage backends, the ``enabled_backends`` option in the cinder configuration file need to be used. This option defines the names of the configuration groups for the different backends. Each name is associated to one configuration group for a backend. The configuration group name is not related to the name of the backend.
 
-As example, we define two LVM backends named **LOLLO** and **LOLLA** respctively. In the cinder configuration file, we are going to declare two configuration groups, one for each backend, called **lvm1** and **lvm2** respectively. We set the multiple backend option as  ``enabled_backends=lvm1,lvm2`` in the configuration file. It will look like:
+As example, we define two LVM backends named **LOLLO** and **LOLLA** respctively. In the cinder configuration file, we are going to declare two configuration groups, one for each backend, called **lvm1** and **lvm2** respectively. We set the multiple backend option as  ``enabled_backends=lvm1,lvm2`` in the configuration file. On the Controller node (here acting as Storage node too), it will look like:
 
 ```
 [DEFAULT]
@@ -17,12 +17,12 @@ enabled_backends=lvm1,lvm2
 
 rabbit_userid = guest
 rabbit_password = guest
-rabbit_host = caldara01
+rabbit_host = 10.10.10.30 #controller
 rabbit_use_ssl = false
 rabbit_port = 5672
 
 [database]
-sql_connection = mysql://cinder:caldera123@controller/cinder
+sql_connection = mysql://cinder:******@controller/cinder
 idle_timeout=3600
 min_pool_size=1
 max_retries=10
@@ -38,14 +38,14 @@ auth_protocol = http
 
 [lvm1]
 iscsi_helper=lioadm
-iscsi_ip_address=192.168.2.30
+iscsi_ip_address=192.168.2.30 #controller on the Storage network
 volume_driver=cinder.volume.drivers.lvm.LVMISCSIDriver
 volume_backend_name=LOLLA
 volume_group=storage
 
 [lvm2]
 iscsi_helper=lioadm
-iscsi_ip_address=192.168.2.30
+iscsi_ip_address=192.168.2.30 #controller on the Storage network
 volume_driver=cinder.volume.drivers.lvm.LVMISCSIDriver
 volume_backend_name=LOLLO
 volume_group=storage
@@ -107,7 +107,7 @@ In an OpenStack production setup, one or more Storage nodes are used. This secti
 
 Install a Storage node and connect the Storage node with Controller node and Compute nodes using an isolate Storage network. In this example, the storage network is 192.168.2.0/24, the Management network is 10.10.10.0/24 and the Tenant network is 192.168.1.0/24.
 
-Install the LVM package and create the volume group
+On the Storage node, install the LVM package and create the volume group
 ```
 # yum install -y lvm2
 # pvcreate /dev/sdb
@@ -115,14 +115,14 @@ Install the LVM package and create the volume group
 Volume group "cinder-volumes" successfully created
 ```
 
-Install and configure the components
+On the Storage node, install and configure the components
 ```
 # yum install openstack-cinder targetcli python-oslo-policy
 # systemctl enable openstack-cinder-volume
 # systemctl enable target
 ```
 
-Edit the ``/etc/cinder/cinder.conf`` file 
+On the Storage node, edit the ``/etc/cinder/cinder.conf`` file 
 ```
 [root@osstorage]# cat /etc/cinder/cinder.conf
 [DEFAULT]
@@ -167,6 +167,7 @@ rabbit_password = guest
 rabbit_ha_queues = False
 heartbeat_timeout_threshold = 0
 heartbeat_rate = 2
+
 [lvm2]
 iscsi_helper=lioadm
 volume_group=cinder-volumes
@@ -176,13 +177,13 @@ iscsi_protocol=iscsi
 volume_backend_name=gold
 ```
 
-Start the cinder-volume and the iscsi target services
+On the Storage node, start the cinder-volume and the iscsi target services
 ```
 # systemctl start openstack-cinder-volume
 # systemctl start target
 ```
 
-Check the service list
+and check the service list
 ```
 [root@osstorage]# cinder-manage service list
 Binary           Host                                 Zone             Status     State Updated At
@@ -192,4 +193,17 @@ cinder-volume    osstorage@lvm2                       nova             enabled  
 [root@osstorage]#
 ```
 
+Create the new Cinder backend type
+```
+# cinder type-create lvm_gold
+# cinder type-key lvm_gold set volume_backend_name=gold
+# cinder type-list
++--------------------------------------+------------+-------------+-----------+
+|                  ID                  |    Name    | Description | Is_Public |
++--------------------------------------+------------+-------------+-----------+
+| 2e7a05d0-c3d4-4eee-880c-5cd707efa5e3 |   iscsi    |      -      |    True   |
+| 74055a9a-a576-49a3-92fa-dfa7a935cdba | lvm_silver |      -      |    True   |
+| 9c975ae9-f16d-4a4a-a930-8ae0efb5fab8 |  lvm_gold  |      -      |    True   |
++--------------------------------------+------------+-------------+-----------+
+```
 
