@@ -102,7 +102,7 @@ cinder-volume    controller@lvm2                       nova             enabled 
 cinder-volume    controller@lvm1                       nova             enabled    :-)   2015-05-18 18:05:27
 ```
 
-###Add a separate Storage Node
+###Add another Cinder Storage Node
 In an OpenStack production setup, one or more Storage nodes are used. This section describes how to install and configure storage nodes for the Block Storage service. The service provisions logical volumes on this device using the LVM driver and provides them to instances via iSCSI transport.
 
 Install a Storage node and connect the Storage node with Controller node and Compute nodes using an isolate Storage network. In this example, the storage network is 192.168.2.0/24, the Management network is 10.10.10.0/24 and the Tenant network is 192.168.1.0/24.
@@ -207,3 +207,16 @@ Create the new Cinder backend type
 +--------------------------------------+------------+-------------+-----------+
 ```
 
+Cinder volumes will be created on different Storage nodes, depending on the backends type
+```
+# cinder create --display-name vol1 --volume-type lvm_silver 5
+# cinder create --display-name vol2 --volume-type lvm_gold 5
+# cinder list
++--------------------------------------+-----------+------+------+-------------+----------+-------------+-------------+
+|                  ID                  |   Status  | Name | Size | Volume Type | Bootable | Multiattach | Attached to |
++--------------------------------------+-----------+------+------+-------------+----------+-------------+-------------+
+| 579756be-6f03-4ded-8e65-dd46e6568e95 | available | vol1 |  5   |  lvm_silver |  false   |    False    |             |
+| adb625f1-f212-45d6-8150-bc4687d1f0d1 | available | vol2 |  5   |   lvm_gold  |  false   |    False    |             |
++--------------------------------------+-----------+------+------+-------------+----------+-------------+-------------+
+```
+The ``vol1`` is created on the first Storage node (i.e. the nodes acting as Controller and Storage) while the ``vol2`` is created on the second Storage node just added.
