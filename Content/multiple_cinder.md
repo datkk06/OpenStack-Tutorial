@@ -1,4 +1,4 @@
-### Implementing multiple storage backends
+### Implementing multiple Cinder storage backends
 Configuring multiple-storage backends, allows to create several backend storage solutions that serve the same OpenStack configuration and one cinder-volume service is launched for each backend storage. In a multiple-storage backend configuration, eachback end has a name. Several back ends can have the same name. In that case, the scheduler properly decides which backend the volume has to be created in.
 
 The name of the backend is declared as an extra-specification of a volume type. When a volume is created, the scheduler chooses an appropriate backend to handle the request, according to the volume type specified by the user.
@@ -100,5 +100,96 @@ Binary           Host                                 Zone             Status   
 cinder-scheduler controller                            nova             enabled    :-)   2015-05-18 18:05:26
 cinder-volume    controller@lvm2                       nova             enabled    :-)   2015-05-18 18:05:27
 cinder-volume    controller@lvm1                       nova             enabled    :-)   2015-05-18 18:05:27
-
 ```
+
+###Add a separate Storage Node
+In an OpenStack production setup, one or more Storage nodes are used. This section describes how to install and configure storage nodes for the Block Storage service. The service provisions logical volumes on this device using the LVM driver and provides them to instances via iSCSI transport.
+
+Install a Storage node and connect the Storage node with Controller node and Compute nodes using an isolate Storage network. In this example, the storage network is 192.168.2.0/24, the Management network is 10.10.10.0/24 and the Tenant network is 192.168.1.0/24.
+
+Install the LVM package and create the volume group
+```
+# yum install -y lvm2
+# pvcreate /dev/sdb
+# vgcreate cinder-volumes /dev/sdb
+Volume group "cinder-volumes" successfully created
+```
+
+Install and configure the components
+```
+# yum install openstack-cinder targetcli python-oslo-policy
+# systemctl enable openstack-cinder-volume
+# systemctl enable target
+```
+
+Edit the ``/etc/cinder/cinder.conf`` file 
+```
+[root@osstorage]# cat /etc/cinder/cinder.conf
+[DEFAULT]
+glance_host = 10.10.10.30 # controller
+enable_v1_api = True
+enable_v2_api = True
+storage_availability_zone = nova
+default_availability_zone = nova
+auth_strategy = keystone
+enabled_backends = lvm2
+osapi_volume_listen = 0.0.0.0
+osapi_volume_workers = 1
+nova_catalog_info = compute:Compute Service:publicURL
+nova_catalog_admin_info = compute:Compute Service:adminURL
+debug = True
+verbose = True
+notification_driver = messagingv2
+rpc_backend = rabbit
+control_exchange = openstack
+api_paste_config=/etc/cinder/api-paste.ini
+amqp_durable_queues=False
+
+[keystone_authtoken]
+auth_uri = http://10.10.10.30:5000 #controller
+auth_url = http://10.10.10.30:35357 #controller
+auth_plugin = password
+project_domain_id = default
+user_domain_id = default
+project_name = service
+username = cinder
+password = *******
+
+[database]
+connection = mysql://cinder:*******@10.10.10.30/cinder #controller
+[oslo_messaging_rabbit]
+rabbit_host = 10.10.10.30 #controller
+rabbit_port = 5672
+rabbit_hosts = 10.10.10.30:5672 #controller
+rabbit_use_ssl = False
+rabbit_userid = guest
+rabbit_password = guest
+rabbit_ha_queues = False
+heartbeat_timeout_threshold = 0
+heartbeat_rate = 2
+[lvm2]
+iscsi_helper=lioadm
+volume_group=cinder-volumes
+iscsi_ip_address=192.168.2.36 #local IP on the Storage network
+volume_driver=cinder.volume.drivers.lvm.LVMVolumeDriver
+iscsi_protocol=iscsi
+volume_backend_name=gold
+```
+
+Start the cinder-volume and the iscsi target services
+```
+# systemctl start openstack-cinder-volume
+# systemctl start target
+```
+
+Check the service list
+```
+[root@osstorage]# cinder-manage service list
+Binary           Host                                 Zone             Status     State Updated At
+cinder-scheduler oscontroller                         nova             enabled    :-)   2016-03-01 14:15:34
+cinder-volume    oscontroller@lvm1                    nova             enabled    :-)   2016-03-01 14:15:34
+cinder-volume    osstorage@lvm2                       nova             enabled    :-)   2016-03-01 14:15:34
+[root@osstorage]#
+```
+
+
