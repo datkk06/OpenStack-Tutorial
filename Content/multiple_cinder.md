@@ -39,14 +39,14 @@ auth_protocol = http
 [lvm1]
 iscsi_helper=lioadm
 iscsi_ip_address=192.168.2.30 #controller on the Storage network
-volume_driver=cinder.volume.drivers.lvm.LVMISCSIDriver
+volume_driver=cinder.volume.drivers.lvm.LVMVolumeDriver
 volume_backend_name=LOLLA
 volume_group=storage
 
 [lvm2]
 iscsi_helper=lioadm
 iscsi_ip_address=192.168.2.30 #controller on the Storage network
-volume_driver=cinder.volume.drivers.lvm.LVMISCSIDriver
+volume_driver=cinder.volume.drivers.lvm.LVMVolumeDriver
 volume_backend_name=LOLLO
 volume_group=storage
 
