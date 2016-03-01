@@ -1,4 +1,4 @@
-### Implementing multiple Cinder storage backends
+### Multiple Cinder Storage Backends
 Configuring multiple-storage backends, allows to create several backend storage solutions that serve the same OpenStack configuration and one cinder-volume service is launched for each backend storage. In a multiple-storage backend configuration, eachback end has a name. Several back ends can have the same name. In that case, the scheduler properly decides which backend the volume has to be created in.
 
 The name of the backend is declared as an extra-specification of a volume type. When a volume is created, the scheduler chooses an appropriate backend to handle the request, according to the volume type specified by the user.
@@ -102,7 +102,7 @@ cinder-volume    controller@lvm2                       nova             enabled 
 cinder-volume    controller@lvm1                       nova             enabled    :-)   2015-05-18 18:05:27
 ```
 
-###Add another Cinder Storage Node
+###Multiple Cinder Storage Nodes
 In an OpenStack production setup, one or more Storage nodes are used. This section describes how to install and configure storage nodes for the Block Storage service. The service provisions logical volumes on this device using the LVM driver and provides them to instances via iSCSI transport.
 
 Install a Storage node and connect the Storage node with Controller node and Compute nodes using an isolate Storage network. In this example, the storage network is 192.168.2.0/24, the Management network is 10.10.10.0/24 and the Tenant network is 192.168.1.0/24.
@@ -220,3 +220,71 @@ Cinder volumes will be created on different Storage nodes, depending on the back
 +--------------------------------------+-----------+------+------+-------------+----------+-------------+-------------+
 ```
 The ``vol1`` is created on the first Storage node (i.e. the nodes acting as Controller and Storage) while the ``vol2`` is created on the second Storage node just added.
+
+###NFS Cinder Storage Backend
+Cinder Storage Service can use a Network File System storage as backend. Howewer, the Cinder service provides Block Storage devices (i.e. volumes) to the users even if the backend is NFS. This section explains how to configure OpenStack Block Storage to use NFS storage.
+
+We are assuming a NFS server is already available on the Storage Network with IP 192.168.2.20 and the server is sharing the ``/var/shared`` folder. On the Storage node 192.168.2.36 install the NFS client.
+
+```
+# yum install -y nfs-utils
+# systemctl start rpcbind
+# systemctl enable rpcbind
+```
+
+On the Storage node, create a shared resource catalog
+```
+# vi /etc/cinder/nfs_shares
+192.168.2.20:/var/shared
+# chown root:cinder /etc/cinder/nfs_shares
+# chmod 0640 /etc/cinder/nfs_shares
+```
+
+Configure the cinder volume service to use the ``/etc/cinder/nfs_shares`` file by editing the ``/etc/cinder/cinder.conf`` configuration file
+```
+[defaults]
+...
+
+[nfs]
+volume_driver = cinder.volume.drivers.nfs.NfsDriver
+nfs_shares_config = /etc/cinder/nfs_shares
+nfs_mount_point_base = $state_path/mnt
+nfs_mount_options = <nfs mounting options>
+nfs_sparsed_volumes = true
+volume_backend_name=nfs
+```
+
+Mounting options ``nfs_mount_options`` are the usual mount options to be used when accessing NFS shares. The ``nfs_sparsed_volumes`` configuration key determines whether volumes are created as sparse files and grown as needed or fully allocated up front. The default and recommended value is ``true``, which ensures volumes are initially created as sparse files. Setting the key to ``false`` will result in volumes being fully allocated at the time of creation. This leads to increased delays in volume creation.
+
+Restart the Cinder services on both the Storage and Controller nodes
+```
+# openstack-service restart cinder
+# cinder-manage service list
+Binary           Host                                 Zone             Status     State Updated At
+cinder-scheduler oscontroller                         nova             enabled    :-)   2016-03-01 17:09:25
+cinder-volume    oscontroller@lvm1                    nova             enabled    :-)   2016-03-01 17:09:26
+cinder-volume    osstorage@lvm2                       nova             enabled    :-)   2016-03-01 17:09:18
+cinder-volume    osstorage@nfs                        nova             enabled    :-)   2016-03-01 17:09:17
+```
+
+Create the new Cinder backend type
+```
+# cinder type-create nfs
+# cinder type-key nfs set volume_backend_name=nfs
+# cinder type-list
++--------------------------------------+------------+-------------+-----------+
+|                  ID                  |    Name    | Description | Is_Public |
++--------------------------------------+------------+-------------+-----------+
+| 2e7a05d0-c3d4-4eee-880c-5cd707efa5e3 |   iscsi    |      -      |    True   |
+| 5bb9a70c-64ee-412f-bb28-d909ba22c17c |    nfs     |      -      |    True   |
+| 74055a9a-a576-49a3-92fa-dfa7a935cdba | lvm_silver |      -      |    True   |
+| 9c975ae9-f16d-4a4a-a930-8ae0efb5fab8 |  lvm_gold  |      -      |    True   |
++--------------------------------------+------------+-------------+-----------+
+```
+
+Create new volumes on NFS Storage backend
+```
+# cinder create --display-name vol3 --volume-type nfs 5
+```
+
+The above volume can be attached as Block Storage device to the VM instances.
