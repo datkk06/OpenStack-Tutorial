@@ -31,10 +31,6 @@ Install the Cinder components
 ```
 # yum install -y openstack-cinder
 ```
-The configuration file ``/etc/cinder/cinder.conf`` contains all the relevant parameters for the Cinder service.
-```
-# cp /etc/cinder/cinder.conf /etc/cinder/cinder.conf.orig
-```
 
 Source the keystonerc_admin file to enable authentication with administrative privileges
 ```
@@ -60,7 +56,7 @@ Create the _cinder_ user and the services. Both service versions 1 and 2 need to
 # keystone endpoint-create --service-id 8df7ea55e7cc4d32aab5a3d5f3bbd628 --publicurl 'http://caldara01:8776/v2/%(tenant_id)s' --adminurl 'http://caldara01:8776/v2/%(tenant_id)s' --internalurl 'http://caldara01:8776/v2/%(tenant_id)s'
 
 ```
-Edit the configuration file
+The configuration file ``/etc/cinder/cinder.conf`` contains all the relevant parameters for the Cinder service. Edit the configuration file
 ```
 vi /etc/cinder/cinder.conf
 
@@ -74,7 +70,7 @@ enabled_backends=lvm
 
 rabbit_userid = guest
 rabbit_password = guest
-rabbit_host = caldara01
+rabbit_host = caldera01
 rabbit_use_ssl = false
 rabbit_port = 5672
 
@@ -89,7 +85,7 @@ retry_interval=10
 admin_tenant_name = services
 admin_user = cinder
 admin_password = <password>
-auth_host = caldara01
+auth_host = caldera01
 auth_port = 35357
 auth_protocol = http
 
@@ -129,61 +125,14 @@ openstack-cinder-backup:                inactive  (disabled on boot)
 The ``cinder`` CLI command is used to manage the service
 ```
 # cinder type-create lvm
-+--------------------------------------+------+
-|                  ID                  | Name |
-+--------------------------------------+------+
-| 9c1a4ea8-3e46-4706-9030-057fe36ae853 | lvm  |
-+--------------------------------------+------+
-#  cinder type-key lvm set volume_backend_name=LVM
+# cinder type-key lvm set volume_backend_name=LVM
 # cinder create --display-name vol1 --volume-type lvm 10
-+---------------------+--------------------------------------+
-|       Property      |                Value                 |
-+---------------------+--------------------------------------+
-|     attachments     |                  []                  |
-|  availability_zone  |                 nova                 |
-|       bootable      |                false                 |
-|      created_at     |      2015-05-18T15:04:41.922747      |
-| display_description |                 None                 |
-|     display_name    |                 vol1                 |
-|      encrypted      |                False                 |
-|          id         | 0ad8da3b-1744-4c5c-ba40-53908367b0dd |
-|       metadata      |                  {}                  |
-|         size        |                  10                  |
-|     snapshot_id     |                 None                 |
-|     source_volid    |                 None                 |
-|        status       |               creating               |
-|     volume_type     |                 lvm                  |
-+---------------------+--------------------------------------+
 # cinder list
 +--------------------------------------+-----------+--------------+------+-------------+----------+-------------+
 |                  ID                  |   Status  | Display Name | Size | Volume Type | Bootable | Attached to |
 +--------------------------------------+-----------+--------------+------+-------------+----------+-------------+
 | 0ad8da3b-1744-4c5c-ba40-53908367b0dd | available |     vol1     |  10  |     lvm     |  false   |             |
 +--------------------------------------+-----------+--------------+------+-------------+----------+-------------+
-```
-
-The volume is a LVM volume available to be used
-```
-# lvscan
-  ACTIVE            '/dev/storage/volume-fc96dc1c-6990-4ace-9523-8c57772c2e01' [10.00 GiB] inherit
-  ACTIVE            '/dev/os/root' [50.00 GiB] inherit
-  ACTIVE            '/dev/os/swap' [3.89 GiB] inherit
-  ACTIVE            '/dev/os/data' [178.50 GiB] inherit
-
-# mkfs.ext3 /dev/storage/volume-fc96dc1c-6990-4ace-9523-8c57772c2e01
-# mount /dev/storage/volume-fc96dc1c-6990-4ace-9523-8c57772c2e01 /mnt
-# df -Th
-Filesystem          Type      Size  Used Avail Use% Mounted on
-/dev/mapper/os-root xfs        50G  2.7G   48G   6% /
-devtmpfs            devtmpfs  3.8G     0  3.8G   0% /dev
-tmpfs               tmpfs     3.8G     0  3.8G   0% /dev/shm
-tmpfs               tmpfs     3.8G   17M  3.8G   1% /run
-tmpfs               tmpfs     3.8G     0  3.8G   0% /sys/fs/cgroup
-/dev/mapper/os-data xfs       179G   26G  154G  15% /data
-/dev/sda1           xfs       497M  271M  227M  55% /boot
-/dev/dm-2           ext3      9.8G   23M  9.2G   1% /mnt
-#
-# umount /mnt
 ```
 
 Deleting a volume may take some time, depending on the size, because Cinder fill with zero the volume when delete it.
