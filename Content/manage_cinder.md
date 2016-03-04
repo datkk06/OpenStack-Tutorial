@@ -42,7 +42,14 @@ To detach the volume from the image, specify the instance name and the volume ID
 ```
 
 ####Create a bootable volume
-In this example, create a bootable volume from an image and boot a persistent instance. Make sure to specify flavour, image ID and network ID
+In this example, create a bootable volume from an image and boot a persistent instance.
+
+Make sure to specify:
+* --flavor=ID
+* --image=ID
+* --nic net-id=ID
+* --block-device source=volume,id=ID,dest=DEST,size=SIZE,shutdown={preserve|remove},bootindex=0
+
 ```
 # nova list
 # nova flavor-list
