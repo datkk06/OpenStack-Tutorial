@@ -15,4 +15,4 @@ OpenStack Tutorial based on RDO distribution and CentOS7 Operating System.
 11. [Nova Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/novanetwork.md)
 
 ### Disclaimer
-This tutorial is for personal use only. The content is borrowed from many sources, including Ceph online guides, blogs and tutorial from the net.
+This tutorial is for personal use only. The content is borrowed from many sources, including OpenStack online guide, blogs and tutorial from the net.
