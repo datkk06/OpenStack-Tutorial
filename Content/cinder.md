@@ -187,8 +187,8 @@ MariaDB [cinder]> select host from volumes;
 +----------------------+
 | host                 |
 +----------------------+
-| caldara01@lvm1#LOLLA |
-| caldara01@lvm2#LOLLO |
+| caldera01@lvm1#LOLLA |
+| caldera01@lvm2#LOLLO |
 +----------------------+
 2 rows in set (0.00 sec)
 
