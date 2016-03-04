@@ -58,17 +58,7 @@ To enable the new configuration, restart the cinder service
 Create two new volume types and associate them with the two backends
 ```
 # cinder type-create lvm_gold
-+--------------------------------------+----------+
-|                  ID                  |   Name   |
-+--------------------------------------+----------+
-| 60ee47a6-ebaa-4d7d-8586-b722fb00677f | lvm_gold |
-+--------------------------------------+----------+
 # cinder type-create lvm_silver
-+--------------------------------------+------------+
-|                  ID                  |    Name    |
-+--------------------------------------+------------+
-| e67d309c-a3e7-42a0-b8ba-f34485582734 | lvm_silver |
-+--------------------------------------+------------+
 # cinder type-list
 +--------------------------------------+------------+
 |                  ID                  |    Name    |
