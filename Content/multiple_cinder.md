@@ -248,8 +248,7 @@ Cinder volumes will be created on different Storage nodes, depending on the back
 ```
 The ``vol1`` is created on the first Storage node while the ``vol2`` is created on the second Storage node.
 
-###Storage backend across different nodes
-In the previous section, we defined two different storage backends with different storage type, each on a different Storage node. In this section we are going to assign the same backend name to two different Storage nodes. This option permits to migrate a volume of the same type from a Storage node to another one.
+In this section section, we defined two different storage backends with different storage type, each on a different Storage node. Below, we are going to assign the same backend name to two different Storage nodes. This option permits to migrate a volume of the same type from the first Storage node to the second one.
 
 On the second Storage node, edit the ``/etc/cinder/cinder.conf`` file
 ```
