@@ -225,3 +225,49 @@ Request to migrate volume <Volume: 5e45bfed-69db-46c9-9dd6-92d26315d82d> has bee
 
 The migration is not visible to non-admin users. However, some operations are not allowed while a migration is taking place, such as attaching or detaching a volume and deleting a volume. If a user performs such an action during a migration, an error is returned.
 
+####Extend a volume
+A volume can be extended in size. To resize your volume, you must first detach it from the server. Check if the volume is not attached to any server, then extend it
+```
+# cinder list
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+---------------------
+|                  ID                  |   Status  |     Name     | Size | Volume Type | Bootable | Multiattach |             Attached
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+---------------------
+| 5e45bfed-69db-46c9-9dd6-92d26315d82d | available | volToExtend  |  8   |  lvm_silver |  false   |    False    |                     
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+---------------------
+
+# cinder extend volToExtend 12
+# cinder list
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+---------------------
+|                  ID                  |   Status  |     Name     | Size | Volume Type | Bootable | Multiattach |             Attached
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+---------------------
+| 5e45bfed-69db-46c9-9dd6-92d26315d82d | available | volToExtend  |  12  |  lvm_silver |  false   |    False    |                     
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+---------------------
+```
+
+####Create a volume snapshot
+Volume snapshots capture the point in time state of a volume. A volume from which snapshots have been created cannot be deleted while any of these snapshots exist. Volumes must be in an unattached state before a snapshot can be taken from them. To use a snapshot, a new volume must be created from a snapshot since volume snapshots cannot be attached or used directly.
+
+Volume snapshots are different from volume backups. Backups are full copies of volumes stored in Object Storage repository while snapshots are like a photo in time of a volume. Since backups are full copies of the volume, they take longer to create than snapshots. Once created, backups are independent of the original volume.
+
+Create a volume snapshot
+```
+# cinder list
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+---------------------
+|                  ID                  |   Status  |     Name     | Size | Volume Type | Bootable | Multiattach |             Attached
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+---------------------
+| 5e45bfed-69db-46c9-9dd6-92d26315d82d | available |   myVolume   |  12  |  lvm_silver |  false   |    False    |                     
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+---------------------
+# cinder snapshot-create myVolume --name myVolumeSnapshot
++-------------+--------------------------------------+
+|   Property  |                Value                 |
++-------------+--------------------------------------+
+|  created_at |      2016-03-06T12:31:04.027864      |
+| description |                 None                 |
+|      id     | 4195c0c2-c350-458a-8ebd-afe08a5ad3f8 |
+|   metadata  |                  {}                  |
+|     name    |           myVolumeSnapshot           |
+|     size    |                  12                  |
+|    status   |               creating               |
+|  volume_id  | 5e45bfed-69db-46c9-9dd6-92d26315d82d |
++-------------+--------------------------------------+
+```
