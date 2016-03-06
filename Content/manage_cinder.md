@@ -225,6 +225,8 @@ Request to migrate volume <Volume: 5e45bfed-69db-46c9-9dd6-92d26315d82d> has bee
 
 The migration is not visible to non-admin users. However, some operations are not allowed while a migration is taking place, such as attaching or detaching a volume and deleting a volume. If a user performs such an action during a migration, an error is returned.
 
+Please, note you can migrate only detached volumes with no snapshots.
+
 ####Extend a volume
 A volume can be extended in size. To resize your volume, you must first detach it from the server. Check if the volume is not attached to any server, then extend it
 ```
