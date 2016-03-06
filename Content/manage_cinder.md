@@ -85,5 +85,123 @@ Make sure to specify:
 +--------------------------------------+----------------------+--------+------------+-------------+-----------------------------+
 ```
 
+####Migrate a volume
+In this section we create a volume of a given type and then migrate the volume from a backend to another one defined on a different node. The requirement for volume migration is that the destination backend must support the same volume type of the source backend.
+
+Check the service list
+```
+# cinder-manage service list
+Binary           Host                                 Zone             Status     State Updated At
+cinder-scheduler oscontroller                         nova             enabled    :-)   2016-03-06 10:23:59
+cinder-volume    osstorage01@lvm1                     nova             enabled    :-)   2016-03-06 10:24:01
+cinder-volume    osstorage02@lvm2                     nova             enabled    :-)   2016-03-06 10:24:01
+cinder-volume    osstorage02@nfs                      nova             enabled    :-)   2016-03-06 10:24:00
+cinder-volume    osstorage02@lvm1                     nova             enabled    :-)   2016-03-06 10:23:56
+```
+
+Both the Storage nodes run the same backend type called ``lvm1``. This is achieved by the ``cinder.conf`` file.
+
+On the first Storage node
+```
+[root@osstorage01 ~]# cat /etc/cinder/cinder.conf
+...
+[lvm1]
+iscsi_helper=lioadm
+volume_group=cinder-volumes
+iscsi_ip_address=192.168.2.36
+volume_driver=cinder.volume.drivers.lvm.LVMVolumeDriver
+iscsi_protocol=iscsi
+volume_backend_name=silver
+```
+
+On the second Storage node
+```
+[root@osstorage02 ~]# cat /etc/cinder/cinder.conf
+...
+[lvm1]
+iscsi_helper=lioadm
+volume_group=cinder-volumes
+iscsi_ip_address=192.168.2.37
+volume_driver=cinder.volume.drivers.lvm.LVMVolumeDriver
+iscsi_protocol=iscsi
+volume_backend_name=silver
+
+[lvm2]
+iscsi_helper=lioadm
+volume_group=cinder-volumes
+iscsi_ip_address=192.168.2.37
+volume_driver=cinder.volume.drivers.lvm.LVMVolumeDriver
+iscsi_protocol=iscsi
+volume_backend_name=gold
+
+[nfs]
+volume_driver = cinder.volume.drivers.nfs.NfsDriver
+nfs_shares_config = /etc/cinder/nfs_shares
+nfs_mount_point_base = $state_path/mnt
+volume_backend_name=nfs
+```
+
+On the Controller node, check the available storage types
+```
+# cinder type-list
++--------------------------------------+------------+-------------+-----------+
+|                  ID                  |    Name    | Description | Is_Public |
++--------------------------------------+------------+-------------+-----------+
+| 5bb9a70c-64ee-412f-bb28-d909ba22c17c |    nfs     |      -      |    True   |
+| 74055a9a-a576-49a3-92fa-dfa7a935cdba | lvm_silver |      -      |    True   |
+| 9c975ae9-f16d-4a4a-a930-8ae0efb5fab8 |  lvm_gold  |      -      |    True   |
++--------------------------------------+------------+-------------+-----------+
+```
+
+As user, create a 5GB volume of type ``lvm_silver``
+```
+# cinder create --display-name vol1 --volume-type lvm_silver 5
+# cinder list
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+---------------------
+|                  ID                  |   Status  |     Name     | Size | Volume Type | Bootable | Multiattach |             Attached
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+---------------------
+| 5e45bfed-69db-46c9-9dd6-92d26315d82d | available | volToMigrate |  5   |  lvm_silver |  false   |    False    |                     
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+---------------------
+```
+
+Volume migration is allowed only to the admin user. Login as admin user and check the volume status
+```
+# source keystonerc_admin
+# cinder show 5e45bfed-69db-46c9-9dd6-92d26315d82d
++---------------------------------------+--------------------------------------+
+|                Property               |                Value                 |
++---------------------------------------+--------------------------------------+
+|              attachments              |                  []                  |
+|           availability_zone           |                 nova                 |
+|                bootable               |                false                 |
+|          consistencygroup_id          |                 None                 |
+|               created_at              |      2016-03-06T11:01:50.000000      |
+|              description              |                 None                 |
+|               encrypted               |                False                 |
+|                   id                  | 5e45bfed-69db-46c9-9dd6-92d26315d82d |
+|                metadata               |                  {}                  |
+|            migration_status           |                 None                 |
+|              multiattach              |                False                 |
+|                  name                 |             volToMigrate             |
+|         os-vol-host-attr:host         |        osstorage01@lvm1#silver       |
+|     os-vol-mig-status-attr:migstat    |                 None                 |
+|     os-vol-mig-status-attr:name_id    |                 None                 |
+|      os-vol-tenant-attr:tenant_id     |   56f4510783d94a72a3103f0adb999d7d   |
+|   os-volume-replication:driver_data   |                 None                 |
+| os-volume-replication:extended_status |                 None                 |
+|           replication_status          |               disabled               |
+|                  size                 |                  5                   |
+|              snapshot_id              |                 None                 |
+|              source_volid             |                 None                 |
+|                 status                |              available               |
+|                user_id                |   67bfe7c3d56f4d8a9f243cc810d2980f   |
+|              volume_type              |              lvm_silver              |
++---------------------------------------+--------------------------------------+
+```
+
+Take note of the following attributes:
+
+* ``os-vol-host-attr:host`` =  the volume’s current storage backend
+* ``os-vol-mig-status-attr:migstat`` = the status of this volume’s migration
 
 
