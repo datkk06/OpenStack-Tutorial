@@ -171,28 +171,13 @@ Volume migration is allowed only to the admin user. Login as admin user and chec
 +---------------------------------------+--------------------------------------+
 |                Property               |                Value                 |
 +---------------------------------------+--------------------------------------+
-|              attachments              |                  []                  |
-|           availability_zone           |                 nova                 |
-|                bootable               |                false                 |
-|          consistencygroup_id          |                 None                 |
-|               created_at              |      2016-03-06T11:01:50.000000      |
-|              description              |                 None                 |
-|               encrypted               |                False                 |
 |                   id                  | 5e45bfed-69db-46c9-9dd6-92d26315d82d |
-|                metadata               |                  {}                  |
 |            migration_status           |                 None                 |
-|              multiattach              |                False                 |
 |                  name                 |             volToMigrate             |
 |         os-vol-host-attr:host         |        osstorage01@lvm1#silver       |
 |     os-vol-mig-status-attr:migstat    |                 None                 |
 |     os-vol-mig-status-attr:name_id    |                 None                 |
-|      os-vol-tenant-attr:tenant_id     |   56f4510783d94a72a3103f0adb999d7d   |
-|   os-volume-replication:driver_data   |                 None                 |
-| os-volume-replication:extended_status |                 None                 |
-|           replication_status          |               disabled               |
 |                  size                 |                  5                   |
-|              snapshot_id              |                 None                 |
-|              source_volid             |                 None                 |
 |                 status                |              available               |
 |                user_id                |   67bfe7c3d56f4d8a9f243cc810d2980f   |
 |              volume_type              |              lvm_silver              |
@@ -204,4 +189,39 @@ Take note of the following attributes:
 * ``os-vol-host-attr:host`` =  the volume’s current storage backend
 * ``os-vol-mig-status-attr:migstat`` = the status of this volume’s migration
 
+Migrate this volume to the second Storage node
+```
+# cinder migrate 5e45bfed-69db-46c9-9dd6-92d26315d82d osstorage02@lvm1#silver
+Request to migrate volume <Volume: 5e45bfed-69db-46c9-9dd6-92d26315d82d> has been accepted.
+
+# cinder show 5e45bfed-69db-46c9-9dd6-92d26315d82d
++---------------------------------------+--------------------------------------+
+|                Property               |                Value                 |
++---------------------------------------+--------------------------------------+
+|                   id                  | 5e45bfed-69db-46c9-9dd6-92d26315d82d |
+|            migration_status           |              migrating               |
+|                  name                 |             volToMigrate             |
+|         os-vol-host-attr:host         |       osstorage01@lvm1#silver        |
+|     os-vol-mig-status-attr:migstat    |              migrating               |
+|                  size                 |                  5                   |
+|                 status                |              available               |
+|              volume_type              |              lvm_silver              |
++---------------------------------------+--------------------------------------+
+
+# cinder show 5e45bfed-69db-46c9-9dd6-92d26315d82d
++---------------------------------------+--------------------------------------+
+|                Property               |                Value                 |
++---------------------------------------+--------------------------------------+
+|                   id                  | 5e45bfed-69db-46c9-9dd6-92d26315d82d |
+|            migration_status           |               success                |
+|                  name                 |             volToMigrate             |
+|         os-vol-host-attr:host         |       osstorage02@lvm1#silver        |
+|     os-vol-mig-status-attr:migstat    |               success                |
+|                  size                 |                  5                   |
+|                 status                |              available               |
+|              volume_type              |              lvm_silver              |
++---------------------------------------+--------------------------------------+
+```
+
+The migration is not visible to non-admin users. However, some operations are not allowed while a migration is taking place, such as attaching or detaching a volume and deleting a volume. If a user performs such an action during a migration, an error is returned.
 
