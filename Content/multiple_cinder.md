@@ -184,11 +184,11 @@ On the first Storage node, start the cinder-volume and the iscsi target services
 
 and check the service list
 ```
-[root@osstorage]# cinder-manage service list
-Binary           Host                                 Zone             Status     State Updated At
-cinder-scheduler oscontroller                         nova             enabled    :-)   2016-03-01 14:15:34
-cinder-volume    osstorage@lvm1                       nova             enabled    :-)   2016-03-01 14:15:34
-[root@osstorage]#
+[root@osstorage01]# cinder-manage service list
+Binary           Host                                   Zone             Status     State Updated At
+cinder-scheduler oscontroller                           nova             enabled    :-)   2016-03-01 14:15:34
+cinder-volume    osstorage01@lvm1                       nova             enabled    :-)   2016-03-01 14:15:34
+[root@osstorage01]#
 ```
 
 On the seconde Storage node install the above stuff and edit the ``/etc/cinder/cinder.conf`` file
@@ -201,6 +201,22 @@ iscsi_ip_address=192.168.2.37 #local IP of the second Storage node on the Storag
 volume_driver=cinder.volume.drivers.lvm.LVMVolumeDriver
 iscsi_protocol=iscsi
 volume_backend_name=gold
+```
+
+On the second Storage node, start the cinder-volume and the iscsi target services
+```
+# systemctl start openstack-cinder-volume
+# systemctl start target
+```
+
+and check the service list
+```
+[root@osstorage02]# cinder-manage service list
+Binary           Host                                   Zone             Status     State Updated At
+cinder-scheduler oscontroller                           nova             enabled    :-)   2016-03-01 14:15:34
+cinder-volume    osstorage01@lvm1                       nova             enabled    :-)   2016-03-01 14:15:34
+cinder-volume    osstorage02@lvm2                       nova             enabled    :-)   2016-03-01 14:15:34
+[root@osstorage02]#
 ```
 
 Create two new Cinder backend types
