@@ -248,6 +248,47 @@ Cinder volumes will be created on different Storage nodes, depending on the back
 ```
 The ``vol1`` is created on the first Storage node while the ``vol2`` is created on the second Storage node.
 
+###Storage backend across different nodes
+In the previous section, we defined two different storage backends with different storage type, each on a different Storage node. In this section we are going to assign the same backend name to two different Storage nodes. This option permits to migrate a volume of the same type from a Storage node to another one.
+
+On the second Storage node, edit the ``/etc/cinder/cinder.conf`` file
+```
+...
+[lvm1]
+iscsi_helper=lioadm
+volume_group=cinder-volumes
+iscsi_ip_address=192.168.2.37
+volume_driver=cinder.volume.drivers.lvm.LVMVolumeDriver
+iscsi_protocol=iscsi
+volume_backend_name=silver
+
+[lvm2]
+iscsi_helper=lioadm
+volume_group=cinder-volumes
+iscsi_ip_address=192.168.2.37
+volume_driver=cinder.volume.drivers.lvm.LVMVolumeDriver
+iscsi_protocol=iscsi
+volume_backend_name=gold
+```
+
+Restart the Cinder service on the second Storage node
+```
+# systemctl restart openstack-cinder-volume
+```
+
+and check the services list running on all the Storage nodes
+```
+[root@osstorage02]# cinder-manage service list
+Binary           Host                                   Zone             Status     State Updated At
+cinder-scheduler oscontroller                           nova             enabled    :-)   2016-03-01 16:15:34
+cinder-volume    osstorage01@lvm1                       nova             enabled    :-)   2016-03-01 16:15:34
+cinder-volume    osstorage02@lvm1                       nova             enabled    :-)   2016-03-01 16:15:34
+cinder-volume    osstorage02@lvm2                       nova             enabled    :-)   2016-03-01 16:15:34
+[root@osstorage02]#
+```
+
+We see the same storage type running on different Storage nodes. The above configuration permits to migrate a volume of the same type (e.g. ``lvm_silver``) from the first Storage node to the second one.
+
 ###NFS Cinder Storage Backend
 Cinder Storage Service can use a Network File System storage as backend. Howewer, the Cinder service provides Block Storage devices (i.e. volumes) to the users even if the backend is NFS. This section explains how to configure OpenStack Block Storage to use NFS storage.
 
@@ -283,15 +324,16 @@ volume_backend_name=nfs
 
 Mounting options ``nfs_mount_options`` are the usual mount options to be used when accessing NFS shares. The ``nfs_sparsed_volumes`` configuration key determines whether volumes are created as sparse files and grown as needed or fully allocated up front. The default and recommended value is ``true``, which ensures volumes are initially created as sparse files. Setting the key to ``false`` will result in volumes being fully allocated at the time of creation. This leads to increased delays in volume creation.
 
-Restart the Cinder services on both the Storage and Controller nodes
+Restart the Cinder services on both the Storage node
 ```
 # openstack-service restart cinder
 # cinder-manage service list
-Binary           Host                                 Zone             Status     State Updated At
-cinder-scheduler oscontroller                         nova             enabled    :-)   2016-03-01 17:09:25
-cinder-volume    oscontroller@lvm1                    nova             enabled    :-)   2016-03-01 17:09:26
-cinder-volume    osstorage@lvm2                       nova             enabled    :-)   2016-03-01 17:09:18
-cinder-volume    osstorage@nfs                        nova             enabled    :-)   2016-03-01 17:09:17
+Binary           Host                                Zone             Status     State Updated At
+cinder-scheduler oscontroller                        nova             enabled    :-)   2016-03-01 17:09:25
+cinder-volume    osstorage01@lvm1                    nova             enabled    :-)   2016-03-01 17:09:26
+cinder-volume    osstorage02@lvm2                    nova             enabled    :-)   2016-03-01 17:09:18
+cinder-volume    osstorage01@lvm1                    nova             enabled    :-)   2016-03-01 17:09:18
+cinder-volume    osstorage01@nfs                     nova             enabled    :-)   2016-03-01 17:09:17
 ```
 
 Create the new Cinder backend type
