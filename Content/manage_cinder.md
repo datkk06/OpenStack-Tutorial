@@ -8,7 +8,7 @@ On the other side, the disks associated with the instances are ephemeral, meanin
   3. [Migrate a volume](#Migrate-a-volume)
   4. [Extend a volume](#Extend-a-volume)
   5. [Create a volume snapshot](#Create-a-volume-snapshot)
-  6. [Create a volume backup](/#Create-a-volume-backup)
+  6. [Create a volume backup](#Create-a-volume-backup)
 
 ####Create a non bootable volume
 In this example, boot an instance from an image and attach a non-bootable volume
