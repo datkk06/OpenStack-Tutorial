@@ -319,7 +319,7 @@ backup_swift_container = volumes_backup
 backup_name_template = backup-%s
 ```
 
-Create a first volume backup. The first backup of a volume is always a full backup. Further backups of the same volume can be incremental.
+Create a first volume backup. The first backup of a volume is always a full backup. Further backups of the same volume can be incremental. Attempting to do an incremental backup without any existing backups will fail.
 ```
 # cinder list 
 +--------------------------------------+-----------+------------------------------+------+-------------+----------+-------------+-----
@@ -327,6 +327,7 @@ Create a first volume backup. The first backup of a volume is always a full back
 +--------------------------------------+-----------+------------------------------+------+-------------+----------+-------------+-----
 | 8fbb95ec-f21e-45bb-8ea4-819d750c7c33 | available |        myVolToBackup         |  3   |  lvm_silver |  false   |    False    |     
 +--------------------------------------+-----------+------------------------------+------+-------------+----------+-------------+-----
+
 # cinder backup-create myVolume --name=myVolumeBackup
 +-----------+--------------------------------------+
 |  Property |                Value                 |
@@ -335,7 +336,7 @@ Create a first volume backup. The first backup of a volume is always a full back
 |    name   |            myVolumeBackup            |
 | volume_id | 8fbb95ec-f21e-45bb-8ea4-819d750c7c33 |
 +-----------+--------------------------------------+
-# cinder backup-list
+
 # cinder backup-show f64d251a-b0f2-4bc0-9e99-b336e4c1aab9
 +-----------------------+--------------------------------------+
 |        Property       |                Value                 |
@@ -356,5 +357,44 @@ Create a first volume backup. The first backup of a volume is always a full back
 +-----------------------+--------------------------------------+
 ```
 
+Further backups of the same volume can be incremental
+```
+# cinder backup-create --incremental myVolume --name=myVolumeBackup-Incremental
++-----------+--------------------------------------+
+|  Property |                Value                 |
++-----------+--------------------------------------+
+|     id    | 1894f30e-53e2-41aa-91dc-4bea6e848f74 |
+|    name   |      myVolumeBackup-Incremental      |
+| volume_id | 8fbb95ec-f21e-45bb-8ea4-819d750c7c33 |
++-----------+--------------------------------------+
+
+# cinder backup-show 1894f30e-53e2-41aa-91dc-4bea6e848f74
++-----------------------+--------------------------------------+
+|        Property       |                Value                 |
++-----------------------+--------------------------------------+
+|   availability_zone   |                 nova                 |
+|       container       |            volumes_backup            |
+|       created_at      |      2016-03-07T17:00:38.000000      |
+|      description      |                 None                 |
+|      fail_reason      |                 None                 |
+| has_dependent_backups |                False                 |
+|           id          | 1894f30e-53e2-41aa-91dc-4bea6e848f74 |
+|     is_incremental    |                 True                 |
+|          name         |      myVolumeBackup-Incremental      |
+|      object_count     |                  7                   |
+|          size         |                  2                   |
+|         status        |              available               |
+|       volume_id       | 8fbb95ec-f21e-45bb-8ea4-819d750c7c33 |
++-----------------------+--------------------------------------+
+```
+
+The incremental backup is based on a parent backup which is an existing backup with the latest timestamp. The parent backup can be a full backup or an incremental backup depending on the timestamp. There is an ``is_incremental`` flag that indicates whether a backup is incremental when showing details on the backup. Another flag, ``has_dependent_backups``, indicates that the backup has dependent backups. If it is true, attempting to delete this backup will fail.
+
+To restore a volume from a backup
+```
+# cinder backup-restore BACKUP_ID
+```
+
+===============
 
 When creating a volume backup, all of the backup’s metadata is stored in the Block Storage service’s database.
