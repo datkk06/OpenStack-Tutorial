@@ -3,7 +3,12 @@ Volumes are block storage devices that you attach to instances to enable persist
 
 On the other side, the disks associated with the instances are ephemeral, meaning that the data is deleted when the instance is terminated. Snapshots created from a running instance will remain, but any additional data added to the ephemeral storage since last snapshot will be lost.
 
-[Create a non bootable volume](####Create a non bootable volume)
+  1. [Create a non bootable volume](####Create a non bootable volume)
+  2. [Create a bootable volume](####Create a bootable volume)
+  3. [Migrate a volume](####Migrate a volume)
+  4. [Extend a volume](####Extend a volume)
+  5. [Create a volume snapshot](####Create a volume snapshot)
+  6. [Create a volume backup](####Create a volume backup)
 
 ####Create a non bootable volume
 In this example, boot an instance from an image and attach a non-bootable volume
@@ -292,3 +297,64 @@ To use the snapshot above, create a new volume from it
 | 44c3ed14-73d7-453d-950f-8297a034732a | available |        myVolFromSnap         |  3   |  lvm_silver |  false   |    False    |     
 +--------------------------------------+-----------+------------------------------+------+-------------+----------+-------------+-----
 ```
+
+Snapshot backends are typically colocated with volume backends in order to minimize latency during cloning. By contrast, a backup repository is usually located in a different location to protect the backup repository from any damage that might occur to the volume backend.
+
+####Create a volume backup
+By default, the Swift Object Store is used as the backup repository. To achieve volumes backups, install first and start the Swift Object Storage service. 
+
+On the Storage node, configure the ``cinder.conf`` configuration file
+```
+[default]
+...
+backup_metadata_version = 2
+backup_compression_algorithm = zlib
+backup_driver = cinder.backup.drivers.swift
+backup_manager = cinder.backup.manager.BackupManager
+backup_api_class = cinder.backup.api.API
+backup_swift_url = http://10.10.10.30:8080/v1/AUTH_
+backup_swift_auth = per_user
+backup_swift_auth_version = 1
+backup_swift_container = volumes_backup
+backup_name_template = backup-%s
+```
+
+Create a first volume backup. The first backup of a volume is always a full backup. Further backups of the same volume can be incremental.
+```
+# cinder list 
++--------------------------------------+-----------+------------------------------+------+-------------+----------+-------------+-----
+|                  ID                  |   Status  |             Name             | Size | Volume Type | Bootable | Multiattach |     
++--------------------------------------+-----------+------------------------------+------+-------------+----------+-------------+-----
+| 8fbb95ec-f21e-45bb-8ea4-819d750c7c33 | available |        myVolToBackup         |  3   |  lvm_silver |  false   |    False    |     
++--------------------------------------+-----------+------------------------------+------+-------------+----------+-------------+-----
+# cinder backup-create myVolume --name=myVolumeBackup
++-----------+--------------------------------------+
+|  Property |                Value                 |
++-----------+--------------------------------------+
+|     id    | f64d251a-b0f2-4bc0-9e99-b336e4c1aab9 |
+|    name   |            myVolumeBackup            |
+| volume_id | 8fbb95ec-f21e-45bb-8ea4-819d750c7c33 |
++-----------+--------------------------------------+
+# cinder backup-list
+# cinder backup-show f64d251a-b0f2-4bc0-9e99-b336e4c1aab9
++-----------------------+--------------------------------------+
+|        Property       |                Value                 |
++-----------------------+--------------------------------------+
+|   availability_zone   |                 nova                 |
+|       container       |            volumes_backup            |
+|       created_at      |      2016-03-07T16:33:23.000000      |
+|      description      |                 None                 |
+|      fail_reason      |                 None                 |
+| has_dependent_backups |                False                 |
+|           id          | f64d251a-b0f2-4bc0-9e99-b336e4c1aab9 |
+|     is_incremental    |                False                 |
+|          name         |            myVolumeBackup            |
+|      object_count     |                  42                  |
+|          size         |                  2                   |
+|         status        |              available               |
+|       volume_id       | 8fbb95ec-f21e-45bb-8ea4-819d750c7c33 |
++-----------------------+--------------------------------------+
+```
+
+
+When creating a volume backup, all of the backup’s metadata is stored in the Block Storage service’s database.
