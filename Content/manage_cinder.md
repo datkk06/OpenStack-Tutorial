@@ -3,12 +3,12 @@ Volumes are block storage devices that you attach to instances to enable persist
 
 On the other side, the disks associated with the instances are ephemeral, meaning that the data is deleted when the instance is terminated. Snapshots created from a running instance will remain, but any additional data added to the ephemeral storage since last snapshot will be lost.
 
-  1. [Create a non bootable volume](/#Create-a-non-bootable-volume)
+  1. [Create a non bootable volume](#Create-a-non-bootable-volume)
   2. [Create a bootable volume](#Create-a-bootable-volume)
   3. [Migrate a volume](#Migrate-a-volume)
   4. [Extend a volume](#Extend-a-volume)
   5. [Create a volume snapshot](#Create-a-volume-snapshot)
-  6. [Create a volume backup](./#Create-a-volume-backup)
+  6. [Create a volume backup](/#Create-a-volume-backup)
 
 ####Create a non bootable volume
 In this example, boot an instance from an image and attach a non-bootable volume
