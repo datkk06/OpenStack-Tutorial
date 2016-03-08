@@ -390,11 +390,12 @@ Further backups of the same volume can be incremental
 
 The incremental backup is based on a parent backup which is an existing backup with the latest timestamp. The parent backup can be a full backup or an incremental backup depending on the timestamp. There is an ``is_incremental`` flag that indicates whether a backup is incremental when showing details on the backup. Another flag, ``has_dependent_backups``, indicates that the backup has dependent backups. If it is true, attempting to delete this backup will fail.
 
+An incremental backup captures any changes to the volume since the last backup. Performing full backups of a volume can become resource intensive as the volume size grows. On the other side, incremental backups allow to capture changes to the volume while minimizing resource usage.
+
 To restore a volume from a backup
 ```
-# cinder backup-restore BACKUP_ID
+# cinder backup-list
+# cinder backup-restore myVolumeBackupID
 ```
 
-===============
-
-When creating a volume backup, all of the backup’s metadata is stored in the Block Storage service’s database.
+When restoring from an incremental backup, a list of backups is built based on the IDs of the parent backups. A full restore is performed based on the full backup first, then restore is done based on the incremental backup, laying on top of it in order.
