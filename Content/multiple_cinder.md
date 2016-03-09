@@ -288,6 +288,66 @@ cinder-volume    osstorage02@lvm2                       nova             enabled
 
 We see the same storage type running on different Storage nodes. The above configuration permits to migrate a volume of the same type (e.g. ``lvm_silver``) from the first Storage node to the second one.
 
+
+###Default volume type
+When creating volumes, Cinder set the volume type to ``none`` if not specified.
+To specify the volume type
+```
+# cinder create --display-name vol1 --volume-type lvm_silver 1
++---------------------------------------+--------------------------------------+
+|                Property               |                Value                 |
++---------------------------------------+--------------------------------------+
+|                   id                  | 6844d194-5d18-40a1-85fe-4fa79a32077c |
+|                  size                 |                  1                   |
+|                 status                |               creating               |
+|                  name                 |                 vol1                 |
+|              volume_type              |              lvm_silver              |
++---------------------------------------+--------------------------------------+
+```
+
+If the volume type is not specificed
+```
+# cinder create --display-name vol2 1
++---------------------------------------+--------------------------------------+
+|                Property               |                Value                 |
++---------------------------------------+--------------------------------------+
+|                   id                  | cccac79e-7617-4a7f-920b-e3b5334bdf50 |
+|                  size                 |                  1                   |
+|                 status                |               creating               |
+|                  name                 |                 vol2                 |
+|              volume_type              |                 none                 |
++---------------------------------------+--------------------------------------+
+```
+
+To specify a default volume type, edit the ``cinder.conf`` configuration file on the Controller node
+```
+# vi /etc/cinder/cinder.conf
+[DEFAULT]
+...
+default_volume_type = lvm_silver
+...
+
+```
+and restart the Cinder services
+```
+# openstack-service restart cinder
+```
+
+Starting from now, the new volumes will be created with default type ``lvm_silver`` if not specified
+```
+# cinder create --display-name vol3 1
++---------------------------------------+--------------------------------------+
+|                Property               |                Value                 |
++---------------------------------------+--------------------------------------+
+|                   id                  | cc9b5518-8d56-43d8-a337-db3c60703083 |
+|                  size                 |                  1                   |
+|                  name                 |                 vol3                 |
+|                 status                |               creating               |
+|              volume_type              |               lvm_silver             |
++---------------------------------------+--------------------------------------+
+```
+
+
 ###NFS Cinder Storage Backend
 Cinder Storage Service can use a Network File System storage as backend. Howewer, the Cinder service provides Block Storage devices (i.e. volumes) to the users even if the backend is NFS. This section explains how to configure OpenStack Block Storage to use NFS storage.
 
