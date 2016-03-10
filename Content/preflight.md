@@ -7,8 +7,18 @@ The x86_64 platform is currently the only supported architecture. Machine with a
 # grep --color svm /proc/cpuinfo
 ```
 
-####Install CentOS 7 minimal
-Install CentOS 7 minimal on the target servers.
+####Install CentOS 7.2 Operating System
+Install CentOS 7.2 minimal on all the target servers.
+
+The tutorial refers to a setup made of the following machines
+
+|Type|Management IP|Hostname|Usage|
+|---|------------|-----------|-------------------|
+|Virtual Machine |10.10.10.30 |oscontroller |Controller Node|
+|Virtual Machine |10.10.10.32 |oscompute01 |Compute Node|
+|Virtual Machine |10.10.10.34 |oscompute02 |Compute Node|
+|Virtual Machine |10.10.10.36 |osstorage |Storage Node|
+|Virtual Machine |10.10.10.38 |osnetwork |Network Node |
 
 Update the systems
 
@@ -32,6 +42,19 @@ Restart the network service
 # systemctl restart network.service
 ```
 
+Set the hostnames and update the ``/etc/hosts`` file
+```
+# hostnamectl set-hostname <hostname>
+# vi /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+10.10.10.30 oscontroller
+10.10.10.32 oscompute01
+10.10.10.34 oscompute02
+10.10.10.36 osstorage
+10.10.10.38 osnetwork
+```
+
 Install, configure and start the NTP service
 ```
 # yum install -y ntp
@@ -48,5 +71,4 @@ Setup the RDO repository
 
 ```
 yum install -y https://rdoproject.org/repos/rdo-release.rpm
-
 ```
