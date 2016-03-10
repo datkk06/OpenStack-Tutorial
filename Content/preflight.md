@@ -8,19 +8,17 @@ The x86_64 platform is currently the only supported architecture. Machine with a
 ```
 
 ####Install CentOS 7.2 Operating System
-Install CentOS 7.2 minimal on all the target servers.
+Install CentOS 7.2 minimal on all the target servers. This tutorial refers to a setup made of the following machines
 
-The tutorial refers to a setup made of the following machines
+|Management IP|Hostname|Usage|
+|------------|-----------|-------------------|
+|10.10.10.30 |oscontroller |Controller Node|
+|10.10.10.32 |oscompute01 |Compute Node|
+|10.10.10.34 |oscompute02 |Compute Node|
+|10.10.10.36 |osstorage |Storage Node|
+|10.10.10.38 |osnetwork |Network Node |
 
-|Type|Management IP|Hostname|Usage|
-|---|------------|-----------|-------------------|
-|Virtual Machine |10.10.10.30 |oscontroller |Controller Node|
-|Virtual Machine |10.10.10.32 |oscompute01 |Compute Node|
-|Virtual Machine |10.10.10.34 |oscompute02 |Compute Node|
-|Virtual Machine |10.10.10.36 |osstorage |Storage Node|
-|Virtual Machine |10.10.10.38 |osnetwork |Network Node |
-
-Update the systems
+Update the system
 
 ``# yum update -y``
 
