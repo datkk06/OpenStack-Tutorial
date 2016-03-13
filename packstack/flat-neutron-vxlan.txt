@@ -8,7 +8,7 @@ CONFIG_SSH_KEY=/root/.ssh/id_rsa.pub
 
 # Default password to be used everywhere (overridden by passwords set
 # for individual services or users).
-CONFIG_DEFAULT_PASSWORD=caldera123
+CONFIG_DEFAULT_PASSWORD=********
 
 # Specify 'y' to install MariaDB. ['y', 'n']
 CONFIG_MARIADB_INSTALL=y
