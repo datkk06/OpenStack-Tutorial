@@ -4,7 +4,7 @@ OpenStack administrators can configure rich network topologies by creating and c
 OpenStack networking uses the concept of a plug-in, which is a pluggable back-end implementation of the OpenStack networking API. A plug-in can use a variety of technologies. Some OpenStack networking plug-ins might use basic Linux VLANs and IP tables, while others might use more advanced technologies, such as L2 and L3 tunneling, to provide similar benefits.
 
 ###Implementing Neutron Service
-This example chooses ML2 plugin with Open vSwitch under the backend. On the Controller node, create the neutron user and service
+On the Controller node, create the Neutron service
 ```
 # source /root/keystonerc_admin
 # openstack-db --init --service neutron --password <password> --rootpw <password>
@@ -24,13 +24,13 @@ This example chooses ML2 plugin with Open vSwitch under the backend. On the Cont
 # keystone user-role-add --user neutron --role admin --tenant services
 ```
 
-On the Controller node, install the OpenStack networking server and plug-in components:
+On the Controller node, install the Neutron server and plug-in components. This example chooses ML2 plugin with Open vSwitch 
 ```
 # yum -y install openstack-neutron
 # yum -y install openstack-neutron-ml2
 ```
 
-On the Controller node, configure the Neutron server by editing the ``/etc/neutron/neutron.conf`` configuration file
+On the Controller node, configure the Neutron service by editing the ``/etc/neutron/neutron.conf`` configuration file
 ```
 # vi /etc/neutron/neutron.conf
 [DEFAULT]
@@ -74,3 +74,23 @@ rabbit_port = 5672
 rabbit_userid = guest
 rabbit_password = <rabbit password>
 ```
+
+On the Controller node, update Nova compute service to use the Neutron service by adding the following lines to the ``/etc/neutron/nova.conf`` configuration file
+
+```
+# vi /etc/nova/nova.conf
+[DEFAULT]
+...
+network_api_class=nova.network.neutronv2.api.API
+security_group_api=neutron
+
+[neutron]
+url=http://controller:9696
+auth_strategy=keystone
+admin_auth_url=http://controller:35357/v2.0
+admin_tenant_name=service
+admin_username=neutron
+admin_password= <service password>
+```
+
+
