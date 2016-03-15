@@ -23,7 +23,7 @@ To enable OpenStack use Neutron for networking, on the Controller node, create t
 # keystone user-role-add --user neutron --role admin --tenant services
 ```
 
-####Implementing Neutron scenario with a flat external network
+###Implementing Neutron scenario with a flat external network
 The basic network implementation in OpenStack is made of a self-service virtual data center infrastructure permitting regular users to manage one or more virtual networks within a project. Connectivity to the external networks such as Internet is provided via the physical network infrastructure. Following concepts are introduced:
 
 * **Tenant networks**: networks providing connectivity to instances whithin a project. Regular users can manage project networks with the allocation that an administrator defines for for them. Tenant networks can use VLAN, GRE, or VXLAN transport methods depending on the allocation. Tenant networks generally use private IP address ranges and lack connectivity to external networks. IP addresses on the project networks are private IP space within the project and for this reason, they can overlap between different projects. An embedded DHCP service assignes the IP addresses to the Virtual Machines within the project.
@@ -42,9 +42,9 @@ Install and configure Neutron services as follow
 |Compute Node 01|Neutron Open vSwitch Agent|neutron.conf, nova.conf, openvswitch_agent.ini|
 |Compute Node 02|Neutron Open vSwitch Agent|neutron.conf, nova.conf, openvswitch_agent.ini|
 |Network Node|Neutron L3 Agent|neutron.conf, l3_agent.ini|
-||Neutron DHCP Agent|neutron.conf, dhcp_agent.ini|
-||Neutron Metadata Agent|neutron.conf, metadata_agent.ini|
-||Neutron Open vSwitch Agent|neutron.conf, openvswitch_agent.ini|
+|Network Node|Neutron DHCP Agent|neutron.conf, dhcp_agent.ini|
+|Network Node|Neutron Metadata Agent|neutron.conf, metadata_agent.ini|
+|Network Node|Neutron Open vSwitch Agent|neutron.conf, openvswitch_agent.ini|
 
 On the Controller node, install the Neutron packages
 ```
@@ -322,7 +322,7 @@ and restart the Nova service
 # systemctl restart openstack-nova-compute
 ```
 
-####Open vSwitch L2 layout
+###Open vSwitch L2 layout
 The Open vSwitch installed on the Network node and all the Compute nodes is controlled by Neutron service via the Open vSwitch Neutron Agents. To check the layout created by Neutron use the ``ovs-vsctl show`` command.
 
 On the Network node
