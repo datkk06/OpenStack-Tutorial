@@ -18,7 +18,7 @@ To enable OpenStack use Neutron for networking, on the Controller node, create t
 |     type    |             network              |
 +-------------+----------------------------------+
 
-# keystone endpoint-create --service-id fe006cc01d234e93a308933d60c396f2 --publicurl http://10.10.10.30:9696 --adminurl http://10.10.10.30:9696 --internalurl http://10.10.10.30:9696
+# keystone endpoint-create --service-id fe006cc01d234e93a308933d60c396f2 --publicurl http://controller:9696 --adminurl http://10.10.10.30:9696 --internalurl http://controller:9696
 # keystone user-create --name neutron --pass <password>
 # keystone user-role-add --user neutron --role admin --tenant services
 ```
