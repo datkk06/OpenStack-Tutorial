@@ -26,11 +26,11 @@ To enable OpenStack use Neutron for networking, on the Controller node, create t
 ####Implementing Neutron scenario with a flat external network
 The basic network implementation in OpenStack is made of a self-service virtual data center infrastructure permitting regular users to manage one or more virtual networks within a project. Connectivity to the external networks such as Internet is provided via the physical network infrastructure. Following concepts are introduced:
 
-1. **Tenant networks**: networks providing connectivity to instances whithin a project. Regular users can manage project networks with the allocation that an administrator defines for for them. Tenant networks can use VLAN, GRE, or VXLAN transport methods depending on the allocation. Tenant networks generally use private IP address ranges and lack connectivity to external networks. IP addresses on the project networks are private IP space within the project and for this reason, they can overlap between different projects. An embedded DHCP service assignes the IP addresses to the Virtual Machines within the project.
+* **Tenant networks**: networks providing connectivity to instances whithin a project. Regular users can manage project networks with the allocation that an administrator defines for for them. Tenant networks can use VLAN, GRE, or VXLAN transport methods depending on the allocation. Tenant networks generally use private IP address ranges and lack connectivity to external networks. IP addresses on the project networks are private IP space within the project and for this reason, they can overlap between different projects. An embedded DHCP service assignes the IP addresses to the Virtual Machines within the project.
 
-2. **External network**: networks providing connectivity to external networks such as the Internet. Only administrative users can manage external networks because they use the physical network infrastructure. External networks can use Flat or VLAN transport methods depending on the physical network infrastructure and generally use public IP address ranges. A flat network essentially uses the untagged frames. Similar to physical networks, only one flat network can exist. In most cases, production deployments should use VLAN transport for external networks instead of a single flat network.
+* **External network**: networks providing connectivity to external networks such as the Internet. Only administrative users can manage external networks because they use the physical network infrastructure. External networks can use Flat or VLAN transport methods depending on the physical network infrastructure and generally use public IP address ranges. A flat network essentially uses the untagged frames. Similar to physical networks, only one flat network can exist. In most cases, production deployments should use VLAN transport for external networks instead of a single flat network.
 
-3. **Routers**: typically connect project and external networks by implementing source NAT to provide outbound external connectivity for instances on project networks. Each router uses an IP address in the external network allocation for source NAT. Routers also use destination NAT to provide inbound external connectivity for instances on project networks. The IP addresses on routers that provide inbound external connectivity for instances on project networks are refered as floating IP addresses. Routers can also connect project networks that belong to the same project.
+* **Routers**: typically connect project and external networks by implementing source NAT to provide outbound external connectivity for instances on project networks. Each router uses an IP address in the external network allocation for source NAT. Routers also use destination NAT to provide inbound external connectivity for instances on project networks. The IP addresses on routers that provide inbound external connectivity for instances on project networks are refered as floating IP addresses. Routers can also connect project networks that belong to the same project.
 
 In this section, we are going to creates one flat external network and multiple project networks using VxLAN. All traffic between different projects or to/from the Internet flows through the Network node. Also traffic between the same project flows through the Network node if the source and destination virtual machines are hosted on different Compute nodes. Only the traffic between the same project does not reach the Network node if the source and destination virtual machines are hosted on the same Compute node. We are going to use the Open vSwitch as **Software Defined Network** implementation.
 
@@ -42,9 +42,9 @@ Install and configure Neutron services as follow
 |Compute Node 01|Neutron Open vSwitch Agent|neutron.conf, nova.conf, openvswitch_agent.ini|
 |Compute Node 02|Neutron Open vSwitch Agent|neutron.conf, nova.conf, openvswitch_agent.ini|
 |Network Node|Neutron L3 Agent|neutron.conf, l3_agent.ini|
-|Network Node|Neutron DHCP Agent|neutron.conf, dhcp_agent.ini|
-|Network Node|Neutron Metadata Agent|neutron.conf, metadata_agent.ini|
-|Network Node|Neutron Open vSwitch Agent|neutron.conf, openvswitch_agent.ini|
+||Neutron DHCP Agent|neutron.conf, dhcp_agent.ini|
+||Neutron Metadata Agent|neutron.conf, metadata_agent.ini|
+||Neutron Open vSwitch Agent|neutron.conf, openvswitch_agent.ini|
 
 On the Controller node, install the Neutron packages
 ```
