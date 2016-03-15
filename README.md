@@ -12,7 +12,8 @@ OpenStack Tutorial based on RDO distribution and CentOS7 Operating System.
 8. [Swift Object Storage Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/swift.md)
 9. [Glance Image Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/glance.md)
 10. [Neutron Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/neutron.md)
-11. [Nova Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/novanetwork.md)
+11. [Configuring Neutron Service] (https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/configure-neutron.md)
+12. [Nova Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/novanetwork.md)
 
 ### Disclaimer
 This tutorial is for personal use only. The content is borrowed from many sources, including OpenStack online guide, blogs and tutorial from the net.
