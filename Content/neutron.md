@@ -7,6 +7,7 @@ OpenStack networking uses the concept of a plug-in, which is a pluggable back-en
 This example chooses ML2 plugin with Open vSwitch under the backend. On the Controller node, create the neutron user and service
 ```
 # source /root/keystonerc_admin
+# openstack-db --init --service neutron --password <password> --rootpw <password>
 # keystone service-create --name neutron --type network --description 'Neutron Networking Service'
 +-------------+----------------------------------+
 |   Property  |              Value               |
@@ -18,27 +19,58 @@ This example chooses ML2 plugin with Open vSwitch under the backend. On the Cont
 |     type    |             network              |
 +-------------+----------------------------------+
 
-# keystone catalog --service=network
-Service: network
-+-------------+----------------------------------+
-|   Property  |              Value               |
-+-------------+----------------------------------+
-|   adminURL  |     http://10.10.10.30:9696      |
-|      id     | 59a0ef1960db4046be8eacd2d371e682 |
-| internalURL |     http://10.10.10.30:9696      |
-|  publicURL  |     http://10.10.10.30:9696      |
-|    region   |            RegionOne             |
-+-------------+----------------------------------+
-
 # keystone endpoint-create --service-id fe006cc01d234e93a308933d60c396f2 --publicurl http://10.10.10.30:9696 --adminurl http://10.10.10.30:9696 --internalurl http://10.10.10.30:9696
 # keystone user-create --name neutron --pass <password>
 # keystone user-role-add --user neutron --role admin --tenant services
 ```
 
-Install the OpenStack networking components: Open vSwitch, the ML2 and Open vSwitch Neutron plug-ins:
+On the Controller node, install the OpenStack networking server and plug-in components:
 ```
-# yum -y install openvswitch
 # yum -y install openstack-neutron
 # yum -y install openstack-neutron-ml2
-# yum -y install openstack-neutron-openvswitch
+```
+
+On the Controller node, configure the Neutron server by editing the ``/etc/neutron/neutron.conf`` configuration file
+```
+# vi /etc/neutron/neutron.conf
+[DEFAULT]
+...
+verbose = True
+core_plugin = ml2
+service_plugins = router
+allow_overlapping_ips = True
+dhcp_agent_notification = True
+notify_nova_on_port_status_changes = True
+notify_nova_on_port_data_changes = True
+auth_strategy = keystone
+rpc_backend = rabbit
+...
+[keystone_authtoken]
+auth_uri = http://controller:5000
+auth_url = http://controller:35357
+auth_plugin = <password>
+project_domain_id = default
+user_domain_id = default
+project_name = service
+username = neutron
+password = <service password>
+
+[database]
+connection = mysql://neutron:<password>@controller/neutron_ml2
+
+[nova]
+auth_url = http://controller:35357
+auth_plugin = <password>
+project_domain_id = default
+user_domain_id = default
+region_name = RegionOne
+project_name = service
+username = nova
+password = <service password>
+
+[oslo_messaging_rabbit]
+rabbit_host = controller
+rabbit_port = 5672
+rabbit_userid = guest
+rabbit_password = <rabbit password>
 ```
