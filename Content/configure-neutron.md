@@ -139,3 +139,23 @@ Create a router interface to connect tenant subnetwork with the external network
 # neutron router-interface-add mygateway subnet=tenant-subnetwork
 # neutron router-gateway-set mygateway external-flat-network
 ```
+
+The virtual router just created lives in the Network node as private ip namespace. Check the network connectivity by the Network node
+```
+# ip netns
+qrouter-9a45bdb6-b7ff-4329-8333-7339050ebcf9
+qdhcp-9a7f354c-7a46-420d-98a5-3508e6f3caf1
+
+# ip netns exec qrouter-9a45bdb6-b7ff-4329-8333-7339050ebcf9 ifconfig
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+qg-d62b9626-8b: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.16.1.200  netmask 255.255.255.0  broadcast 172.16.1.255
+qr-9c0083e4-0a: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.1  netmask 255.255.255.0  broadcast 192.168.1.255
+
+# ip netns exec qrouter-9a45bdb6-b7ff-4329-8333-7339050ebcf9 ping openstack.org
+PING openstack.org (162.242.140.107) 56(84) bytes of data.
+64 bytes from 162.242.140.107: icmp_seq=1 ttl=49 time=144 ms
+C^
+```
