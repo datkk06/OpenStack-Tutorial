@@ -322,6 +322,21 @@ and restart the Nova service
 # systemctl restart openstack-nova-compute
 ```
 
+Cehck the list of Agents
+```
+# neutron agent-list
++--------------------------------------+--------------------+-----------+-------+----------------+---------------------------+
+| id                                   | agent_type         | host      | alive | admin_state_up | binary                    |
++--------------------------------------+--------------------+-----------+-------+----------------+---------------------------+
+| 14dbe6a2-7e8a-48ff-80b6-6dac6c6220a0 | DHCP agent         | network   | :-)   | True           | neutron-dhcp-agent        |
+| 21fda60f-739e-4c2c-8235-a90847d6c347 | Open vSwitch agent | compute01 | :-)   | True           | neutron-openvswitch-agent |
+| 55cc04e9-b0a9-4c26-a712-6dcab8ef2351 | Open vSwitch agent | compute02 | :-)   | True           | neutron-openvswitch-agent |
+| 75968236-ff9c-44cb-a982-f93bcded63f4 | Loadbalancer agent | network   | :-)   | True           | neutron-lbaas-agent       |
+| 98e68a68-1a73-47e7-938c-d3e0d0f36173 | Metadata agent     | network   | :-)   | True           | neutron-metadata-agent    |
+| 9fb1d4f9-4a34-4d70-8823-a5ed17124618 | Open vSwitch agent | network   | :-)   | True           | neutron-openvswitch-agent |
++--------------------------------------+--------------------+-----------+-------+----------------+---------------------------+
+```
+
 ###Open vSwitch L2 layout
 The Open vSwitch installed on the Network node and all the Compute nodes is controlled by Neutron service via the Open vSwitch Neutron Agents. To check the layout created by Neutron use the ``ovs-vsctl show`` command.
 
@@ -448,9 +463,77 @@ On the Control node, login as ``admin`` Keystone user
 +----------------------------------+----------+
 | ID                               | Name     |
 +----------------------------------+----------+
+| 22bdc5a0210e4a96add0cea90a6137ed | bcloud   |
 | 5ccf7027366442709bde78831da6cce2 | services |
 | 613b2bc016c5428397b3fea6dc162af1 | admin    |
 +----------------------------------+----------+
-
+```
+Create the external network
 
 ```
+# neutron net-create external-flat-network \
+> --tenant-id 5ccf7027366442709bde78831da6cce2 \
+> --shared \
+> --provider:network_type flat \
+> --provider:physical_network external \
+> --router:external True
+
+Created a new network:
++---------------------------+--------------------------------------+
+| Field                     | Value                                |
++---------------------------+--------------------------------------+
+| admin_state_up            | True                                 |
+| id                        | 6ede0952-25f7-489d-9ce4-0126da7cb7d0 |
+| mtu                       | 0                                    |
+| name                      | external-flat-network                |
+| provider:network_type     | flat                                 |
+| provider:physical_network | external                             |
+| provider:segmentation_id  |                                      |
+| router:external           | True                                 |
+| shared                    | True                                 |
+| status                    | ACTIVE                               |
+| subnets                   |                                      |
+| tenant_id                 | 5ccf7027366442709bde78831da6cce2     |
++---------------------------+--------------------------------------+
+```
+
+Pay attention to the following parameters:
+
+* ``provider:network_type flat``
+* ``provider:physical_network external``
+* ``router:external True``
+* ``shared``
+
+The external network shares the same subnet and gateway associated with the physical network connected to the external interface on the network node. Specify an exclusive slice of this subnet for router and IP addresses to prevent interference with other devices on the same external network
+
+```
+# neutron subnet-create external-flat-network 172.16.1.0/24  \
+--name external-flat-subnetwork \
+--tenant-id 5ccf7027366442709bde78831da6cce2 \
+--gateway 172.16.1.1 \
+--disable-dhcp \
+--allocation-pool start=172.16.1.200,end=172.16.1.220
+
+Created a new subnet:
++-------------------+--------------------------------------------------+
+| Field             | Value                                            |
++-------------------+--------------------------------------------------+
+| allocation_pools  | {"start": "172.16.1.200", "end": "172.16.1.220"} |
+| cidr              | 172.16.1.0/24                                    |
+| dns_nameservers   |                                                  |
+| enable_dhcp       | False                                            |
+| gateway_ip        | 172.16.1.1                                       |
+| host_routes       |                                                  |
+| id                | 40f89cb3-9474-48e0-ab4c-7fa3fb57009e             |
+| ip_version        | 4                                                |
+| ipv6_address_mode |                                                  |
+| ipv6_ra_mode      |                                                  |
+| name              | external-flat-subnetwork                         |
+| network_id        | 6ede0952-25f7-489d-9ce4-0126da7cb7d0             |
+| subnetpool_id     |                                                  |
+| tenant_id         | 5ccf7027366442709bde78831da6cce2                 |
++-------------------+--------------------------------------------------+
+```
+
+The project networks are created by tenant users. Login as a tenant user and create a project network and the related subnet.
+
