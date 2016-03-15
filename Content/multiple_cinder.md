@@ -232,6 +232,15 @@ Create two new Cinder backend types
 | 74055a9a-a576-49a3-92fa-dfa7a935cdba | lvm_silver |      -      |    True   |
 | 9c975ae9-f16d-4a4a-a930-8ae0efb5fab8 |  lvm_gold  |      -      |    True   |
 +--------------------------------------+------------+-------------+-----------+
+
+# cinder extra-specs-list
++--------------------------------------+------------+-----------------------------------------+
+|                  ID                  |    Name    |               extra_specs               |
++--------------------------------------+------------+-----------------------------------------+
+| 07f2ecf9-d486-424f-a885-33a8c86ae409 | lvm_silver | {u'volume_backend_name': u'silver'}     |
+| 313c5fa7-217f-4236-ba62-76cc84511a63 |  lvm_gold  |  {u'volume_backend_name': u'gold'}      |
++--------------------------------------+------------+-----------------------------------------+
+
 ```
 
 Cinder volumes will be created on different Storage nodes, depending on the backends type
