@@ -92,5 +92,3 @@ admin_tenant_name=service
 admin_username=neutron
 admin_password= <service password>
 ```
-
-
