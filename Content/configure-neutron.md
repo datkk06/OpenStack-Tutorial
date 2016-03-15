@@ -1,27 +1,14 @@
 ###Configure Neutron with flat external network
 In the basic scenario with flat external network, only administrative users can manage external networks because they use the physical network infrastructure. We are going to create a shared external network to be used by all tenants.
 
-On the Control node, login as ``admin`` Keystone user
+On the Control node, login as ``admin`` Keystone user and create the external network
 ```
 # source keystonerc_admin
-# openstack project list
-+----------------------------------+----------+
-| ID                               | Name     |
-+----------------------------------+----------+
-| 22bdc5a0210e4a96add0cea90a6137ed | bcloud   |
-| 5ccf7027366442709bde78831da6cce2 | services |
-| 613b2bc016c5428397b3fea6dc162af1 | admin    |
-+----------------------------------+----------+
-```
-Create the external network
-
-```
 # neutron net-create external-flat-network \
-> --tenant-id 5ccf7027366442709bde78831da6cce2 \
-> --shared \
-> --provider:network_type flat \
-> --provider:physical_network external \
-> --router:external True
+--shared \
+--provider:network_type flat \
+--provider:physical_network external \
+--router:external True
 
 Created a new network:
 +---------------------------+--------------------------------------+
@@ -54,7 +41,6 @@ The external network shares the same subnet and gateway associated with the phys
 ```
 # neutron subnet-create external-flat-network 172.16.1.0/24  \
 --name external-flat-subnetwork \
---tenant-id 5ccf7027366442709bde78831da6cce2 \
 --gateway 172.16.1.1 \
 --disable-dhcp \
 --allocation-pool start=172.16.1.200,end=172.16.1.220
@@ -148,15 +134,8 @@ Created a new router:
 +-----------------------+--------------------------------------+
 ```
 
-Create a router interface to the tenant subnetwork
+Create a router interface to connect tenant subnetwork with the external network
 ```
 # neutron router-interface-add mygateway subnet=tenant-subnetwork
-```
-
-To create a router interface to the external network, login as admin user and set the gateway
-```
-# source keystonerc_admin
 # neutron router-gateway-set mygateway external-flat-network
-Set gateway for router mygateway
 ```
-Note that the above task is not allowed to the tenant user.
