@@ -32,7 +32,7 @@ Following concepts are introduced:
  2. **External network**: networks providing connectivity to external networks such as the Internet. Only administrative users can manage external networks because they use the physical network infrastructure. External networks can use Flat or VLAN transport methods depending on the physical network infrastructure and generally use public IP address ranges. A flat network essentially uses the untagged frames. Similar to physical networks, only one flat network can exist. In most cases, production deployments should use VLAN transport for external networks instead of a single flat network.
  3. **Routers**: typically connect project and external networks by implementing source NAT to provide outbound external connectivity for instances on project networks. Each router uses an IP address in the external network allocation for source NAT. Routers also use destination NAT to provide inbound external connectivity for instances on project networks. The IP addresses on routers that provide inbound external connectivity for instances on project networks are refered as floating IP addresses. Routers can also connect project networks that belong to the same project.
 
-In this section, we are going to creates one flat external network (**Underlay**) and multiple project networks (**Overlay**) using VxLAN. All traffic between different projects or to/from the Internet flows through the Network node. Also traffic between the same project flows through the Network node if the source and destination virtual machines are hosted on different Compute nodes. Only the traffic between the same project does not reach the Network node if the source and destination virtual machines are hosted on the same Compute node. We are going to use the Open vSwitch as **Software Defined Network** implementation.
+In this section, we are going to creates one flat external network and multiple project networks using VxLAN. All traffic between different projects or to/from the Internet flows through the Network node. Also traffic between the same project flows through the Network node if the source and destination virtual machines are hosted on different Compute nodes. Only the traffic between the same project does not reach the Network node if the source and destination virtual machines are hosted on the same Compute node. We are going to use the Open vSwitch as **Software Defined Network** implementation.
 
 Install and configure Neutron services as follow
 
@@ -324,4 +324,120 @@ and restart the Nova service
 ```
 # systemctl restart openstack-nova-api
 # systemctl restart openstack-nova-compute
+```
+
+####Open vSwitch L2 layout
+The Open vSwitch installed on the Network node and all the Compute nodes is controlled by Neutron service via the Open vSwitch Neutron Agents. To check the layout created by Neutron use the ``ovs-vsctl show`` command.
+
+On the Network node
+```
+# ovs-vsctl show
+d7930874-e155-42d7-978a-f78d0bcb218e
+    Bridge br-ex
+        Port phy-br-ex
+            Interface phy-br-ex
+                type: patch
+                options: {peer=int-br-ex}
+        Port br-ex
+            Interface br-ex
+                type: internal
+        Port "ens33"
+            Interface "ens33"
+    Bridge br-int
+        fail_mode: secure
+        Port br-int
+            Interface br-int
+                type: internal
+        Port patch-tun
+            Interface patch-tun
+                type: patch
+                options: {peer=patch-int}
+        Port int-br-ex
+            Interface int-br-ex
+                type: patch
+                options: {peer=phy-br-ex}
+    Bridge br-tun
+        fail_mode: secure
+        Port br-tun
+            Interface br-tun
+                type: internal
+        Port "vxlan-c0a80120"
+            Interface "vxlan-c0a80120"
+                type: vxlan
+                options: {df_default="true", in_key=flow, local_ip="192.168.1.38", out_key=flow, remote_ip="192.168.1.32"}
+        Port "vxlan-c0a80122"
+            Interface "vxlan-c0a80122"
+                type: vxlan
+                options: {df_default="true", in_key=flow, local_ip="192.168.1.38", out_key=flow, remote_ip="192.168.1.34"}
+        Port patch-int
+            Interface patch-int
+                type: patch
+                options: {peer=patch-tun}
+    ovs_version: "2.4.0"
+```
+
+On the Compute 01 node
+```
+# ovs-vsctl show
+7bb6d324-ebd3-4c44-8448-63b6da83fc93
+    Bridge br-tun
+        fail_mode: secure
+        Port "vxlan-c0a80122"
+            Interface "vxlan-c0a80122"
+                type: vxlan
+                options: {df_default="true", in_key=flow, local_ip="192.168.1.32", out_key=flow, remote_ip="192.168.1.34"}
+        Port br-tun
+            Interface br-tun
+                type: internal
+        Port patch-int
+            Interface patch-int
+                type: patch
+                options: {peer=patch-tun}
+        Port "vxlan-c0a80126"
+            Interface "vxlan-c0a80126"
+                type: vxlan
+                options: {df_default="true", in_key=flow, local_ip="192.168.1.32", out_key=flow, remote_ip="192.168.1.38"}
+    Bridge br-int
+        fail_mode: secure
+        Port patch-tun
+            Interface patch-tun
+                type: patch
+                options: {peer=patch-int}
+        Port br-int
+            Interface br-int
+                type: internal
+    ovs_version: "2.4.0"
+```
+
+On the Compute 02 node
+```
+# ovs-vsctl show
+e0ec8cf3-8df5-4ac5-9718-4223bcd54b0c
+    Bridge br-tun
+        fail_mode: secure
+        Port "vxlan-c0a80120"
+            Interface "vxlan-c0a80120"
+                type: vxlan
+                options: {df_default="true", in_key=flow, local_ip="192.168.1.34", out_key=flow, remote_ip="192.168.1.32"}
+        Port patch-int
+            Interface patch-int
+                type: patch
+                options: {peer=patch-tun}
+        Port br-tun
+            Interface br-tun
+                type: internal
+        Port "vxlan-c0a80126"
+            Interface "vxlan-c0a80126"
+                type: vxlan
+                options: {df_default="true", in_key=flow, local_ip="192.168.1.34", out_key=flow, remote_ip="192.168.1.38"}
+    Bridge br-int
+        fail_mode: secure
+        Port br-int
+            Interface br-int
+                type: internal
+        Port patch-tun
+            Interface patch-tun
+                type: patch
+                options: {peer=patch-int}
+    ovs_version: "2.4.0"
 ```
