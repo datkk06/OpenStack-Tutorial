@@ -23,7 +23,7 @@ To enable OpenStack use Neutron for networking, on the Controller node, create t
 # keystone user-role-add --user neutron --role admin --tenant services
 ```
 
-###Implementing Neutron scenario with a flat external network
+###Setup Neutron networking with a flat external network
 The basic network implementation in OpenStack is made of a self-service virtual data center infrastructure permitting regular users to manage one or more virtual networks within a project. Connectivity to the external networks such as Internet is provided via the physical network infrastructure. Following concepts are introduced:
 
 * **Tenant networks**: networks providing connectivity to instances whithin a project. Regular users can manage project networks with the allocation that an administrator defines for for them. Tenant networks can use VLAN, GRE, or VXLAN transport methods depending on the allocation. Tenant networks generally use private IP address ranges and lack connectivity to external networks. IP addresses on the project networks are private IP space within the project and for this reason, they can overlap between different projects. An embedded DHCP service assignes the IP addresses to the Virtual Machines within the project.
