@@ -129,3 +129,34 @@ Created a new subnet:
 | tenant_id         | 22bdc5a0210e4a96add0cea90a6137ed                  |
 +-------------------+---------------------------------------------------+
 ```
+
+The tenant network just created need to be connected to the external network via a virtual router. Create the virtual router as tenant user
+```
+# source keystonerc_bcloud
+# neutron router-create mygateway
+Created a new router:
++-----------------------+--------------------------------------+
+| Field                 | Value                                |
++-----------------------+--------------------------------------+
+| admin_state_up        | True                                 |
+| external_gateway_info |                                      |
+| id                    | 074cf6a9-8299-4add-9bd6-69bbc6fd2f32 |
+| name                  | mygateway                            |
+| routes                |                                      |
+| status                | ACTIVE                               |
+| tenant_id             | 22bdc5a0210e4a96add0cea90a6137ed     |
++-----------------------+--------------------------------------+
+```
+
+Create a router interface to the tenant subnetwork
+```
+# neutron router-interface-add mygateway subnet=tenant-subnetwork
+```
+
+To create a router interface to the external network, login as admin user and set the gateway
+```
+# source keystonerc_admin
+# neutron router-gateway-set mygateway external-flat-network
+Set gateway for router mygateway
+```
+Note that the above task is not allowed to the tenant user.
