@@ -1,9 +1,9 @@
 ###Neutron Networking Service
 OpenStack administrators can configure rich network topologies by creating and configuring networks and subnets. In particular, OpenStack networking supports each tenant having multiple private networks, and allows tenants to choose their own IP addressing space, even if those IP addresses overlap with those used by other tenants. This enables advanced cloud networking use cases, such as building multitiered web applications and allowing applications to be migrated to the cloud without changing IP addresses.
 
-OpenStack networking uses the concept of a plug-in, which is a pluggable back-end implementation of the OpenStack networking API. A plug-in can use a variety of technologies. Some OpenStack networking plug-ins might use basic Linux VLANs and IP tables, while others might use more advanced technologies, such as L2 and L3 tunneling, to provide similar benefits.
+OpenStack networking uses the concept of a plug-in, which is a pluggable back-end implementation of the OpenStack networking API. A plug-in can use a variety of technologies. Some OpenStack networking plug-ins might use basic Linux networking, while others might use more advanced technologies, such as Open VSwitch, to provide similar benefits.
 
-###Implementing Neutron Service
+####Implementing Neutron Service with ML2 plugin and Open VSwitch
 On the Controller node, create the Neutron service
 ```
 # source /root/keystonerc_admin
@@ -92,3 +92,5 @@ admin_tenant_name=service
 admin_username=neutron
 admin_password= <service password>
 ```
+
+####Basic Neutron scenario with flat Provider network and VxLAN Tenant networks
