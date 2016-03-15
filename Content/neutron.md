@@ -437,3 +437,20 @@ e0ec8cf3-8df5-4ac5-9718-4223bcd54b0c
                 options: {peer=patch-int}
     ovs_version: "2.4.0"
 ```
+
+###Implementing the Neutron networks
+In the basic scenario with flat external network, only administrative users can manage external networks because they use the physical network infrastructure. We are going to create a shared external network to be used by all tenants.
+
+On the Control node, login as ``admin`` Keystone user
+```
+# source keystonerc_admin
+# openstack project list
++----------------------------------+----------+
+| ID                               | Name     |
++----------------------------------+----------+
+| 5ccf7027366442709bde78831da6cce2 | services |
+| 613b2bc016c5428397b3fea6dc162af1 | admin    |
++----------------------------------+----------+
+
+
+```
