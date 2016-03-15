@@ -535,5 +535,52 @@ Created a new subnet:
 +-------------------+--------------------------------------------------+
 ```
 
-The project networks are created by tenant users. Login as a tenant user and create a project network and the related subnet.
+The tenant networks are created by the tenant users. Login as a tenant user and create a tenant network
+```
+# source keystonerc_bcloud
+# neutron net-create tenant-network
+Created a new network:
++-----------------+--------------------------------------+
+| Field           | Value                                |
++-----------------+--------------------------------------+
+| admin_state_up  | True                                 |
+| id              | 72563bb0-b5ea-44d0-9a59-f95f7cc12671 |
+| mtu             | 0                                    |
+| name            | tenant-network                       |
+| router:external | False                                |
+| shared          | False                                |
+| status          | ACTIVE                               |
+| subnets         |                                      |
+| tenant_id       | 22bdc5a0210e4a96add0cea90a6137ed     |
++-----------------+--------------------------------------+
+```
 
+Like the external network, a tenant network also requires a subnet attached to it. By default, this subnet will use DHCP so instances can obtain IP addresses.
+```
+# neutron subnet-create tenant-network 192.168.1.0/24 \
+--name tenant-subnetwork \
+--gateway 192.168.1.1 \
+--enable-dhcp \
+--dns-nameserver 8.8.8.8 \
+--allocation-pool start=192.168.1.10,end=192.168.1.250
+
+Created a new subnet:
++-------------------+---------------------------------------------------+
+| Field             | Value                                             |
++-------------------+---------------------------------------------------+
+| allocation_pools  | {"start": "192.168.1.10", "end": "192.168.1.250"} |
+| cidr              | 192.168.1.0/24                                    |
+| dns_nameservers   | 8.8.8.8                                           |
+| enable_dhcp       | True                                              |
+| gateway_ip        | 192.168.1.1                                       |
+| host_routes       |                                                   |
+| id                | 45f5980b-5a15-4372-93ab-b77502a6104a              |
+| ip_version        | 4                                                 |
+| ipv6_address_mode |                                                   |
+| ipv6_ra_mode      |                                                   |
+| name              | tenant-subnetwork                                 |
+| network_id        | 72563bb0-b5ea-44d0-9a59-f95f7cc12671              |
+| subnetpool_id     |                                                   |
+| tenant_id         | 22bdc5a0210e4a96add0cea90a6137ed                  |
++-------------------+---------------------------------------------------+
+```
