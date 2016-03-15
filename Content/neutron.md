@@ -4,12 +4,9 @@ OpenStack administrators can configure rich network topologies by creating and c
 OpenStack networking uses the concept of a plug-in, which is a pluggable back-end implementation of the OpenStack networking API. A plug-in can use a variety of technologies. Some OpenStack networking plug-ins might use basic Linux VLANs and IP tables, while others might use more advanced technologies, such as L2 and L3 tunneling, to provide similar benefits.
 
 ###Implementing Neutron Service
-On the Controller node, source the keystonerc_admin file to enable authentication with administrative privileges
+This example chooses ML2 plugin with Open vSwitch under the backend. On the Controller node, create the neutron user and service
 ```
 # source /root/keystonerc_admin
-```
-Create the neutron user and service
-```
 # keystone service-create --name neutron --type network --description 'Neutron Networking Service'
 +-------------+----------------------------------+
 |   Property  |              Value               |
@@ -20,9 +17,8 @@ Create the neutron user and service
 |     name    |             neutron              |
 |     type    |             network              |
 +-------------+----------------------------------+
-#
-# keystone catalog --service=network
 
+# keystone catalog --service=network
 Service: network
 +-------------+----------------------------------+
 |   Property  |              Value               |
