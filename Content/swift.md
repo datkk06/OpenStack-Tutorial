@@ -4,28 +4,35 @@ The object storage service provides object storage in virtual containers, allowi
 Object storage uses the concept of:
 
 * **Storage replicas** Used to maintain the state of objects in the case of outage. A minimum of three replicas is recommended.
+
 * **Storage zones** Used to host replicas. Zones ensure that each replica of a given object can be stored separately. A zone might represent an individual disk drive or array, a server, all the servers in a rack, or even an entire datacenter.
+
 * **Storage regions** Essentially a group of zones sharing a location. Regions can be groups of servers or server farms, usually located in the same geographical area. Regions have a separate API endpoint per object storage service installation, which allows for discrete separation of services.
 
 The OpenStack object storage service is a modular service with the following components:
 
 * _openstack-swift-proxy_ The proxy service uses the object ring to decide where to store newly uploaded objects. It updates the relevant container database to reflect the presence of a new object. If a newly uploaded object goes to a new container, the proxy service also updates the relevant account database to reflect the new container. The proxy service also directs get requests to one of the nodes where a replica of the requested object is stored, either randomly or based on response time from the node. It provides access to the public Swift API, and is responsible for handling and routing requests. The proxy server streams objects to users without spooling. Objects can also be served via HTTP.
+
 * _openstack-swift-object_ The object service is responsible for storing data objects in partitions on disk devices. Each partition is a directory, and each object is held in a subdirectory of its partition directory. A MD5 hash of the path to the object is used to identify the object itself. The service stores, retrieves, and deletes objects.
+
 * _openstack-swift-container_ The container service maintains databases of objects in containers. There is one database file for each container, and they are replicated across the cluster. Containers are defined when objects are put in them. Containers make finding objects faster by limiting object listings to specific container namespaces. The container service is responsible for listings of containers using the account database.
+
 * _openstack-swift-account_ The account service maintains databases of all of the containers accessible by any given account. There is one database file for each account, and they are replicated across the cluster. Any account has access to a particular group of containers. An account maps to a tenant in the identity service. The account service handles listings of objects (what objects are in a specific container) using the container database.
 
 All of the services can be installed on each node or, alternatively, on dedicated machines. In addition, the following components are in place for proper operation:
 
 * **Ring files** Contain details of all the storage devices, and are used to deduce where a particular piece of data is stored (maps the names of stored entities to their physical location). One file is created for each object, account, and container server.
+
 * **Object storage** With either the ext4 or the XFS (recommended by Red Hat) file system. The mount point is expected to be /srv/node.
+
 * **Housekeeping processes** For example, replication and auditors.
 
 ###Implementing the Swift Object Storage Service
 
-Install the necessary components for the Swift object storage service, including the swift client and memcached
+On the Controller node, install the necessary components for the Swift object storage service, including the swift client and memcached
 
 ```
-# yum install -y openstack-swift-proxy openstack-swift-object openstack-swift-container openstack-swift-account
+# yum install -y openstack-swift-proxy
 # yum install -y python-swiftclient
 # yum install -y memcached
 ```
@@ -72,14 +79,14 @@ Create the Swift Object Storage Service
 
 Create the end point for the service you just declared (make sure to use the ID the previous command returned):
 ```
-[~(keystone_admin)]$ keystone endpoint-create --service-id 350e61c1866d4f468fa8ded69ed848d1 --publicurl "http://caldera01:8080/v1/AUTH_%(tenant_id)s" --adminurl "http://caldera01:8080/v1/AUTH_%(tenant_id)s" --internalurl "http://caldera01:8080/v1/AUTH_%(tenant_id)s"
+[~(keystone_admin)]$ keystone endpoint-create --service-id 350e61c1866d4f468fa8ded69ed848d1 --publicurl "http://controller:8080/v1/AUTH_%(tenant_id)s" --adminurl "http://controller:8080/v1/AUTH_%(tenant_id)s" --internalurl "http://controller:8080/v1/AUTH_%(tenant_id)s"
 +-------------+---------------------------------------------+
 |   Property  |                    Value                    |
 +-------------+---------------------------------------------+
-|   adminurl  | http://caldera01:8080/v1/AUTH_%(tenant_id)s |
+|   adminurl  | http://controller:8080/v1/AUTH_%(tenant_id)s|
 |      id     |       142b83a38cf44969b9ad81759db8384c      |
-| internalurl | http://caldera01:8080/v1/AUTH_%(tenant_id)s |
-|  publicurl  | http://caldera01:8080/v1/AUTH_%(tenant_id)s |
+| internalurl | http://controller:8080/v1/AUTH_%(tenant_id)s|
+|  publicurl  | http://controller:8080/v1/AUTH_%(tenant_id)s|
 |    region   |                  regionOne                  |
 |  service_id |       350e61c1866d4f468fa8ded69ed848d1      |
 +-------------+---------------------------------------------+
@@ -98,9 +105,18 @@ Check the services in Keystone
 ```
 
 ###Deploying the Swift Object Storage Service
-The object storage service stores objects on the file system, usually on a number of connected physical storage devices. All of the devices that will be used for object storage must be formatted with either ext4 or XFS, and mounted under the /srv/node/ directory. Any dedicated storage node needs to have the following packages installed: openstack-swift-object, openstack-swift-container, and openstack-swift-account. Configuring multiple storage nodes, copy the /etc/swift directory to all nodes of the cluster from the first node.
+The object storage service stores objects on the file system, usually on a number of connected physical storage devices. All of the devices that will be used for object storage must be formatted with either ext4 or XFS, and mounted under the ``/srv/node/`` directory. 
 
-The server hosting the Swift service has 2 logical volumes called _zone01_ and _zone02_. They should both already be formatted with the XFS file system. The first one acts as zone 1 and the second one will act as zone 2 and become a replica of the zone 1. Create the mount points and mount the volumes persistently to the appropriate directories and set the ownership to the swift user.
+Each Storage node in the Swift cluster needs to have the following packages installed:
+```
+# yum install -y openstack-swift-object
+# yum install -y openstack-swift-container
+# yum install -y openstack-swift-account
+```
+
+Configuring a Swift cluster made of multiple storage nodes, copy the ``/etc/swift`` directory to all nodes of the cluster from the first node. In this section, we are going to configure the Storage node as Swift cluster. To keep things simple, our cluster will be made of only one node containing three separate zones for data redundancy (3 replicas). In a production envinronment, the Swift cluster should be made of three separate nodes. The Storage node has 3 logical volumes, already be formatted with the XFS file system.
+
+Create the mount points and mount the volumes persistently to the appropriate directories and set the ownership to the swift user.
 
 ```
 # vgs
