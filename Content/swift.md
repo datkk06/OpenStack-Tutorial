@@ -11,24 +11,21 @@ Object storage uses the concept of:
 
 The OpenStack object storage service is a modular service with the following components:
 
-* _openstack-swift-proxy_ The proxy service uses the object ring to decide where to store newly uploaded objects. It updates the relevant container database to reflect the presence of a new object. If a newly uploaded object goes to a new container, the proxy service also updates the relevant account database to reflect the new container. The proxy service also directs get requests to one of the nodes where a replica of the requested object is stored, either randomly or based on response time from the node. It provides access to the public Swift API, and is responsible for handling and routing requests. The proxy server streams objects to users without spooling. Objects can also be served via HTTP.
+* _openstack-swift-proxy_: the proxy service uses the object ring to decide where to store newly uploaded objects. It updates the relevant container database to reflect the presence of a new object. If a newly uploaded object goes to a new container, the proxy service also updates the relevant account database to reflect the new container. The proxy service also directs get requests to one of the nodes where a replica of the requested object is stored, either randomly or based on response time from the node. It provides access to the public Swift API, and is responsible for handling and routing requests. The proxy server streams objects to users without spooling. Objects can also be served via HTTP.
 
-* _openstack-swift-object_ The object service is responsible for storing data objects in partitions on disk devices. Each partition is a directory, and each object is held in a subdirectory of its partition directory. A MD5 hash of the path to the object is used to identify the object itself. The service stores, retrieves, and deletes objects.
+* _openstack-swift-object_: the object service is responsible for storing data objects in partitions on disk devices. Each partition is a directory, and each object is held in a subdirectory of its partition directory. A MD5 hash of the path to the object is used to identify the object itself. The service stores, retrieves, and deletes objects.
 
-* _openstack-swift-container_ The container service maintains databases of objects in containers. There is one database file for each container, and they are replicated across the cluster. Containers are defined when objects are put in them. Containers make finding objects faster by limiting object listings to specific container namespaces. The container service is responsible for listings of containers using the account database.
+* _openstack-swift-container_: the container service maintains databases of objects in containers. There is one database file for each container, and they are replicated across the cluster. Containers are defined when objects are put in them. Containers make finding objects faster by limiting object listings to specific container namespaces. The container service is responsible for listings of containers using the account database.
 
-* _openstack-swift-account_ The account service maintains databases of all of the containers accessible by any given account. There is one database file for each account, and they are replicated across the cluster. Any account has access to a particular group of containers. An account maps to a tenant in the identity service. The account service handles listings of objects (what objects are in a specific container) using the container database.
+* _openstack-swift-account_: the account service maintains databases of all of the containers accessible by any given account. There is one database file for each account, and they are replicated across the cluster. Any account has access to a particular group of containers. An account maps to a tenant in the identity service. The account service handles listings of objects (what objects are in a specific container) using the container database.
 
-All of the services can be installed on each node or, alternatively, on dedicated machines. In addition, the following components are in place for proper operation:
+In addition, the following components are in place for proper operation:
 
-* **Ring files** Contain details of all the storage devices, and are used to deduce where a particular piece of data is stored (maps the names of stored entities to their physical location). One file is created for each object, account, and container server.
-
-* **Object storage** With either the ext4 or the XFS (recommended by Red Hat) file system. The mount point is expected to be /srv/node.
-
+* **Ring files** Contain details of all the storage devices, and are used to calculate where a particular piece of data is stored.
+* **Object storage** With either the XFS file system. The mount point is expected to be ``/srv/node``.
 * **Housekeeping processes** For example, replication and auditors.
 
 ###Implementing the Swift Object Storage Service
-
 On the Controller node, install the necessary components for the Swift object storage service, including the swift client and memcached
 
 ```
@@ -93,7 +90,6 @@ Create the end point for the service you just declared (make sure to use the ID 
 ```
 
 Check the services in Keystone
-
 ```
 [~(keystone_admin)]$ keystone service-list
 +----------------------------------+----------+--------------+------------------------------+
