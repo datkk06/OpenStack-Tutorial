@@ -20,7 +20,7 @@ The OpenStack object storage service is a modular service with the following com
 * _openstack-swift-account_: the account service maintains databases of all of the containers accessible by any given account. There is one database file for each account, and they are replicated across the cluster. Any account has access to a particular group of containers. An account maps to a tenant in the identity service. The account service handles listings of objects (what objects are in a specific container) using the container database.
 
 ###Implementing the Swift Object Storage Service
-On the Controller node, install the necessary components for the Swift object storage service, including the swift client and memcached
+On the Controller node, install the necessary components for the Swift object storage service, including the swift client and memcached. In this example, we are going to install the proxy service in the Controller node. In a production envinronment, the Swift proxy server shoud be a couple of standalone nodes for redundancy reason. If a proxy fails, the other will take over.
 
 ```
 # yum install -y openstack-swift-proxy
