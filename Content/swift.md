@@ -19,12 +19,6 @@ The OpenStack object storage service is a modular service with the following com
 
 * _openstack-swift-account_: the account service maintains databases of all of the containers accessible by any given account. There is one database file for each account, and they are replicated across the cluster. Any account has access to a particular group of containers. An account maps to a tenant in the identity service. The account service handles listings of objects (what objects are in a specific container) using the container database.
 
-In addition, the following components are in place for proper operation:
-
-* **Ring files** Contain details of all the storage devices, and are used to calculate where a particular piece of data is stored.
-* **Object storage** With either the XFS file system. The mount point is expected to be ``/srv/node``.
-* **Housekeeping processes** For example, replication and auditors.
-
 ###Implementing the Swift Object Storage Service
 On the Controller node, install the necessary components for the Swift object storage service, including the swift client and memcached
 
@@ -115,42 +109,24 @@ Configuring a Swift cluster made of multiple storage nodes, copy the ``/etc/swif
 Create the mount points and mount the volumes persistently to the appropriate directories and set the ownership to the swift user.
 
 ```
-# vgs
-  VG             #PV #LV #SN Attr   VSize  VFree
-  os               1   3   0 wz--n- 73.42g    0
-  swift01          1   1   0 wz--n- 48.83g    0
-  swift02          1   1   0 wz--n- 48.83g    0
-# pvs
-  PV         VG             Fmt  Attr PSize  PFree
-  /dev/sda2  os             lvm2 a--  73.42g    0
-  /dev/sda5  swift01        lvm2 a--  48.83g    0
-  /dev/sda6  swift02        lvm2 a--  48.83g    0
-# lvs
-  LV     VG             Attr       LSize  Pool Origin Data%  Move Log Cpy%Sync Convert
-  data   os             -wi-ao---- 19.53g
-  root   os             -wi-ao---- 50.00g
-  swap   os             -wi-ao----  3.89g
-  zone01 swift01        -wi-ao---- 48.83g
-  zone02 swift02        -wi-ao---- 48.83g
+# lvscan | grep swift
+  ACTIVE            '/dev/swift03/zone03' [16.00 GiB] inherit
+  ACTIVE            '/dev/swift02/zone02' [16.00 GiB] inherit
+  ACTIVE            '/dev/swift01/zone01' [16.00 GiB] inherit
 
-# mkdir -p /srv/node/z1d1
-# mkdir -p /srv/node/z2d1
-# cp /etc/fstab /etc/fstab.orig
+# mkdir -p /srv/node/device1
+# mkdir -p /srv/node/device2
+# mkdir -p /srv/node/device3
 # vi /etc/fstab
-
-/dev/mapper/os-root         /                       xfs     defaults        1 1
-UUID=xyz                    /boot                   xfs     defaults        1 2
-/dev/mapper/os-data         /data                   xfs     defaults        1 2
-/dev/mapper/os-swap         swap                    swap    defaults        0 0
-/dev/mapper/swift01-zone01  /srv/node/z1d1          xfs     defaults        0 0
-/dev/mapper/swift02-zone02  /srv/node/z2d1          xfs     defaults        0 0
+...
+/dev/swift03/zone03     /srv/node/device3       xfs     noatime,nodiratime,nobarrier,logbufs=8  0       0
+/dev/swift02/zone02     /srv/node/device2       xfs     noatime,nodiratime,nobarrier,logbufs=8  0       0
+/dev/swift01/zone01     /srv/node/device1       xfs     noatime,nodiratime,nobarrier,logbufs=8  0       0
 
 # mount -a
-# chown -R swift:swift /srv/node/
+# chown -R swift:swift /srv/node
 ```
-Restore the SELinux context of /srv
 
-``# restorecon -vR /srv``
 
 Configure the Swift Object Storage Service Ring. Three ring files need to be created: one to track the objects stored by the object storage service, one to track the containers that objects are placed in, and one to track which accounts can access which containers. The ring files are used to deduce where a particular piece of data is stored.
 
