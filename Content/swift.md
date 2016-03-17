@@ -184,7 +184,7 @@ Configure the Swift account service
 # vi /etc/swift/account-server.conf
 [DEFAULT]
 devices = /srv/node
-bind_ip = 10.10.10.30
+bind_ip = <local address>
 bind_port = 6002
 mount_check = false
 user = swift
