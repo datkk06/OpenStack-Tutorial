@@ -104,12 +104,14 @@ Upload it to Glance.
 ```
 If the system image is stored at a remote location, ``--location`` can be used to provide the URL directly without first downloading the system image. The ``--copy-from`` option is similar to the ``--location`` option, but will also populate the image in the Glance cache.
 
-By default, images are stored in ``/var/lib/glance/images/`` of the node where glance service is running. Check out ``/etc/glance/glance.conf`` to see what format your images are being stored in.
+By default, images are stored in ``/var/lib/glance/images/`` of the node where glance service is running. Check out ``/etc/glance/glance-api.conf`` to see what format is being used.
 
 ```
-default_store=STORE
-# STORE would be the format the images are stored in. The default format is file.
-
-filesystem_store_datadir=PATH
-# PATH would be where the images are. If this isn't set, it will default to /var/lib/glance/images/
+# cat /etc/glance/glance-api.conf
+...
+[glance_store]
+stores=file,http
+default_store=file
+filesystem_store_datadir=/var/lib/glance/images/
+...
 ```
