@@ -115,3 +115,21 @@ default_store=file
 filesystem_store_datadir=/var/lib/glance/images/
 ...
 ```
+
+###Configure Glance to use the Swift Storage Backend
+In this section, we are going to re-configure the Glance image service to use backend store as Swift object storage. By default, Image service will use the local filesystem to store the images when uploading it. The default local filesystem store directory is ``/var/lib/glance/images/`` on the Controller node where the Glance image service is configured. The local filesystem store will not be helpful when scaling the environment.
+
+On the Controller node, change the ``/etc/glance/glance-api.conf`` configuration file
+```
+[glance_store]
+stores=file,http,swift
+default_store = swift
+#filesystem_store_datadir=/var/lib/glance/images/
+swift_store_create_container_on_put = True
+```
+
+Restart the Glance services
+```
+# systemctl restart openstack-glance-api
+# systemctl restart openstack-glance-registry
+```
