@@ -90,10 +90,11 @@ In this section, we are going to configure the Storage node of the OpenStack set
 
 The Swift Object Storage Service Ring maps partitions to physical locations on the disk. When any other component needs to perform any operation on an object, a container, or an account, it needs to interact with the Ring to determine the location of the object or the container in the cluster. The Ring maintains this mapping. In additions, the Ring is responsible to determine which devices are used for handoff when a failure occurs.
 
-Three ring files need to be created. The ring files are used to deduce where a particular piece of data is stored.
-1. ``object.ring`` to track the objects stored by the object storage service
-2. ``container.ring`` to track the containers where the objects are placed in
-3. ``account.ring`` to track which accounts (users) can access which containers.
+Three ring files need to be created. The ring files are used to deduce where a particular piece of data is stored
+
+1.``object.ring`` to track the objects stored by the object storage service
+2.``container.ring`` to track the containers where the objects are placed in
+3.``account.ring`` to track which accounts (users) can access which containers.
 
 On the Controller (proxy) node, create the Rings files
 
