@@ -84,13 +84,11 @@ delay_auth_decision = true
 ```
 
 ###Deploying the Swift Object Storage Service
-The object storage service stores objects on the file system, usually on a number of connected physical storage devices. All of the devices that will be used for object storage must be formatted with either ext4 or XFS, and mounted under the ``/srv/node/`` directory. 
+The object storage service stores objects on the file system, usually on a number of connected physical storage devices. All of the devices that will be used for object storage must be formatted with XFS, and mounted under the ``/srv/node/`` directory of each Storage node. 
 
-Configuring a Swift cluster made of multiple storage nodes, copy the ``/etc/swift`` directory to all nodes of the cluster from the first node. In this section, we are going to configure the Storage node as Swift cluster. In a production envinronment, the Swift cluster should be made of minimum 3 separate nodes, each containing a zone. To keep things simple, our cluster will be made of only one node containing 3 separate zones for data redundancy (3 replicas). Each zone is backed by a separate logical volume.
+In this section, we are going to configure the Storage node of the OpenStack setup as a Swift cluster. In a production envinronment, the Swift cluster should be made of minimum 3 separate nodes, each containing a zone. To keep things simple, our cluster will be made of only one node containing 3 separate zones for data redundancy. Each zone is backed by a separate logical volume of the Storage node.
 
-Configure the Swift Object Storage Service Ring.
-
-The Ring maps partitions to physical locations on the disk. When any other component needs to perform any operation on an object, a container, or an account, it needs to interact with the Ring to determine the location of the object or the container in the cluster. The Ring maintains this mapping. In additions, the Ring is responsible to determine which devices are used for handoff when a failure occurs.
+The Swift Object Storage Service Ring maps partitions to physical locations on the disk. When any other component needs to perform any operation on an object, a container, or an account, it needs to interact with the Ring to determine the location of the object or the container in the cluster. The Ring maintains this mapping. In additions, the Ring is responsible to determine which devices are used for handoff when a failure occurs.
 
 Three ring files need to be created. The ring files are used to deduce where a particular piece of data is stored.
 1. ``object.ring`` to track the objects stored by the object storage service
@@ -105,20 +103,20 @@ On the Controller (proxy) node, create the Rings files
 # swift-ring-builder /etc/swift/container.builder create 12 3 1
 # swift-ring-builder /etc/swift/account.builder create 12 3 1
 ```
+
 Add the devices to the Ring
-
 ```
-# swift-ring-builder /etc/swift/object.builder add r0z0-10.10.10.30:6000/device0 100
-# swift-ring-builder /etc/swift/container.builder add r0z0-10.10.10.30:6001/device0 100 
-# swift-ring-builder /etc/swift/account.builder add r0z0-10.10.10.30:6002/device0 100 
-
 # swift-ring-builder /etc/swift/object.builder add r1z1-10.10.10.30:6000/device1 100
 # swift-ring-builder /etc/swift/container.builder add r1z1-10.10.10.30:6001/device1 100 
 # swift-ring-builder /etc/swift/account.builder add r1z1-10.10.10.30:6002/device1 100 
 
-# swift-ring-builder /etc/swift/object.builder add r2z2-10.10.10.30:6000/device2 100 
+# swift-ring-builder /etc/swift/object.builder add r2z2-10.10.10.30:6000/device2 100
 # swift-ring-builder /etc/swift/container.builder add r2z2-10.10.10.30:6001/device2 100 
 # swift-ring-builder /etc/swift/account.builder add r2z2-10.10.10.30:6002/device2 100 
+
+# swift-ring-builder /etc/swift/object.builder add r3z3-10.10.10.30:6000/device3 100 
+# swift-ring-builder /etc/swift/container.builder add r3z3-10.10.10.30:6001/device3 100 
+# swift-ring-builder /etc/swift/account.builder add r3z3-10.10.10.30:6002/device3 100 
 ```
 
 Distribute the partitions across the drives in the ring
@@ -134,27 +132,7 @@ Distribute the partitions across the drives in the ring
 -rw-r--r--. 1 swift swift 1834 Jan 22 15:47 /etc/swift/object.ring.gz
 ```
 
-Start up the services and make them persistent at boot
-```
-[~(keystone_admin)]# systemctl start openstack-swift-account
-[~(keystone_admin)]# systemctl enable openstack-swift-account
-[~(keystone_admin)]# systemctl start openstack-swift-container
-[~(keystone_admin)]# systemctl enable openstack-swift-container
-[~(keystone_admin)]# systemctl start openstack-swift-object
-[~(keystone_admin)]# systemctl enable openstack-swift-object
-```
-
-All files in the /etc/swift directory should be owned by root:swift
-
-``[~(keystone_admin)]# chown -R root:swift /etc/swift``
-
-Check for any error
-
-``# grep ERROR /var/log/messages``
-
-
-Enable the memcached and openstack-swift-proxy services permanently.
-
+On the Controller (proxy) node, enable the memcached and openstack-swift-proxy services permanently
 ```
 # systemctl start memcached
 # systemctl enable memcached
@@ -162,16 +140,13 @@ Enable the memcached and openstack-swift-proxy services permanently.
 # systemctl enable openstack-swift-proxy
 ```
 
-
-
-Each Storage node in the Swift cluster needs to have the following packages installed:
+On each Storage node belonging to the Swift cluster, install the following packages
 ```
 # yum install -y openstack-swift-object
 # yum install -y openstack-swift-container
 # yum install -y openstack-swift-account
 ```
-On the Storage node, create the mount points and mount the logical volumes persistently to the appropriate directories and set the ownership to the swift user.
-
+On each Storage node, create the mount points and mount the logical volumes persistently to the appropriate directories and set the ownership to the swift user.
 ```
 # lvscan | grep swift
   ACTIVE            '/dev/swift03/zone03' [16.00 GiB] inherit
@@ -189,6 +164,89 @@ On the Storage node, create the mount points and mount the logical volumes persi
 
 # mount -a
 # chown -R swift:swift /srv/node
+```
+
+Copy the Ring files from the Controller node to all Storage nodes of the cluster. 
+```
+# scp /etc/swift/*.gz storage:/etc/swift/ 
+```
+
+On each Storage node, configure the Swift services
+```
+# chown swift. /etc/swift/*.gz 
+
+# vi /etc/swift/swift.conf
+[swift-hash] swift_hash_path_suffix = swift_shared_path # the same value that is set on the Controller node
+
+# vi /etc/swift/account-server.conf
+bind_ip = <local address>
+bind_port = 6002
+
+# vi /etc/swift/container-server.conf
+bind_ip = <local address>
+bind_port = 6001
+
+# vi /etc/swift/object-server.conf
+bind_ip = <local address>
+bind_port = 6000
+
+# vi /etc/rsyncd.conf
+...
+pid file = /var/run/rsyncd.pid
+log file = /var/log/rsyncd.log
+uid = swift
+gid = swift
+address = <local address>
+
+[account]
+path            = /srv/node
+read only       = false
+write only      = no
+list            = yes
+incoming chmod  = 0644
+outgoing chmod  = 0644
+max connections = 25
+lock file =     /var/lock/account.lock
+
+[container]
+path            = /srv/node
+read only       = false
+write only      = no
+list            = yes
+incoming chmod  = 0644
+outgoing chmod  = 0644
+max connections = 25
+lock file =     /var/lock/container.lock
+
+[object]
+path            = /srv/node
+read only       = false
+write only      = no
+list            = yes
+incoming chmod  = 0644
+outgoing chmod  = 0644
+max connections = 25
+lock file =     /var/lock/object.lock
+
+[swift_server]
+path            = /etc/swift
+read only       = true
+write only      = no
+list            = yes
+incoming chmod  = 0644
+outgoing chmod  = 0644
+max connections = 5
+lock file =     /var/lock/swift_server.lock
+```
+
+Start up the services and make them persistent at boot
+```
+# systemctl start openstack-swift-account
+# systemctl enable openstack-swift-account
+# systemctl start openstack-swift-container
+# systemctl enable openstack-swift-container
+# systemctl start openstack-swift-object
+# systemctl enable openstack-swift-object
 ```
 
 
