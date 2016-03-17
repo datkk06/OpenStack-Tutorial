@@ -92,9 +92,9 @@ The Swift Object Storage Service Ring maps partitions to physical locations on t
 
 Three ring files need to be created. The ring files are used to deduce where a particular piece of data is stored
 
-1.``object.ring`` to track the objects stored by the object storage service
-2.``container.ring`` to track the containers where the objects are placed in
-3.``account.ring`` to track which accounts (users) can access which containers.
+  1. ``object.ring`` to track the objects stored by the object storage service
+  2. ``container.ring`` to track the containers where the objects are placed in
+  3. ``account.ring`` to track which accounts (users) can access which containers.
 
 On the Controller (proxy) node, create the Rings files
 
