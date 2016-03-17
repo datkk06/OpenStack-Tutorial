@@ -20,7 +20,7 @@ The OpenStack object storage service is a modular service with the following com
 * _openstack-swift-account_: the account service maintains databases of all of the containers accessible by any given account. There is one database file for each account, and they are replicated across the cluster. Any account has access to a particular group of containers. An account maps to a tenant in the identity service. The account service handles listings of objects (what objects are in a specific container) using the container database.
 
 ###Implementing the Swift Object Storage Service
-On the Controller node, install the necessary components for the Swift object storage service, including the swift client and memcached. In this example, we are going to install the proxy service in the Controller node. In a production envinronment, the Swift proxy server shoud be a couple of standalone nodes for redundancy reason. If a proxy fails, the other will take over.
+On the Controller node, install the necessary components for the Swift object storage service, including the swift client and memcached. In a production envinronment, the Swift proxy server shoud spawn on a couple of standalone nodes for redundancy reason. If a proxy fails, the other will take over. Howewer, in this example, we are going to install the proxy service on the Controller node. 
 
 ```
 # yum install -y openstack-swift-proxy
@@ -32,66 +32,55 @@ Source the Keystone environment variables with the authentication information an
 
 ```
 # source /root/keystonerc_admin
-[~(keystone_admin)]$ keystone user-create --name swift --pass <password>
-+----------+----------------------------------+
-| Property |              Value               |
-+----------+----------------------------------+
-|  email   |                                  |
-| enabled  |               True               |
-|    id    | ce28fda90edc4e7bbb8c0abbe5e76b06 |
-|   name   |              swift               |
-| username |              swift               |
-+----------+----------------------------------+
-[~(keystone_admin)]$ keystone tenant-create --name services
-+-------------+----------------------------------+
-|   Property  |              Value               |
-+-------------+----------------------------------+
-| description |                                  |
-|   enabled   |               True               |
-|      id     | fb18c3a9c2134a999f40bd2310d9da0f |
-|     name    |             services             |
-+-------------+----------------------------------+
-[~(keystone_admin)]$ keystone user-role-add --role admin --tenant services --user swift
+# openstack user create --domain default --project service --password servicepassword swift 
+# openstack role add --project service --user swift admin
 ```
 
 Create the Swift Object Storage Service
 ```
-[~(keystone_admin)]# keystone service-create --name swift --type object-store --description "Swift Object Storage Service"
-+-------------+----------------------------------+
-|   Property  |              Value               |
-+-------------+----------------------------------+
-| description |   Swift Object Storage Service   |
-|   enabled   |               True               |
-|      id     | 350e61c1866d4f468fa8ded69ed848d1 |
-|     name    |              swift               |
-|     type    |           object-store           |
-+-------------+----------------------------------+
+# keystone service-create --name swift object-store --description "Swift Object Storage Service"
 ```
 
-Create the end point for the service you just declared (make sure to use the ID the previous command returned):
+Create the end point for the service you just declared
 ```
-[~(keystone_admin)]$ keystone endpoint-create --service-id 350e61c1866d4f468fa8ded69ed848d1 --publicurl "http://controller:8080/v1/AUTH_%(tenant_id)s" --adminurl "http://controller:8080/v1/AUTH_%(tenant_id)s" --internalurl "http://controller:8080/v1/AUTH_%(tenant_id)s"
-+-------------+---------------------------------------------+
-|   Property  |                    Value                    |
-+-------------+---------------------------------------------+
-|   adminurl  | http://controller:8080/v1/AUTH_%(tenant_id)s|
-|      id     |       142b83a38cf44969b9ad81759db8384c      |
-| internalurl | http://controller:8080/v1/AUTH_%(tenant_id)s|
-|  publicurl  | http://controller:8080/v1/AUTH_%(tenant_id)s|
-|    region   |                  regionOne                  |
-|  service_id |       350e61c1866d4f468fa8ded69ed848d1      |
-+-------------+---------------------------------------------+
+# openstack endpoint create --region RegionOne object-store public http://controller:8080/v1/AUTH_%\(tenant_id\)s
+# openstack endpoint create --region RegionOne object-store internal http://controller:8080/v1/AUTH_%\(tenant_id\)s
+# openstack endpoint create --region RegionOne object-store admin http://controller:8080/v1  
 ```
 
 Check the services in Keystone
 ```
-[~(keystone_admin)]$ keystone service-list
+# keystone service-list
 +----------------------------------+----------+--------------+------------------------------+
 |                id                |   name   |     type     |         description          |
 +----------------------------------+----------+--------------+------------------------------+
 | 623343aa351e4c5fb726e0932a89bbfb | keystone |   identity   |  Keystone Identity Service   |
 | 350e61c1866d4f468fa8ded69ed848d1 |  swift   | object-store | Swift Object Storage Service |
 +----------------------------------+----------+--------------+------------------------------+
+```
+
+Configure the Swift service by editing the ``/etc/swift/swift.conf`` configuration file
+```
+# vi /etc/swift/swift.conf
+[swift-hash]
+swift_hash_path_suffix = swift_shared_path # it is shared among all Swift nodes, any words you like
+```
+
+Configure the Swift proxy service by editing the ``/etc/swift/proxy-server.conf`` configuration file
+```
+# vi /etc/swift/proxy-server.conf
+...
+[filter:authtoken]
+paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+auth_uri = http://controller:5000
+auth_url = http://controller:35357
+auth_plugin = password
+project_domain_id = default
+user_domain_id = default
+project_name = service
+username = swift
+password = <service password>
+delay_auth_decision = true
 ```
 
 ###Deploying the Swift Object Storage Service
@@ -104,9 +93,11 @@ Each Storage node in the Swift cluster needs to have the following packages inst
 # yum install -y openstack-swift-account
 ```
 
-Configuring a Swift cluster made of multiple storage nodes, copy the ``/etc/swift`` directory to all nodes of the cluster from the first node. In this section, we are going to configure the Storage node as Swift cluster. To keep things simple, our cluster will be made of only one node containing three separate zones for data redundancy (3 replicas). In a production envinronment, the Swift cluster should be made of three separate nodes. The Storage node has 3 logical volumes, already be formatted with the XFS file system.
+Configuring a Swift cluster made of multiple storage nodes, copy the ``/etc/swift`` directory to all nodes of the cluster from the first node. In this section, we are going to configure the Storage node as Swift cluster. In a production envinronment, the Swift cluster should be made of minimum 3 separate nodes, each containing a zone.
 
-Create the mount points and mount the volumes persistently to the appropriate directories and set the ownership to the swift user.
+To keep things simple, our cluster will be made of only one node containing 3 separate zones for data redundancy (3 replicas). Each zone is backed by a logical volume formatted with the XFS file system.
+
+Create the mount points and mount the logical volumes persistently to the appropriate directories and set the ownership to the swift user.
 
 ```
 # lvscan | grep swift
@@ -126,7 +117,6 @@ Create the mount points and mount the volumes persistently to the appropriate di
 # mount -a
 # chown -R swift:swift /srv/node
 ```
-
 
 Configure the Swift Object Storage Service Ring. Three ring files need to be created: one to track the objects stored by the object storage service, one to track the containers that objects are placed in, and one to track which accounts can access which containers. The ring files are used to deduce where a particular piece of data is stored.
 
