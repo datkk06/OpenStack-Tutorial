@@ -253,11 +253,11 @@ Start up the services and make them persistent at boot
 ###Working with the Swift Object Storage Service
 After starting succesfully the service, it is possible to store and retrive data in containers using the CLI Swift client.
 
-Source the credentials and query the service using the CLI client
+Source the user credentials and query the service using the CLI client
 
 ```
 # source /root/keystonerc_admin
-[~(keystone_admin)]$ swift stat
+# swift stat
         Account: AUTH_a6c6d1f171e649ba8af7a7a6cf63c3b9
      Containers: 0
         Objects: 0
@@ -270,27 +270,25 @@ X-Put-Timestamp: 1421939769.00333
 ```
 
 Create two containers and upload some content
-
 ```
-[~(keystone_admin)]$ swift post container01
-[~(keystone_admin)]$ swift post container02
-[~(keystone_admin)]$
-[~(keystone_admin)]$ swift upload container01 somedata.file
-[~(keystone_admin)]$ swift upload container01 somedata2.file
-[~(keystone_admin)]$ swift upload container02 somedata3.file
+# swift post container01
+# swift post container02
+# swift upload container01 somedata.file
+# swift upload container01 somedata2.file
+# swift upload container02 somedata3.file
 ```
 
 View the list and content of containers
 ```
-[~(keystone_admin)]$ swift list
+# swift list
 container01
 container02
-[~(keystone_admin)]$ swift list container01
+# swift list container01
 somedata.file
 somedata2.file
-[~(keystone_admin)]$ swift list container02
+# swift list container02
 somedata3.file
-[~(keystone_admin)]$ swift stat
+# swift stat
                         Account: AUTH_a6c6d1f171e649ba8af7a7a6cf63c3b9
                      Containers: 2
                         Objects: 1
@@ -307,13 +305,12 @@ Containers in policy "policy-0": 2
 ```
 
 Delete the containers and their content
-
 ```
-[~(keystone_admin)]$ swift delete container01
+# swift delete container01
 somedata.file
 somedata2.file
-[~(keystone_admin)]$ swift delete container02
+# swift delete container02
 somedata3.file
-[~(keystone_admin)]$ swift list
-[~(keystone_admin)]$
+# swift list
+# 
 ```
