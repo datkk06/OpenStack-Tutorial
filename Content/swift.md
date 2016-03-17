@@ -107,17 +107,17 @@ On the Controller (proxy) node, create the Rings files
 
 Add the devices to the Ring
 ```
-# swift-ring-builder /etc/swift/object.builder add r1z1-<storage_address>:6000/device1 100
-# swift-ring-builder /etc/swift/container.builder add r1z1-<storage_address>:6001/device1 100 
-# swift-ring-builder /etc/swift/account.builder add r1z1-<storage_address>:6002/device1 100 
+# swift-ring-builder /etc/swift/object.builder add r1z1-<storage_address_device1>:6000/device1 100
+# swift-ring-builder /etc/swift/container.builder add r1z1-<storage_address_device1>:6001/device1 100 
+# swift-ring-builder /etc/swift/account.builder add r1z1-<storage_address_device1>:6002/device1 100 
 
-# swift-ring-builder /etc/swift/object.builder add r2z2-<storage_address>:6000/device2 100
-# swift-ring-builder /etc/swift/container.builder add r2z2-<storage_address>:6001/device2 100 
-# swift-ring-builder /etc/swift/account.builder add r2z2-<storage_address>:6002/device2 100 
+# swift-ring-builder /etc/swift/object.builder add r2z2-<storage_address_device2>:6000/device2 100
+# swift-ring-builder /etc/swift/container.builder add r2z2-<storage_address_device2>:6001/device2 100 
+# swift-ring-builder /etc/swift/account.builder add r2z2-<storage_address_device2>:6002/device2 100 
 
-# swift-ring-builder /etc/swift/object.builder add r3z3-<storage_address>:6000/device3 100 
-# swift-ring-builder /etc/swift/container.builder add r3z3-<storage_address>:6001/device3 100 
-# swift-ring-builder /etc/swift/account.builder add r3z3-<storage_address>:6002/device3 100 
+# swift-ring-builder /etc/swift/object.builder add r3z3-<storage_address_device3>:6000/device3 100 
+# swift-ring-builder /etc/swift/container.builder add r3z3-<storage_address_device3>:6001/device3 100 
+# swift-ring-builder /etc/swift/account.builder add r3z3-<storage_address_device3>:6002/device3 100 
 ```
 
 Distribute the partitions across the drives in the ring
