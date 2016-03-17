@@ -86,7 +86,7 @@ delay_auth_decision = true
 ###Deploying the Swift Object Storage Service
 The object storage service stores objects on the file system, usually on a number of connected physical storage devices. All of the devices that will be used for object storage must be formatted with XFS, and mounted under the ``/srv/node/`` directory of each Storage node. 
 
-In this section, we are going to configure the Storage node of the OpenStack setup as a Swift cluster. In a production envinronment, the Swift cluster should be made of minimum 3 separate nodes, each containing a zone. To keep things simple, our cluster will be made of only one node containing 3 separate zones for data redundancy. Each zone is backed by a separate logical volume of the Storage node.
+In this section, we are going to configure the Storage node of the OpenStack setup as a Swift cluster. In a production envinronment, the Swift cluster should be made of minimum 3 separate nodes, each containing one or more zones. Each piece of data is placed in three zones for redundancy. If a zone goes down, data is replicated to other zones. To keep things simple, our demo cluster will be made of only one node containing 3 separate zones. Each zone is backed by a separate logical volume of the Storage node. 
 
 The Swift Object Storage Service Ring maps partitions to physical locations on the disk. When any other component needs to perform any operation on an object, a container, or an account, it needs to interact with the Ring to determine the location of the object or the container in the cluster. The Ring maintains this mapping. In additions, the Ring is responsible to determine which devices are used for handoff when a failure occurs.
 
@@ -96,8 +96,7 @@ Three ring files need to be created. The ring files are used to deduce where a p
   2. ``container.ring`` to track the containers where the objects are placed in
   3. ``account.ring`` to track which accounts (users) can access which containers.
 
-On the Controller (proxy) node, create the Rings files
-
+On the Controller node, create the Rings files with 2^12=4096 partitions, data replica of 3 and 1 hour of rebalancing time
 ```
 # source /root/keystonerc_admin
 # swift-ring-builder /etc/swift/object.builder create 12 3 1
@@ -105,19 +104,19 @@ On the Controller (proxy) node, create the Rings files
 # swift-ring-builder /etc/swift/account.builder create 12 3 1
 ```
 
-Add the devices to the Ring
+Add the devices to the Ring specifiyng the zone number, the Storage server address, port, device and weight
 ```
-# swift-ring-builder /etc/swift/object.builder add r1z1-<storage_address_device1>:6000/device1 100
-# swift-ring-builder /etc/swift/container.builder add r1z1-<storage_address_device1>:6001/device1 100 
-# swift-ring-builder /etc/swift/account.builder add r1z1-<storage_address_device1>:6002/device1 100 
+# swift-ring-builder /etc/swift/object.builder add z1-<storage_address_device1>:6000/device1 100
+# swift-ring-builder /etc/swift/container.builder add z1-<storage_address_device1>:6001/device1 100 
+# swift-ring-builder /etc/swift/account.builder add z1-<storage_address_device1>:6002/device1 100 
 
-# swift-ring-builder /etc/swift/object.builder add r2z2-<storage_address_device2>:6000/device2 100
-# swift-ring-builder /etc/swift/container.builder add r2z2-<storage_address_device2>:6001/device2 100 
-# swift-ring-builder /etc/swift/account.builder add r2z2-<storage_address_device2>:6002/device2 100 
+# swift-ring-builder /etc/swift/object.builder add z2-<storage_address_device2>:6000/device2 100
+# swift-ring-builder /etc/swift/container.builder add z2-<storage_address_device2>:6001/device2 100 
+# swift-ring-builder /etc/swift/account.builder add z2-<storage_address_device2>:6002/device2 100 
 
-# swift-ring-builder /etc/swift/object.builder add r3z3-<storage_address_device3>:6000/device3 100 
-# swift-ring-builder /etc/swift/container.builder add r3z3-<storage_address_device3>:6001/device3 100 
-# swift-ring-builder /etc/swift/account.builder add r3z3-<storage_address_device3>:6002/device3 100 
+# swift-ring-builder /etc/swift/object.builder add z3-<storage_address_device3>:6000/device3 100 
+# swift-ring-builder /etc/swift/container.builder add z3-<storage_address_device3>:6001/device3 100 
+# swift-ring-builder /etc/swift/account.builder add z3-<storage_address_device3>:6002/device3 100 
 ```
 
 Distribute the partitions across the drives in the ring
