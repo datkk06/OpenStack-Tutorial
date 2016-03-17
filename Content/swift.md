@@ -172,25 +172,111 @@ Copy the Ring files from the Controller node to all Storage nodes of the cluster
 # scp /etc/swift/*.gz storage:/etc/swift/ 
 ```
 
-On each Storage node, configure the Swift services
+On each Storage node, configure the Swift service
 ```
 # chown swift. /etc/swift/*.gz 
-
 # vi /etc/swift/swift.conf
 [swift-hash] swift_hash_path_suffix = swift_shared_path # the same value that is set on the Controller node
+```
 
+Configure the Swift account service
+```
 # vi /etc/swift/account-server.conf
-bind_ip = <local address>
+[DEFAULT]
+devices = /srv/node
+bind_ip = 10.10.10.30
 bind_port = 6002
+mount_check = false
+user = swift
+workers = 1
+log_name = account-server
+log_facility = LOG_LOCAL2
+log_level = INFO
+log_address = /dev/log
+[pipeline:main]
+pipeline = account-server
+[app:account-server]
+use = egg:swift#account
+set log_name = account-server
+set log_facility = LOG_LOCAL2
+set log_level = INFO
+set log_requests = true
+set log_address = /dev/log
+[account-replicator]
+concurrency = 1
+[account-auditor]
+[account-reaper]
+concurrency = 1
+```
 
+Configure the Swift container service
+```
 # vi /etc/swift/container-server.conf
+[DEFAULT]
+devices = /srv/node
 bind_ip = <local address>
 bind_port = 6001
+mount_check = false
+user = swift
+log_name = container-server
+log_facility = LOG_LOCAL2
+log_level = INFO
+log_address = /dev/log
+workers = 1
+allowed_sync_hosts = 127.0.0.1
+[pipeline:main]
+pipeline = container-server
+[app:container-server]
+allow_versions = true
+use = egg:swift#container
+set log_name = container-server
+set log_facility = LOG_LOCAL2
+set log_level = INFO
+set log_requests = true
+set log_address = /dev/log
+[container-replicator]
+concurrency = 1
+[container-updater]
+concurrency = 1
+[container-auditor]
+[container-sync]
+```
 
+Configure the Swift object service
+```
 # vi /etc/swift/object-server.conf
+[DEFAULT]
+devices = /srv/node
+mount_check = false
+user = swift
+log_name = object-server
+log_facility = LOG_LOCAL2
+log_level = INFO
+log_address = /dev/log
 bind_ip = <local address>
 bind_port = 6000
+workers = 3
 
+[pipeline:main]
+pipeline = object-server
+
+[app:object-server]
+use = egg:swift#object
+set log_name = object-server
+set log_facility = LOG_LOCAL2
+set log_level = INFO
+set log_requests = true
+set log_address = /dev/log
+
+[object-replicator]
+concurrency = 1
+
+[object-updater]
+concurrency = 1
+```
+
+Configure the synchonization
+```
 # vi /etc/rsyncd.conf
 ...
 pid file = /var/run/rsyncd.pid
