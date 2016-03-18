@@ -385,13 +385,12 @@ enabled_backends = nfs
 [nfs]
 volume_driver = cinder.volume.drivers.nfs.NfsDriver
 nfs_shares_config = /etc/cinder/nfs_shares
-nfs_mount_point_base = $state_path/mnt
-nfs_mount_options = <nfs mounting options>
+#nfs_mount_options = <nfs mounting options>
 nfs_sparsed_volumes = true
 volume_backend_name=nfs
 ```
 
-Mounting options ``nfs_mount_options`` are the usual mount options to be used when accessing NFS shares. The ``nfs_sparsed_volumes`` configuration key determines whether volumes are created as sparse files and grown as needed or fully allocated up front. The default and recommended value is ``true``, which ensures volumes are initially created as sparse files. Setting the key to ``false`` will result in volumes being fully allocated at the time of creation. This leads to increased delays in volume creation.
+Optional mounting options ``nfs_mount_options`` are the usual mount options to be used when accessing NFS shares. The ``nfs_sparsed_volumes`` configuration key determines whether volumes are created as sparse files and grown as needed or fully allocated up front. The default and recommended value is ``true``, which ensures volumes are initially created as sparse files. Setting the key to ``false`` will result in volumes being fully allocated at the time of creation. This leads to increased delays in volume creation.
 
 Restart the Cinder services on both the Storage node
 ```
