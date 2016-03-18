@@ -380,7 +380,8 @@ Configure the cinder volume service to use the ``/etc/cinder/nfs_shares`` file b
 ```
 [defaults]
 ...
-
+enabled_backends = nfs
+...
 [nfs]
 volume_driver = cinder.volume.drivers.nfs.NfsDriver
 nfs_shares_config = /etc/cinder/nfs_shares
