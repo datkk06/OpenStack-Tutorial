@@ -448,3 +448,23 @@ Start and enable the backup service
 # systemctl start openstack-cinder-backup
 # systemctl enable openstack-cinder-backup
 ```
+
+If instead of Object Storage, we want to use an NFS export as the backup repository, enable the appropriate configuration options to the ``cinder.conf`` configuration file
+
+```
+[default]
+...
+backup_metadata_version = 2
+backup_compression_algorithm = zlib
+backup_driver = cinder.backup.drivers.nfs
+backup_manager = cinder.backup.manager.BackupManager
+backup_api_class = cinder.backup.api.API
+backup_share = <nfs_server:export_path>
+#backup_mount_options = <mount_options>
+backup_name_template = backup-%s
+```
+
+and restart the backup service
+```
+# systemctl restart openstack-cinder-backup
+```
