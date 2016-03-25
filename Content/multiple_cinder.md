@@ -459,12 +459,13 @@ backup_compression_algorithm = zlib
 backup_driver = cinder.backup.drivers.nfs
 backup_manager = cinder.backup.manager.BackupManager
 backup_api_class = cinder.backup.api.API
-backup_share = <nfs_server:export_path>
-#backup_mount_options = <mount_options>
-backup_name_template = backup-%s
+backup_share = <nfs_server:shared>
+backup_mount_point_base = /mnt/nfs/cinder_backup
 ```
 
-and restart the backup service
+Make sure the backup mount point is owned by Cinder and restart the backup service
 ```
+# chown -R cinder:cinder /mnt/nfs/cinder_backup
 # systemctl restart openstack-cinder-backup
 ```
+
