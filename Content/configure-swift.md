@@ -77,12 +77,11 @@ X-Storage-Policy: Policy-0
 Access objects via its public URL. The public URL that is the HTTP endpoint from where access the Object Storage. It includes the Object Storage API version number and the account name
 ```
 # wget http://controller:8080/v1/AUTH_22bdc5a0210e4a96add0cea90a6137ed/test/somedata.file
---2016-03-25 15:14:52--  http://controller:8080/v1/AUTH_22bdc5a0210e4a96add0cea90a6137ed/test/somedata.file
 Connecting to controller:8080... connected.
 HTTP request sent, awaiting response... 200 OK
-Length: 3354194 (3.2M) [application/pdf]
+Length: 3354194 (3.2M) [application/text]
 Saving to: ‘somedata.file.1’
-100%[============================================================================================>] 3,354,194   --.-K/s   in 0.04s
+100%[=================================>] 3,354,194   --.-K/s   in 0.04s
 2016-03-25 15:14:52 (91.2 MB/s) - ‘somedata.file.1’ saved [3354194/3354194]
 ```
 
