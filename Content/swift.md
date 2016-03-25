@@ -132,7 +132,7 @@ Distribute the partitions across the drives in the ring
 -rw-r--r--. 1 swift swift 1834 Jan 22 15:47 /etc/swift/object.ring.gz
 ```
 
-On the Controller (proxy) node, enable the memcached and openstack-swift-proxy services permanently
+On the Controller node running the proxy service, enable the memcached and openstack-swift-proxy permanently
 ```
 # systemctl start memcached
 # systemctl enable memcached
