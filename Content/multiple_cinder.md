@@ -1,4 +1,4 @@
-### Multiple Cinder Storage Backends
+###Multiple Cinder Storage Backends
 Configuring multiple-storage backends, allows to create several backend storage solutions that serve the same OpenStack configuration and one cinder-volume service is launched for each backend storage. Multiple backends can reside on the same Storage node or they can be distributed on different Storage nodes. For example, a Storage node can have both SSD and SATA disks. The Cinder configuration can define two different backends, one for SSD disks and the other one for SATA disks.
 
 In a multiple-storage configuration, each backend has a name. The name of the backend is declared as an extra-specification of a volume type. When a volume is created, the scheduler chooses an appropriate backend to handle the request, according to the volume type specified by the user.
@@ -356,7 +356,6 @@ Starting from now, the new volumes will be created with default type ``lvm_silve
 +---------------------------------------+--------------------------------------+
 ```
 
-
 ###NFS Cinder Storage Backend
 Cinder Storage Service can use a Network File System storage as backend. Howewer, the Cinder service provides Block Storage devices (i.e. volumes) to the users even if the backend is NFS. This section explains how to configure OpenStack Block Storage to use NFS storage.
 
@@ -423,5 +422,29 @@ Create new volumes on NFS Storage backend
 ```
 # cinder create --display-name vol3 --volume-type nfs 5
 ```
-
 The above volume can be attached as Block Storage device to the VM instances.
+
+###Configure Volumes Backup Service
+By default, Cinder uses the Object Storage service to backup the volumes. To achieve volumes backups, install first and start the Swift Object Storage service. 
+
+On each Storage node, configure the backup service by editing the ``cinder.conf`` configuration file
+```
+[default]
+...
+backup_metadata_version = 2
+backup_compression_algorithm = zlib
+backup_driver = cinder.backup.drivers.swift
+backup_manager = cinder.backup.manager.BackupManager
+backup_api_class = cinder.backup.api.API
+backup_swift_url = http://controller:8080/v1/AUTH_
+backup_swift_auth = per_user
+backup_swift_auth_version = 1
+backup_swift_container = volumes_backup
+backup_name_template = backup-%s
+```
+
+Start and enable the backup service
+```
+# systemctl start openstack-cinder-backup
+# systemctl enable openstack-cinder-backup
+```
