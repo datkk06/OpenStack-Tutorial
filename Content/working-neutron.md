@@ -1,4 +1,4 @@
-###Configure Neutron with flat external network
+###Configure a flat external network
 In the basic scenario with flat external network, only administrative users can manage external networks because they use the physical network infrastructure. We are going to create a shared external network to be used by all tenants.
 
 On the Control node, login as ``admin`` Keystone user and create the external network
@@ -66,6 +66,7 @@ Created a new subnet:
 +-------------------+--------------------------------------------------+
 ```
 
+###Configure tenant networks
 The tenant networks are created by the tenant users. Login as a tenant user and create a tenant network
 ```
 # source keystonerc_bcloud
@@ -116,7 +117,7 @@ Created a new subnet:
 +-------------------+---------------------------------------------------+
 ```
 
-Having enabled the DHCP on the internal subnet, a DHCP server is created as dedicatd namespace. The DHCP server provides IP addresses to the virtual machine inside the internal subnetwork.
+Having enabled the DHCP, a DHCP server is created as dedicatd namespace. The DHCP server provides IP addresses to the virtual machine inside the internal network.
 ```
 # ip netns
 qdhcp-9a7f354c-7a46-420d-98a5-3508e6f3caf1
@@ -145,7 +146,7 @@ Created a new router:
 +-----------------------+--------------------------------------+
 ```
 
-Create a router interface to connect tenant subnetwork with the external network
+As tenant user, create a router interface to connect tenant subnetwork with the external network
 ```
 # neutron router-interface-add mygateway subnet=tenant-subnetwork
 # neutron router-gateway-set mygateway external-flat-network
@@ -165,4 +166,50 @@ qr-9c0083e4-0a: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet 192.168.1.1  netmask 255.255.255.0  broadcast 192.168.1.255
 ```
 
-###
+###Configure security groups
+Security Groups control traffic incoming and outcoming to and from virtual machines. As tenant user, configure a securty group and add rules
+```
+# neutron security-group-create myaccess
+# neutron security-group-list
++--------------------------------------+----------+----------------------+
+| id                                   | name     | security_group_rules |
++--------------------------------------+----------+----------------------+
+| 64fbc795-4c7f-4645-9565-7190ead608b4 | default  | egress, IPv4         |
+| adc9c79d-7ac2-48bc-8572-116fba86b51e | myaccess | egress, IPv4         |
+|                                      |          | egress, IPv6         |
++--------------------------------------+----------+----------------------+
+
+# neutron security-group-rule-create \
+--protocol icmp \
+--direction ingress \
+myaccess
+
+# neutron security-group-rule-create \
+--protocol tcp \
+--port-range-min 22 \
+--port-range-max 22 \
+--direction ingress \
+myaccess
+
+# neutron security-group-rule-list
++--------------------------------------+----------------+-----------+-----------+---------------+--------+
+| id                                   | security_group | direction | ethertype | protocol/port | remote |
++--------------------------------------+----------------+-----------+-----------+---------------+--------+
+| 07dec775-7d3c-40b8-ab10-105b926224c9 | myaccess       | ingress   | IPv4      | 22/tcp        | any    |
+| 48259cf9-f05e-481a-81b3-dd62a14386c5 | default        | egress    | IPv4      | any           | any    |
+| 60b7cb14-8808-416d-bf68-eeb7fb3e3208 | myaccess       | egress    | IPv4      | any           | any    |
+| 7ee00ccd-5792-4155-bcea-346b2130c537 | myaccess       | ingress   | IPv4      | icmp          | any    |
+| a7db323f-87ce-4745-b0be-97f4d45f6ea3 | myaccess       | egress    | IPv6      | any           | any    |
++--------------------------------------+----------------+-----------+-----------+---------------+--------+
+```
+
+The rules just defined permit incoming traffic for all ICMP and SSH.
+
+
+
+
+
+
+
+
+
