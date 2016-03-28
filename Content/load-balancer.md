@@ -182,4 +182,4 @@ Associate the healt monitor to the load balancer pool
 Associated health monitor 0947aaf6-5d24-4e83-a053-1a22517738bb
 ```
 
-Now the Load Balancer setup is fully working. Incoming requests to the floating **172.16.1.209** will be translated to the fixed **192.168.1.250** and then forwarded in a Round Robin fashion to the Virtual Machines instances with **192.168.1.17** and **192.168.1.18**.
+Now the Load Balancer setup is fully working. Incoming requests to the floating **172.16.1.209** will be translated to the fixed virtual address **192.168.1.250** and then forwarded in a Round Robin fashion to the Virtual Machines instances with **192.168.1.17** and **192.168.1.18**.
