@@ -106,5 +106,79 @@ my-lb-pool
 | a0828bd5-da97-45b1-b4d4-8fef63acbf1b | 192.168.1.17 |            80 |      1 | True           | ACTIVE |
 | ebd9e210-df12-4e64-bf2a-00ac57449200 | 192.168.1.18 |            80 |      1 | True           | ACTIVE |
 +--------------------------------------+--------------+---------------+--------+----------------+--------+
-
 ```
+
+Create a Virtual IP and associate to the pool. The Virtual IP will be the IP address of the Load Balancer
+```
+neutron lb-vip-create \
+--name LB-Virtual-IP \
+--address 192.168.1.250 \
+--protocol HTTP \
+--protocol-port 80 \
+--subnet-id $(neutron subnet-list | awk '/tenant/ {print $2}') \
+my-lb-pool
+```
+
+At this point the Load Balancer has been successfully created and should be functional. Traffic sent to address 192.168.1.250 on port 80 will be load-balanced across all active members of the pool, i.e. 192.168.1.17 and 192.168.1.18. To make the load balancer externally accessible, create a floating IP address and associate it with the Virtual IP address.
+```
+# neutron floatingip-create external-flat-network
+Created a new floatingip:
++---------------------+--------------------------------------+
+| Field               | Value                                |
++---------------------+--------------------------------------+
+| fixed_ip_address    |                                      |
+| floating_ip_address | 172.16.1.209                         |
+| floating_network_id | 0588949f-7a2a-43cc-a879-2ddbabea0d4a |
+| id                  | 0f16047b-bc77-472c-b6f4-d62dc7993adb |
+| status              | DOWN                                 |
+| tenant_id           | 22bdc5a0210e4a96add0cea90a6137ed     |
++---------------------+--------------------------------------+
+
+# neutron lb-vip-show LB-Virtual-IP
++---------------------+--------------------------------------+
+| Field               | Value                                |
++---------------------+--------------------------------------+
+| address             | 192.168.1.250                        |
+| admin_state_up      | True                                 |
+| id                  | 21e16c3a-cd16-4666-a851-023d0407d53e |
+| name                | LB-Virtual-IP                        |
+| pool_id             | 32dc27ea-ed0d-4a7e-8dde-734b210f50ca |
+| port_id             | e9afb9b3-ab00-4188-921d-6c676fef6c12 |
+| protocol            | HTTP                                 |
+| protocol_port       | 80                                   |
+| session_persistence |                                      |
+| status              | ACTIVE                               |
++---------------------+--------------------------------------+
+
+# neutron floatingip-associate 0f16047b-bc77-472c-b6f4-d62dc7993adb e9afb9b3-ab00-4188-921d-6c676fef6c12
+```
+
+The next step is to create a health monitor and associate it with the pool. The health monitor is responsible for periodically checking the health of each member of the pool.
+```
+# neutron lb-healthmonitor-create --delay 5 --type HTTP --max-retries 3 --timeout 2
+Created a new health_monitor:
++----------------+--------------------------------------+
+| Field          | Value                                |
++----------------+--------------------------------------+
+| admin_state_up | True                                 |
+| delay          | 5                                    |
+| expected_codes | 200                                  |
+| http_method    | GET                                  |
+| id             | 0947aaf6-5d24-4e83-a053-1a22517738bb |
+| max_retries    | 3                                    |
+| pools          |                                      |
+| tenant_id      | 22bdc5a0210e4a96add0cea90a6137ed     |
+| timeout        | 2                                    |
+| type           | HTTP                                 |
+| url_path       | /                                    |
++----------------+--------------------------------------+
+```
+
+The above health monitor will perform an HTTP GET of the root path. This health check expects an HTTP status of 200 in the response, and the connection must be established within 2 seconds. This check will be retried a maximum of 3 times before a member is determined to be failed.
+
+Associate the healt monitor to the load balancer pool
+```
+# neutron lb-healthmonitor-associate 0947aaf6-5d24-4e83-a053-1a22517738bb my-lb-pool
+Associated health monitor 0947aaf6-5d24-4e83-a053-1a22517738bb
+```
+
