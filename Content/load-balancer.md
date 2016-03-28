@@ -10,7 +10,7 @@ A Load Balancer enables networking to distribute incoming requests evenly among 
 In this section, we are going to configure a simple load balancer to balance incoming traffic toward a couple of virtual machines running a web server. Both Load Balancer V1 and V2 are available. Version 1 will be replaced by Version 2 but it is still available. At time of writing, the Version 2 is not yet supported via Horizon GUI.
 
 ####Load Balancer Version V1
-To configure the Load Balancer Version 1, edit the Load Balancer agent configuration by editing the ``/etc/neutron/lbaas_agent.ini`` initialization file on the Network node
+To configure the Load Balancer, edit the Load Balancer agent configuration by editing the ``/etc/neutron/lbaas_agent.ini`` initialization file on the Network node
 ```
 [DEFAULT]
 debug = True
@@ -30,14 +30,14 @@ Start and enable the agent service on the Network node
 # systemctl enable neutron-lbaas-agent
 ```
 
-On the Controller node, add the Version 1 service plug-in to the configuration directive in ``/etc/neutron/neutron.conf`` configuration file
+On the Controller node, add the service plug-in to the configuration directive in ``/etc/neutron/neutron.conf`` configuration file
 ```
 [DEFAULT]
 ...
 service_plugins = lbaas
 ```
 
-On the Controller node, add the Version 1 service provider to the ``/etc/neutron/neutron_lbaas.conf`` configuration file
+On the Controller node, add the service provider to the ``/etc/neutron/neutron_lbaas.conf`` configuration file
 ```
 [service_providers]
 ...
