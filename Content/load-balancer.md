@@ -119,7 +119,7 @@ neutron lb-vip-create \
 my-lb-pool
 ```
 
-At this point the Load Balancer has been successfully created and should be functional. Traffic sent to address 192.168.1.250 on port 80 will be load-balanced across all active members of the pool, i.e. 192.168.1.17 and 192.168.1.18. To make the load balancer externally accessible, create a floating IP address and associate it with the Virtual IP address.
+At this point the Load Balancer has been successfully created and should be functional. Traffic sent to address **192.168.1.250** on port 80 will be load-balanced across all active members of the pool, i.e. **192.168.1.17** and **192.168.1.18**. To make the load balancer externally accessible, create a floating IP address and associate it with the Virtual IP address.
 ```
 # neutron floatingip-create external-flat-network
 Created a new floatingip:
