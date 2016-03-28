@@ -223,12 +223,16 @@ As tenant user, create a couple of small virtual machine running on the tenant n
 --image $(nova image-list | awk '/ubuntu/ {print $2}') \
 --flavor $(nova flavor-list | awk '/small/ {print $2}') \
 --nic net-id=$(neutron net-list | awk '/tenant/ {print $2}') \
+--key-name mytenant \
+--security-groups myaccess \
 VM01
 
 # nova boot \
 --image $(nova image-list | awk '/ubuntu/ {print $2}') \
 --flavor $(nova flavor-list | awk '/small/ {print $2}') \
 --nic net-id=$(neutron net-list | awk '/tenant/ {print $2}') \
+--key-name mytenant \
+--security-groups myaccess \
 VM02
 
 # nova list
@@ -239,3 +243,27 @@ VM02
 | f0f78f85-a6c3-4847-b497-5130bc981194 | VM02 | ACTIVE | -          | Running     | tenant-network=192.168.1.14 |
 +--------------------------------------+------+--------+------------+-------------+-----------------------------+
 ```
+
+Enable security group ingress access for SSH and HTTP protocol
+```
+# neutron security-group-rule-create \
+--protocol tcp \
+--port-range-min 22 \
+--port-range-max 22 \
+--direction ingress \
+myaccess
+
+# neutron security-group-rule-create \
+--protocol tcp \
+--port-range-min 80 \
+--port-range-max 80 \
+--direction ingress \
+myaccess
+```
+
+
+
+
+
+
+
