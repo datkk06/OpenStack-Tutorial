@@ -10,7 +10,7 @@ A Load Balancer enables networking to distribute incoming requests evenly among 
 In this section, we are going to configure a simple load balancer to balance incoming traffic toward a couple of virtual machines running a web server. Both Load Balancer V1 and V2 are available. Version 1 will be replaced by Version 2 but it is still available. At time of writing, the Version 2 is not yet supported via Horizon GUI.
 
 ####Load Balancer Version V1
-To configure the Load Balancer service, on the Network node, edit the LBaaS Agent by editing the ``/etc/neutron/lbaas_agent.ini`` initialization file
+To configure the Load Balancer Version 1, on the Network node, edit the LBaaS Agent by editing the ``/etc/neutron/lbaas_agent.ini`` initialization file
 ```
 [DEFAULT]
 debug = True
@@ -24,10 +24,20 @@ user_group = haproxy
 send_gratuitous_arp = 3
 ```
 
-Start and enable the service on the Network node
+Start and enable the agent service on the Network node
 ```
 # systemctl start neutron-lbaas-agent
 # systemctl enable neutron-lbaas-agent
+```
+
+As admin user, check the neutron agent list
+```
+# neutron agent-list
++--------------------------------------+--------------------+-----------+-------+----------------+---------------------------+
+| id                                   | agent_type         | host      | alive | admin_state_up | binary                    |
++--------------------------------------+--------------------+-----------+-------+----------------+---------------------------+
+| 75968236-ff9c-44cb-a982-f93bcded63f4 | Loadbalancer agent | network   | :-)   | True           | neutron-lbaas-agent       |
++--------------------------------------+--------------------+-----------+-------+----------------+---------------------------+
 ```
 
 As tenant user, create a couple of small virtual machine running on the tenant network
@@ -183,3 +193,86 @@ Associated health monitor 0947aaf6-5d24-4e83-a053-1a22517738bb
 ```
 
 Now the Load Balancer setup is fully working. Incoming requests to the floating **172.16.1.209** will be translated to the fixed virtual address **192.168.1.250** and then forwarded in a Round Robin fashion to the Virtual Machines instances with **192.168.1.17** and **192.168.1.18**.
+
+
+####Load Balancer Version V2
+To enable Load Balancer Version 2, remove any configuration related to the Version 1. Since Version 1 and Version 2 cannot run at the same time, stop and disable the Neutron Load Balancer agent on the Network node
+```
+# systemctl stop neutron-lbaas-agent
+# systemctl disable neutron-lbaas-agent
+```
+
+On the Network node, edit the LBaaS Agent by editing the ``/etc/neutron/lbaas_agent.ini`` initialization file
+```
+[DEFAULT]
+debug = True
+periodic_interval = 10
+interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
+device_driver = neutron.services.loadbalancer.drivers.haproxy.namespace_driver.HaproxyNSDriver
+
+[haproxy]
+loadbalancer_state_path = $state_path/lbaas
+user_group = haproxy
+send_gratuitous_arp = 3
+```
+
+Start and enable the agent service on the Network node
+```
+# systemctl start neutron-lbaasv2-agent
+# systemctl enable neutron-lbaasv2-agent
+```
+
+On the Controller node, remove the LBaaS v1 and add the LBaaS v2 service plug-in to the service_plugins configuration directive in ``/etc/neutron/neutron.conf`` configuration file
+```
+[DEFAULT]
+...
+service_plugins = neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPluginv2
+```
+
+Add the LBaaS v2 service provider to the service_provider configuration directive within the section in the ``/etc/neutron/neutron_lbaas.conf`` configuration file on the Controller node
+```
+[service_providers]
+...
+service_provider = LOADBALANCERV2:Haproxy:neutron_lbaas.drivers.haproxy.plugin_driver.HaproxyOnHostPluginDriver:default
+```
+
+and restart the Neutron server
+```
+# systemctl restart neutron-server
+```
+
+On the Controller node, as admin user, update the Neutron agent list
+```
+# neutron agent-list
++--------------------------------------+----------------------+-----------+-------+----------------+---------------------------+
+| id                                   | agent_type           | host      | alive | admin_state_up | binary                    |
++--------------------------------------+----------------------+-----------+-------+----------------+---------------------------+
+| 75968236-ff9c-44cb-a982-f93bcded63f4 | Loadbalancer agent   | network   | XXX   | True           | neutron-lbaas-agent       |
+| 20e11acf-4d36-443e-af52-602fa2ef824a | Loadbalancerv2 agent | network   | :-)   | True           | neutron-lbaasv2-agent     |
++--------------------------------------+----------------------+-----------+-------+----------------+---------------------------+
+
+# neutron agent-delete 75968236-ff9c-44cb-a982-f93bcded63f4
+# neutron agent-list
++--------------------------------------+----------------------+-----------+-------+----------------+---------------------------+
+| id                                   | agent_type           | host      | alive | admin_state_up | binary                    |
++--------------------------------------+----------------------+-----------+-------+----------------+---------------------------+
+| 20e11acf-4d36-443e-af52-602fa2ef824a | Loadbalancerv2 agent | network   | :-)   | True           | neutron-lbaasv2-agent     |
++--------------------------------------+----------------------+-----------+-------+----------------+---------------------------+
+
+```
+
+On the Controller node, run the Neutron database migration from Version 1 to Version 2
+```
+# neutron-db-manage --service lbaas upgrade head
+```
+
+
+
+
+
+
+
+
+
+
+
