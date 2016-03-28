@@ -10,7 +10,7 @@ A Load Balancer enables networking to distribute incoming requests evenly among 
 In this section, we are going to configure a simple load balancer to balance incoming traffic toward a couple of virtual machines running a web server. Both Load Balancer V1 and V2 are available. Version 1 will be replaced by Version 2 but it is still available. At time of writing, the Version 2 is not yet supported via Horizon GUI.
 
 ####Load Balancer Version V1
-To configure the Load Balancer Version 1, on the Network node, edit the LBaaS Agent by editing the ``/etc/neutron/lbaas_agent.ini`` initialization file
+To configure the Load Balancer Version 1, edit the Load Balancer agent configuration by editing the ``/etc/neutron/lbaas_agent.ini`` initialization file on the Network node
 ```
 [DEFAULT]
 debug = True
@@ -28,6 +28,25 @@ Start and enable the agent service on the Network node
 ```
 # systemctl start neutron-lbaas-agent
 # systemctl enable neutron-lbaas-agent
+```
+
+On the Controller node, add the Version 1 service plug-in to the configuration directive in ``/etc/neutron/neutron.conf`` configuration file
+```
+[DEFAULT]
+...
+service_plugins = lbaas
+```
+
+On the Controller node, add the Version 1 service provider to the ``/etc/neutron/neutron_lbaas.conf`` configuration file
+```
+[service_providers]
+...
+service_provider = LOADBALANCER:Haproxy:neutron_lbaas.services.loadbalancer.drivers.haproxy.plugin_dri                              ver.HaproxyOnHostPluginDriver:default
+```
+
+and restart the Neutron server
+```
+# systemctl restart neutron-server
 ```
 
 As admin user, check the neutron agent list
@@ -129,9 +148,54 @@ neutron lb-vip-create \
 my-lb-pool
 ```
 
-At this point the Load Balancer has been successfully created and should be functional. Traffic sent to address **192.168.1.250** on port 80 will be load-balanced across all active members of the pool.
+At this point the Load Balancer has been successfully created and should be functional. Traffic sent to address 192.168.1.250:80 will be balanced across all active members of the pool.
 
-The next step is to create a health monitor and associate it with the pool. The health monitor is responsible for periodically checking the health of each member, so that unresponsive servers are removed from the pool
+By default, the Load Balancer is performed by an HA HTTP Proxy instance running inside a private namespace on the Network node
+```
+# ip netns
+qlbaas-8d333495-8228-46d5-bd62-f0845d16fe9b
+qrouter-9a45bdb6-b7ff-4329-8333-7339050ebcf9
+qdhcp-9a7f354c-7a46-420d-98a5-3508e6f3caf1
+
+# ip netns exec qlbaas-8d333495-8228-46d5-bd62-f0845d16fe9b ifconfig
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+tapd784d30b-d8: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.250  netmask 255.255.255.0  broadcast 192.168.1.255
+```
+
+The HA Proxy relevant configuration is available on the Network node
+```
+# cat /var/lib/neutron/lbaas/<load_balacer_id>/conf
+global
+        daemon
+        user nobody
+        group haproxy
+        log /dev/log local0
+        log /dev/log local1 notice
+        stats socket /var/lib/neutron/lbaas/8d333495-8228-46d5-bd62-f0845d16fe9b/sock mode 0666 level user
+defaults
+        log global
+        retries 3
+        option redispatch
+        timeout connect 5000
+        timeout client 50000
+        timeout server 50000
+frontend 1e140afe-ba44-419f-b4b3-4c8732856ef1
+        option tcplog
+        bind 192.168.1.250:80
+        mode http
+        default_backend 8d333495-8228-46d5-bd62-f0845d16fe9b
+        option forwardfor
+backend 8d333495-8228-46d5-bd62-f0845d16fe9b
+        mode http
+        balance roundrobin
+        option forwardfor
+        server d901017d-25e9-44c2-9784-2ec14eb0119d 192.168.1.17:80 weight 1
+        server fafff626-4e3a-4def-b8f3-c489e3171d20 192.168.1.18:80 weight 1
+```
+
+The next step in the Load Balancer setup is to create a health monitor. The health monitor is responsible for periodically checking the health of each member, so that unresponsive servers are quickly removed from the pool
 ```
 # neutron lb-healthmonitor-create --delay 5 --type HTTP --max-retries 3 --timeout 2
 Created a new health_monitor:
@@ -152,9 +216,7 @@ Created a new health_monitor:
 +----------------+--------------------------------------+
 ```
 
-The above health monitor will perform an HTTP GET of the root path of the members. This health check expects an HTTP status of 200 in the response, and the connection must be established within 2 seconds. This check will be retried a maximum of 3 times before a member is determined to be failed and removed from the pool.
-
-Associate the healt monitor to the load balancer pool
+The above health monitor will perform an HTTP GET of the root path of the members. This health check expects an HTTP status of 200 in the response, and the connection must be established within 2 seconds. This check will be retried a maximum of 3 times before a member is determined to be failed and removed from the pool. Associate the healt monitor to the load balancer pool
 ```
 # neutron lb-healthmonitor-associate 0947aaf6-5d24-4e83-a053-1a22517738bb my-lb-pool
 Associated health monitor 0947aaf6-5d24-4e83-a053-1a22517738bb
@@ -195,19 +257,19 @@ Created a new floatingip:
 ```
 
 ####Load Balancer Version V2
-To enable Load Balancer Version 2, remove any configuration related to the Version 1. Since Version 1 and Version 2 cannot run at the same time, stop and disable the Neutron Load Balancer agent Version 1 on the Network node
+To enable Load Balancer Version 2, remove any configuration related to the Version 1. Since Version 1 and Version 2 cannot run at the same time, stop and disable the Neutron Load Balancer Version 1 on the Network node
 ```
 # systemctl stop neutron-lbaas-agent
 # systemctl disable neutron-lbaas-agent
 ```
 
-On the Network node, edit the LBaaS Agent by editing the ``/etc/neutron/lbaas_agent.ini`` initialization file
+On the Network node, edit the ``/etc/neutron/lbaas_agent.ini`` initialization file
 ```
 [DEFAULT]
 debug = True
 periodic_interval = 10
 interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
-#device_driver = neutron.services.loadbalancer.drivers.haproxy.namespace_driver.HaproxyNSDriver
+# device_driver = neutron.services.loadbalancer.drivers.haproxy.namespace_driver.HaproxyNSDriver
 
 [haproxy]
 loadbalancer_state_path = $state_path/lbaas
@@ -215,20 +277,20 @@ user_group = haproxy
 send_gratuitous_arp = 3
 ```
 
-Start and enable the load balancing agent service Version 2 on the Network node
+Start and enable the Load Balancer agent service Version 2 on the Network node
 ```
 # systemctl start neutron-lbaasv2-agent
 # systemctl enable neutron-lbaasv2-agent
 ```
 
-On the Controller node, remove the LBaaS v1 and add the LBaaS v2 service plug-in to the service_plugins configuration directive in ``/etc/neutron/neutron.conf`` configuration file
+On the Controller node, remove the Version 1 and add the Version 2 service plug-in to the configuration directive in ``/etc/neutron/neutron.conf`` configuration file
 ```
 [DEFAULT]
 ...
 service_plugins = neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPluginv2
 ```
 
-Add the LBaaS v2 service provider to the ``/etc/neutron/neutron_lbaas.conf`` configuration file on the Controller node
+On the Controller node, add the Version 2 service provider to the ``/etc/neutron/neutron_lbaas.conf`` configuration file 
 ```
 [service_providers]
 ...
