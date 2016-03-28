@@ -102,7 +102,7 @@ Install the Storage nodes and connect them with Controller node and Compute node
 |-------------|----------|---------|
 | 10.10.10.30 | n/a          | Controller|
 | 10.10.10.36 | 192.168.2.36 | Storage 01|
-| 10.10.10.37 | 192.168.2.36 | Storage 02|
+| 10.10.10.37 | 192.168.2.37 | Storage 02|
 | 10.10.10.32 | 192.168.2.32 | Compute 01|
 | 10.10.10.34 | 192.168.2.34 | Compute 02|
 
