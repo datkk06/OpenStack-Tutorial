@@ -244,15 +244,8 @@ VM02
 +--------------------------------------+------+--------+------------+-------------+-----------------------------+
 ```
 
-Enable security group ingress access for SSH and HTTP protocol
+Enable security group ingress access for HTTP protocol
 ```
-# neutron security-group-rule-create \
---protocol tcp \
---port-range-min 22 \
---port-range-max 22 \
---direction ingress \
-myaccess
-
 # neutron security-group-rule-create \
 --protocol tcp \
 --port-range-min 80 \
@@ -261,8 +254,20 @@ myaccess
 myaccess
 ```
 
+On each instance, login via SSH and start a simple HTTP service
+```
+ubuntu@vm01:~$ MYIP=$(ifconfig eth0|grep 'inet addr'|awk -F: '{print $2}'| awk '{print $1}'
+ubuntu@vm01:~$ while true; do echo -e "HTTP/1.0 200 OK\r\n\r\nWelcome to $MYIP" | sudo nc -l -p 80 ; done &
 
+ubuntu@vm02:~$ MYIP=$(ifconfig eth0|grep 'inet addr'|awk -F: '{print $2}'| awk '{print $1}'
+ubuntu@vm02:~$ while true; do echo -e "HTTP/1.0 200 OK\r\n\r\nWelcome to $MYIP" | sudo nc -l -p 80 ; done &
+```
 
+As tenant user, create the load balancer
+```
+# neutron lbaas-loadbalancer-create --name my-load-balancer 
+
+```
 
 
 
