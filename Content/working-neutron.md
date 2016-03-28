@@ -215,15 +215,27 @@ A Load Balancer enables networking to distribute incoming requests evenly among 
 |Source IP|Requests from a unique source IP address are consistently directed to the same instance|
 |Least connections|Allocates requests to the instance with the least number of active connections|
 
-Neutron implementation of Load Balancer (*LBaaS*) provides following capabilities:
+In this example, we are going to configure a simple load balancer to balance incoming traffic toward a couple of virtual machines running a web server.
 
-|Feature|Description|
-|------|-----------|
-|Monitors|LBaaS provides availability monitoring with the ping, TCP, HTTP and HTTPS GET methods.|
-|Management|LBaaS is managed using CLI and programmatic scripting.|
-|Connection limits|Ingress traffic can be shaped with connection limits to avoid DoS attacks.|
-|Session persistence|LBaaS supports session persistence by ensuring incoming requests are routed to the same instance.|
+As tenant user, create a couple of small virtual machine running on the tenant network
+```
+# nova boot \
+--image $(nova image-list | awk '/ubuntu/ {print $2}') \
+--flavor $(nova flavor-list | awk '/small/ {print $2}') \
+--nic net-id=$(neutron net-list | awk '/tenant/ {print $2}') \
+VM01
 
+# nova boot \
+--image $(nova image-list | awk '/ubuntu/ {print $2}') \
+--flavor $(nova flavor-list | awk '/small/ {print $2}') \
+--nic net-id=$(neutron net-list | awk '/tenant/ {print $2}') \
+VM02
 
-
-
+# nova list
++--------------------------------------+------+--------+------------+-------------+-----------------------------+
+| ID                                   | Name | Status | Task State | Power State | Networks                    |
++--------------------------------------+------+--------+------------+-------------+-----------------------------+
+| 1ee95232-e527-47d9-ab7e-df1a675704e5 | VM01 | ACTIVE | -          | Running     | tenant-network=192.168.1.13 |
+| f0f78f85-a6c3-4847-b497-5130bc981194 | VM02 | ACTIVE | -          | Running     | tenant-network=192.168.1.14 |
++--------------------------------------+------+--------+------------+-------------+-----------------------------+
+```
