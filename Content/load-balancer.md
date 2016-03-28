@@ -442,7 +442,7 @@ Created a new healthmonitor:
 +----------------+------------------------------------------------+
 ```
 
-The health monitor just created removes an unresponsive server from the pool if it fails a health check at 2*5 seconds intervals. When the server recovers and begins responding to health checks again, it is added to the pool once again.
+The health monitor just created removes an unresponsive server from the pool if it fails a health check at 10 seconds intervals. When the server recovers and begins responding to health checks again, it is added to the pool once again.
 
 To make load balancer reachable from the outside networks, associate a Floating IP with the Virtual IP of the load balancer
 ```
