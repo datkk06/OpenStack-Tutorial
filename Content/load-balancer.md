@@ -384,3 +384,52 @@ Created a new healthmonitor:
 ```
 
 The health monitor just created removes an unresponsive server from the pool if it fails a health check at 2*5 seconds intervals. When the server recovers and begins responding to health checks again, it is added to the pool once again.
+
+To make load balancer reachable from the outside networks, associate a Floating IP with the Virtual IP of the load balancer
+```
+# neutron floatingip-create external-flat-network
+Created a new floatingip:
++---------------------+--------------------------------------+
+| Field               | Value                                |
++---------------------+--------------------------------------+
+| floating_ip_address | 172.16.1.210                         |
+| floating_network_id | 0588949f-7a2a-43cc-a879-2ddbabea0d4a |
+| id                  | bc2d4d00-e5d0-48c2-9872-9a01912a402b |
+| tenant_id           | 22bdc5a0210e4a96add0cea90a6137ed     |
++---------------------+--------------------------------------+
+
+# neutron lbaas-loadbalancer-show load-balancer
++---------------------+------------------------------------------------+
+| Field               | Value                                          |
++---------------------+------------------------------------------------+
+| admin_state_up      | True                                           |
+| description         |                                                |
+| id                  | c111c728-3c04-498c-8e9b-349b52648579           |
+| listeners           | {"id": "7012b0f4-9780-49d5-b2f1-47c9ad7963b7"} |
+| name                | load-balancer                                  |
+| operating_status    | ONLINE                                         |
+| provider            | haproxy                                        |
+| provisioning_status | ACTIVE                                         |
+| tenant_id           | 22bdc5a0210e4a96add0cea90a6137ed               |
+| vip_address         | 192.168.1.35                                   |
+| vip_port_id         | b17fb7e6-8492-4d35-9d33-bf05943ed31b           |
+| vip_subnet_id       | a1499bcd-9ce3-4cef-9a53-0c267c1d5ca7           |
++---------------------+------------------------------------------------+
+
+# neutron floatingip-associate bc2d4d00-e5d0-48c2-9872-9a01912a402b b17fb7e6-8492-4d35-9d33-bf05943ed31b
+Associated floating IP bc2d4d00-e5d0-48c2-9872-9a01912a402b
+
+# neutron floatingip-show bc2d4d00-e5d0-48c2-9872-9a01912a402b
++---------------------+--------------------------------------+
+| Field               | Value                                |
++---------------------+--------------------------------------+
+| fixed_ip_address    | 192.168.1.35                         |
+| floating_ip_address | 172.16.1.210                         |
+| floating_network_id | 0588949f-7a2a-43cc-a879-2ddbabea0d4a |
+| id                  | bc2d4d00-e5d0-48c2-9872-9a01912a402b |
+| port_id             | b17fb7e6-8492-4d35-9d33-bf05943ed31b |
+| router_id           | 9a45bdb6-b7ff-4329-8333-7339050ebcf9 |
+| status              | ACTIVE                               |
+| tenant_id           | 22bdc5a0210e4a96add0cea90a6137ed     |
++---------------------+--------------------------------------+
+```
