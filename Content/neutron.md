@@ -18,7 +18,12 @@ To enable OpenStack use Neutron for networking, on the Controller node, create t
 |     type    |             network              |
 +-------------+----------------------------------+
 
-# keystone endpoint-create --service-id fe006cc01d234e93a308933d60c396f2 --publicurl http://controller:9696 --adminurl http://10.10.10.30:9696 --internalurl http://controller:9696
+# keystone endpoint-create \
+--service-id fe006cc01d234e93a308933d60c396f2 \
+--publicurl http://controller:9696 \
+--adminurl http://controller:9696 \
+--internalurl http://controller:9696
+
 # keystone user-create --name neutron --pass <password>
 # keystone user-role-add --user neutron --role admin --tenant services
 ```
@@ -220,7 +225,8 @@ Configure the Neutron Metadata Agent by editing the ``/etc/neutron/metadata_agen
 [DEFAULT]
 verbose = True
 nova_metadata_ip = controller
-metadata_proxy_shared_secret = <metadata shared secret> #Nova service on Compute nodes must use the same shared secret
+#Nova service on Compute nodes must use the same shared secret
+metadata_proxy_shared_secret = <metadata shared secret>
 ```
 
 Finally, start and enable the Neutron agents
@@ -306,7 +312,8 @@ vif_plugging_timeout=300
 
 [neutron]
 service_metadata_proxy=True
-metadata_proxy_shared_secret = <metadata shared secret> #Metadata Agent on Network node must use the same shared secret
+#Metadata Agent on Network node must use the same shared secret
+metadata_proxy_shared_secret = <metadata shared secret>
 url=http://controller:9696
 auth_strategy=keystone
 admin_auth_url=http://controller:35357/v2.0
