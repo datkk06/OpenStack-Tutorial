@@ -41,7 +41,7 @@ On the Controller node, add the Version 1 service provider to the ``/etc/neutron
 ```
 [service_providers]
 ...
-service_provider = LOADBALANCER:Haproxy:neutron_lbaas.services.loadbalancer.drivers.haproxy.plugin_dri                              ver.HaproxyOnHostPluginDriver:default
+service_provider = LOADBALANCER:Haproxy:neutron_lbaas.services.loadbalancer.drivers.haproxy.plugin_driver.HaproxyOnHostPluginDriver:default
 ```
 
 and restart the Neutron server
