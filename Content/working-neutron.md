@@ -1,5 +1,5 @@
-###Configure a flat external network
-In the basic scenario with flat external network, only administrative users can manage external networks because they use the physical network infrastructure. We are going to create a shared external network to be used by all tenants.
+###Configure external shared networks
+In the basic networking scenario with a single flat external network, only administrative users can manage external networks because they use the physical network infrastructure. In this example, we are going to create a shared external network to be used by all tenants.
 
 On the Control node, login as ``admin`` Keystone user and create the external network
 ```
@@ -206,9 +206,23 @@ myaccess
 The rules just defined permit incoming traffic for all ICMP and SSH.
 
 
+###Configure a Load Balancer
+A Load Balancer enables networking to distribute incoming requests evenly among designated virtual machines instances. This distribution ensures that the workload is shared predictably among instances and enables more effective use of system resources. Load Balancers use one of these balancing methods to distribute incoming requests:
 
+|Method|Description|
+|------|-----------|
+|Round Robin|Rotates requests evenly between multiple instances|
+|Source IP|Requests from a unique source IP address are consistently directed to the same instance|
+|Least connections|Allocates requests to the instance with the least number of active connections|
 
+Neutron implementation of Load Balancer (*LBaaS*) provides following capabilities:
 
+|Feature|Description|
+|------|-----------|
+|Monitors|LBaaS provides availability monitoring with the ping, TCP, HTTP and HTTPS GET methods.|
+|Management|LBaaS is managed using CLI and programmatic scripting.|
+|Connection limits|Ingress traffic can be shaped with connection limits to avoid DoS attacks.|
+|Session persistence|LBaaS supports session persistence by ensuring incoming requests are routed to the same instance.|
 
 
 
