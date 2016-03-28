@@ -16,7 +16,7 @@ To configure the Load Balancer Version 1, on the Network node, edit the LBaaS Ag
 debug = True
 periodic_interval = 10
 interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
-device_driver = neutron.services.loadbalancer.drivers.haproxy.namespace_driver.HaproxyNSDriver
+# device_driver = neutron.services.loadbalancer.drivers.haproxy.namespace_driver.HaproxyNSDriver
 
 [haproxy]
 loadbalancer_state_path = $state_path/lbaas
@@ -129,7 +129,7 @@ neutron lb-vip-create \
 my-lb-pool
 ```
 
-At this point the Load Balancer has been successfully created and should be functional. Traffic sent to address **192.168.1.250** on port 80 will be load-balanced across all active members of the pool, i.e. **192.168.1.17** and **192.168.1.18**. To make the load balancer externally accessible, create a floating IP address and associate it with the Virtual IP address.
+At this point the Load Balancer has been successfully created and should be functional. Traffic sent to address **192.168.1.250** on port 80 will be load-balanced across all active members of the pool. To make the load balancer externally accessible, create a floating IP address and associate it with the Virtual IP address.
 ```
 # neutron floatingip-create external-flat-network
 Created a new floatingip:
@@ -192,7 +192,7 @@ Associate the healt monitor to the load balancer pool
 Associated health monitor 0947aaf6-5d24-4e83-a053-1a22517738bb
 ```
 
-Now the Load Balancer setup is fully working. Incoming requests to the floating **172.16.1.209** will be translated to the fixed virtual address **192.168.1.250** and then forwarded in a Round Robin fashion to the Virtual Machines instances with **192.168.1.17** and **192.168.1.18**.
+Now the Load Balancer setup is fully working. Incoming requests to the floating **172.16.1.209** will be translated to the fixed virtual address **192.168.1.250** and then forwarded in a Round Robin fashion to the Virtual Machines instances.
 
 
 ####Load Balancer Version V2
@@ -208,7 +208,6 @@ On the Network node, edit the LBaaS Agent by editing the ``/etc/neutron/lbaas_ag
 debug = True
 periodic_interval = 10
 interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
-#Make sure to comment the line below
 #device_driver = neutron.services.loadbalancer.drivers.haproxy.namespace_driver.HaproxyNSDriver
 
 [haproxy]
