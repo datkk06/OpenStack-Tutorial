@@ -163,7 +163,7 @@ Created a new floatingip:
 # neutron floatingip-associate 0f16047b-bc77-472c-b6f4-d62dc7993adb e9afb9b3-ab00-4188-921d-6c676fef6c12
 ```
 
-The next step is to create a health monitor and associate it with the pool. The health monitor is responsible for periodically checking the health of each member of the pool.
+The next step is to create a health monitor and associate it with the pool. The health monitor is responsible for periodically checking the health of each member, so that unresponsive servers are removed from the pool
 ```
 # neutron lb-healthmonitor-create --delay 5 --type HTTP --max-retries 3 --timeout 2
 Created a new health_monitor:
@@ -208,7 +208,8 @@ On the Network node, edit the LBaaS Agent by editing the ``/etc/neutron/lbaas_ag
 debug = True
 periodic_interval = 10
 interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
-device_driver = neutron.services.loadbalancer.drivers.haproxy.namespace_driver.HaproxyNSDriver
+#Make sure to comment the line below
+#device_driver = neutron.services.loadbalancer.drivers.haproxy.namespace_driver.HaproxyNSDriver
 
 [haproxy]
 loadbalancer_state_path = $state_path/lbaas
@@ -266,13 +267,120 @@ On the Controller node, run the Neutron database migration from Version 1 to Ver
 # neutron-db-manage --service lbaas upgrade head
 ```
 
+Now we can setup a Load Balancer service. As tenant user, create a load balancer on the tenant network
+```
+# neutron lbaas-loadbalancer-create \
+--name load-balancer \
+tenant-subnetwork
 
+# neutron lbaas-loadbalancer-show load-balancer
++---------------------+------------------------------------------------+
+| Field               | Value                                          |
++---------------------+------------------------------------------------+
+| admin_state_up      | True                                           |
+| description         |                                                |
+| id                  | c111c728-3c04-498c-8e9b-349b52648579           |
+| listeners           | {"id": "7012b0f4-9780-49d5-b2f1-47c9ad7963b7"} |
+| name                | load-balancer                                  |
+| operating_status    | ONLINE                                         |
+| provider            | haproxy                                        |
+| provisioning_status | ACTIVE                                         |
+| tenant_id           | 22bdc5a0210e4a96add0cea90a6137ed               |
+| vip_address         | 192.168.1.35                                   |
+| vip_port_id         | b17fb7e6-8492-4d35-9d33-bf05943ed31b           |
+| vip_subnet_id       | a1499bcd-9ce3-4cef-9a53-0c267c1d5ca7           |
++---------------------+------------------------------------------------+
+```
 
+The load balancer just created is active and ready to serve traffic on **192.168.1.35**. With the load balancer online, add a listener for HTTP traffic on port 80
+```
+# neutron lbaas-listener-create \
+--loadbalancer load-balancer \
+--protocol HTTP \
+--protocol-port 80 \
+--name listener
 
+# neutron lbaas-listener-show listener
++---------------------------+------------------------------------------------+
+| Field                     | Value                                          |
++---------------------------+------------------------------------------------+
+| admin_state_up            | True                                           |
+| connection_limit          | -1                                             |
+| default_pool_id           | 4e9dd23e-faa7-4d75-ae6d-ad64f28d3261           |
+| id                        | 7012b0f4-9780-49d5-b2f1-47c9ad7963b7           |
+| loadbalancers             | {"id": "c111c728-3c04-498c-8e9b-349b52648579"} |
+| name                      | listener                                       |
+| protocol                  | HTTP                                           |
+| protocol_port             | 80                                             |
+| tenant_id                 | 22bdc5a0210e4a96add0cea90a6137ed               |
++---------------------------+------------------------------------------------+
+```
 
+Build a load balancer pool 
+```
+# neutron lbaas-pool-create \
+--lb-algorithm ROUND_ROBIN \
+--listener listener \
+--protocol HTTP \
+--name mypool
 
+# neutron lbaas-pool-show mypool
++---------------------+------------------------------------------------+
+| Field               | Value                                          |
++---------------------+------------------------------------------------+
+| admin_state_up      | True                                           |
+| id                  | 4e9dd23e-faa7-4d75-ae6d-ad64f28d3261           |
+| lb_algorithm        | ROUND_ROBIN                                    |
+| listeners           | {"id": "7012b0f4-9780-49d5-b2f1-47c9ad7963b7"} |
+| members             |                                                |
+|                     |                                                |
+| name                | mypool                                         |
+| protocol            | HTTP                                           |
+| session_persistence |                                                |
+| tenant_id           | 22bdc5a0210e4a96add0cea90a6137ed               |
++---------------------+------------------------------------------------+
+```
 
+Add members to the pool to serve HTTP content on port 80. For this example, the web servers are **192.168.1.17** and **192.168.1.18**
+```
+# neutron lbaas-member-create  \
+--subnet tenant-subnetwork \
+--address 192.168.1.17 \
+--protocol-port 80 \
+mypool
 
+# neutron lbaas-member-create  \
+--subnet tenant-subnetwork \
+--address 192.168.1.18 \
+--protocol-port 80 \
+mypool
+```
 
+Add a health monitor so that unresponsive servers are removed from the pool. 
+```
+# neutron lbaas-healthmonitor-create \
+--delay 5 \
+--max-retries 2 \
+--timeout 10 \
+--type HTTP \
+--pool mypool
 
+Created a new healthmonitor:
++----------------+------------------------------------------------+
+| Field          | Value                                          |
++----------------+------------------------------------------------+
+| admin_state_up | True                                           |
+| delay          | 5                                              |
+| expected_codes | 200                                            |
+| http_method    | GET                                            |
+| id             | d6f714a9-d6bf-410a-81a8-d8ad24963de9           |
+| max_retries    | 2                                              |
+| pools          | {"id": "4e9dd23e-faa7-4d75-ae6d-ad64f28d3261"} |
+| tenant_id      | 22bdc5a0210e4a96add0cea90a6137ed               |
+| timeout        | 10                                             |
+| type           | HTTP                                           |
+| url_path       | /                                              |
++----------------+------------------------------------------------+
+```
 
+The health monitor just created removes an unresponsive server from the pool if it fails a health check at 2*5 seconds intervals. When the server recovers and begins responding to health checks again, it is added to the pool once again.
