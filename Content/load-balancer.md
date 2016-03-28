@@ -129,7 +129,38 @@ neutron lb-vip-create \
 my-lb-pool
 ```
 
-At this point the Load Balancer has been successfully created and should be functional. Traffic sent to address **192.168.1.250** on port 80 will be load-balanced across all active members of the pool. To make the load balancer externally accessible, create a floating IP address and associate it with the Virtual IP address.
+At this point the Load Balancer has been successfully created and should be functional. Traffic sent to address **192.168.1.250** on port 80 will be load-balanced across all active members of the pool.
+
+The next step is to create a health monitor and associate it with the pool. The health monitor is responsible for periodically checking the health of each member, so that unresponsive servers are removed from the pool
+```
+# neutron lb-healthmonitor-create --delay 5 --type HTTP --max-retries 3 --timeout 2
+Created a new health_monitor:
++----------------+--------------------------------------+
+| Field          | Value                                |
++----------------+--------------------------------------+
+| admin_state_up | True                                 |
+| delay          | 5                                    |
+| expected_codes | 200                                  |
+| http_method    | GET                                  |
+| id             | 0947aaf6-5d24-4e83-a053-1a22517738bb |
+| max_retries    | 3                                    |
+| pools          |                                      |
+| tenant_id      | 22bdc5a0210e4a96add0cea90a6137ed     |
+| timeout        | 2                                    |
+| type           | HTTP                                 |
+| url_path       | /                                    |
++----------------+--------------------------------------+
+```
+
+The above health monitor will perform an HTTP GET of the root path of the members. This health check expects an HTTP status of 200 in the response, and the connection must be established within 2 seconds. This check will be retried a maximum of 3 times before a member is determined to be failed and removed from the pool.
+
+Associate the healt monitor to the load balancer pool
+```
+# neutron lb-healthmonitor-associate 0947aaf6-5d24-4e83-a053-1a22517738bb my-lb-pool
+Associated health monitor 0947aaf6-5d24-4e83-a053-1a22517738bb
+```
+
+Now the Load Balancer setup is fully working. To make the load balancer externally accessible, create a floating IP address and associate it with the Virtual IP address.
 ```
 # neutron floatingip-create external-flat-network
 Created a new floatingip:
@@ -163,40 +194,8 @@ Created a new floatingip:
 # neutron floatingip-associate 0f16047b-bc77-472c-b6f4-d62dc7993adb e9afb9b3-ab00-4188-921d-6c676fef6c12
 ```
 
-The next step is to create a health monitor and associate it with the pool. The health monitor is responsible for periodically checking the health of each member, so that unresponsive servers are removed from the pool
-```
-# neutron lb-healthmonitor-create --delay 5 --type HTTP --max-retries 3 --timeout 2
-Created a new health_monitor:
-+----------------+--------------------------------------+
-| Field          | Value                                |
-+----------------+--------------------------------------+
-| admin_state_up | True                                 |
-| delay          | 5                                    |
-| expected_codes | 200                                  |
-| http_method    | GET                                  |
-| id             | 0947aaf6-5d24-4e83-a053-1a22517738bb |
-| max_retries    | 3                                    |
-| pools          |                                      |
-| tenant_id      | 22bdc5a0210e4a96add0cea90a6137ed     |
-| timeout        | 2                                    |
-| type           | HTTP                                 |
-| url_path       | /                                    |
-+----------------+--------------------------------------+
-```
-
-The above health monitor will perform an HTTP GET of the root path. This health check expects an HTTP status of 200 in the response, and the connection must be established within 2 seconds. This check will be retried a maximum of 3 times before a member is determined to be failed.
-
-Associate the healt monitor to the load balancer pool
-```
-# neutron lb-healthmonitor-associate 0947aaf6-5d24-4e83-a053-1a22517738bb my-lb-pool
-Associated health monitor 0947aaf6-5d24-4e83-a053-1a22517738bb
-```
-
-Now the Load Balancer setup is fully working. Incoming requests to the floating **172.16.1.209** will be translated to the fixed virtual address **192.168.1.250** and then forwarded in a Round Robin fashion to the Virtual Machines instances.
-
-
 ####Load Balancer Version V2
-To enable Load Balancer Version 2, remove any configuration related to the Version 1. Since Version 1 and Version 2 cannot run at the same time, stop and disable the Neutron Load Balancer agent on the Network node
+To enable Load Balancer Version 2, remove any configuration related to the Version 1. Since Version 1 and Version 2 cannot run at the same time, stop and disable the Neutron Load Balancer agent Version 1 on the Network node
 ```
 # systemctl stop neutron-lbaas-agent
 # systemctl disable neutron-lbaas-agent
@@ -216,7 +215,7 @@ user_group = haproxy
 send_gratuitous_arp = 3
 ```
 
-Start and enable the agent service on the Network node
+Start and enable the load balancing agent service Version 2 on the Network node
 ```
 # systemctl start neutron-lbaasv2-agent
 # systemctl enable neutron-lbaasv2-agent
@@ -229,7 +228,7 @@ On the Controller node, remove the LBaaS v1 and add the LBaaS v2 service plug-in
 service_plugins = neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPluginv2
 ```
 
-Add the LBaaS v2 service provider to the service_provider configuration directive within the section in the ``/etc/neutron/neutron_lbaas.conf`` configuration file on the Controller node
+Add the LBaaS v2 service provider to the ``/etc/neutron/neutron_lbaas.conf`` configuration file on the Controller node
 ```
 [service_providers]
 ...
@@ -258,7 +257,6 @@ On the Controller node, as admin user, update the Neutron agent list
 +--------------------------------------+----------------------+-----------+-------+----------------+---------------------------+
 | 20e11acf-4d36-443e-af52-602fa2ef824a | Loadbalancerv2 agent | network   | :-)   | True           | neutron-lbaasv2-agent     |
 +--------------------------------------+----------------------+-----------+-------+----------------+---------------------------+
-
 ```
 
 On the Controller node, run the Neutron database migration from Version 1 to Version 2
