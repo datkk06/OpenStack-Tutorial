@@ -13,7 +13,7 @@ OpenStack Tutorial based on the RDO distribution.
 9. [Working with Swift Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-swift.md)
 10. [Glance Image Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/glance.md)
 11. [Working with Glance Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-glance.md)
-12. 16. [Neutron Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/neutron.md)
+12. [Neutron Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/neutron.md)
 13. [Working with Neutron Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-neutron.md)
 14. [Nova Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/novanetwork.md)
 15. [_Metering Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ceilometer.md)
@@ -30,6 +30,8 @@ OpenStack Tutorial based on the RDO distribution.
 24. [FWaaS Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/firewall.md)
 25. [_Autoscaling with Heath](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/autoscaling-heat.md)
 26. [_Ceph Unified Storage](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ceph.md)
+27. [_Distribuited Networking](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/distributed-neutron.md)
+28. [_High Availability](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ha.md)
 
 
 ### Disclaimer
