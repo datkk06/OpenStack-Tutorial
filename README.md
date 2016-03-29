@@ -1,7 +1,7 @@
 # OpenStack-Tutorial
 OpenStack Tutorial based on the RDO distribution.
 
-###Basic Setup
+###The Basics
 1. [Setup](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/preflight.md)
 2. [Keystone Authentication Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/keystone.md)
 3. [RabbitMQ Message Broker](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/rabbitmq.md)
@@ -16,12 +16,12 @@ OpenStack Tutorial based on the RDO distribution.
 12. [Neutron Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/neutron.md)
 13. [Working with Neutron Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-neutron.md)
 14. [Nova Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/novanetwork.md)
-15. [_Metering Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ceilometer.md)
-16. [_Murano Catalog Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/murano.md)
-17. [_Manila File Sharing Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/manila.md)
-18. [_Heat Orchestration Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/heat.md)
 
 ###Do More
+15. [_Metering Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ceilometer.md)
+16. [_Murano Catalog Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/murano.md)
+17. [_Manila File Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/manila.md)
+18. [_Heat Orchestration Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/heat.md)
 19. [_Advanced Keystone Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/directory-keystone.md)
 20. [_Advanced Nova Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/advanced-nova.md)
 21. [Advanced Cinder Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/multiple_cinder.md)
