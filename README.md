@@ -15,8 +15,9 @@ OpenStack Tutorial based on RDO distribution and CentOS7 Operating System.
 11. [Working with Glance Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-glance.md)
 12. [Neutron Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/neutron.md)
 13. [Working with Neutron Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-neutron.md)
-14. [Load Balancer Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/load-balancer.md) 
-15. [Nova Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/novanetwork.md)
+14. [LBaaS Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/load-balancer.md)
+15. [FWaaS Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/firewall.md)
+16. [Nova Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/novanetwork.md)
 
 ### Disclaimer
-This tutorial is for personal use only. The content is borrowed from many sources, including OpenStack online guide, blogs and tutorial from the net.
+This tutorial is for personal use only. The content is borrowed from many sources, including OpenStack online guide, blogs and online tutorials.
