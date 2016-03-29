@@ -92,7 +92,22 @@ FWaaS always adds a default deny-all rule at the lowest precedence of each polic
 
 Finally, create a firewall based on the policy just created and assign the Firewall to a tenant router
 ```
+# neutron firewall-create \
+--name my-firewall \
+--router my-gateway \
+my-policy
 
-
-
+# neutron firewall-show my-firewall
++--------------------+--------------------------------------+
+| Field              | Value                                |
++--------------------+--------------------------------------+
+| admin_state_up     | True                                 |
+| description        |                                      |
+| firewall_policy_id | 436da4c2-272b-4845-b67d-59809457dd45 |
+| id                 | 87572a33-56f7-4665-b296-50baf9af3bbb |
+| name               | my-firewall                          |
+| router_ids         | 9a45bdb6-b7ff-4329-8333-7339050ebcf9 |
+| status             | ACTIVE                               |
+| tenant_id          | 22bdc5a0210e4a96add0cea90a6137ed     |
++--------------------+--------------------------------------+
 ```
