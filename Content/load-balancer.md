@@ -1,4 +1,4 @@
-###Load Balancer Configuration
+###Configure Load Balancer LBaaS Service
 A Load Balancer enables networking to distribute incoming requests evenly among designated virtual machines instances. This distribution ensures that the workload is shared predictably among instances and enables more effective use of system resources. Load Balancers use one of these balancing methods to distribute incoming requests:
 
 |Method|Description|
@@ -9,8 +9,8 @@ A Load Balancer enables networking to distribute incoming requests evenly among 
 
 In this section, we are going to configure a simple load balancer to balance incoming traffic toward a couple of virtual machines running a web server. Both Load Balancer V1 and V2 are available. Version 1 will be replaced by Version 2 but it is still available. At time of writing, the Version 2 is not yet supported via Horizon GUI.
 
-####Load Balancer Version V1
-To configure the Load Balancer, edit the Load Balancer agent configuration by editing the ``/etc/neutron/lbaas_agent.ini`` initialization file on the Network node
+####LBaaS Version V1
+To configure the LBaaS, edit the Load Balancer agent configuration by editing the ``/etc/neutron/lbaas_agent.ini`` initialization file on the Network node
 ```
 [DEFAULT]
 debug = True
@@ -256,8 +256,8 @@ Created a new floatingip:
 # neutron floatingip-associate 0f16047b-bc77-472c-b6f4-d62dc7993adb e9afb9b3-ab00-4188-921d-6c676fef6c12
 ```
 
-####Load Balancer Version V2
-To enable Load Balancer Version 2, remove any configuration related to the Version 1. Since Version 1 and Version 2 cannot run at the same time, stop and disable the Neutron Load Balancer Version 1 on the Network node
+####LBaaS Version V2
+To enable LBaaS Version 2, remove any configuration related to the Version 1. Since Version 1 and Version 2 cannot run at the same time, stop and disable the Neutron LBaaS Version 1 on the Network node
 ```
 # systemctl stop neutron-lbaas-agent
 # systemctl disable neutron-lbaas-agent
