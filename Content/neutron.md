@@ -242,10 +242,8 @@ Finally, start and enable the Neutron agents
 # systemctl enable neutron-metadata-agent
 ```
 
-On all the Compute nodes, install the Neutron packages
+On all the Compute nodes, install the Neutron package
 ```
-# yum install -y openstack-neutron
-# yum install -y openstack-neutron-ml2
 # yum install -y openstack-neutron-openvswitch
 ```
 
@@ -329,7 +327,7 @@ and restart the Nova service
 # systemctl restart openstack-nova-compute
 ```
 
-Cehck the list of Agents
+Check the list of Agents
 ```
 # neutron agent-list
 +--------------------------------------+--------------------+-----------+-------+----------------+---------------------------+
