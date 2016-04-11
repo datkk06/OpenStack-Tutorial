@@ -51,56 +51,95 @@ On the Controller node, the configuration file ``/etc/nova/nova.conf`` contains 
 # vi /etc/nova/nova.conf
 
 [DEFAULT]
+novncproxy_host = 0.0.0.0
+novncproxy_port = 6080
+notify_api_faults = False
 state_path=/var/lib/nova
-enabled_apis=osapi_compute,metadata
-osapi_compute_listen=0.0.0.0
-osapi_compute_listen_port=8774
-rootwrap_config=/etc/nova/rootwrap.conf
-api_paste_config=api-paste.ini
-auth_strategy=keystone
-log_dir=/var/log/nova
-scheduler_driver=nova.scheduler.filter_scheduler.FilterScheduler
-notification_driver=nova.openstack.common.notifier.rpc_notifier
-rpc_backend=rabbit
+report_interval = 10
+enabled_apis = osapi_compute,metadata
+osapi_compute_listen = 0.0.0.0
+osapi_compute_listen_port = 8774
+osapi_compute_workers = 1
+metadata_listen = 0.0.0.0
+metadata_listen_port = 8775
+metadata_workers = 1
+service_down_time = 60
+rootwrap_config = /etc/nova/rootwrap.conf
+volume_api_class = nova.volume.cinder.API
+auth_strategy = keystone
+use_forwarded_for = False
+cpu_allocation_ratio = 16.0
+ram_allocation_ratio = 1.5
+network_api_class = nova.network.neutronv2.api.API
+default_floating_pool = public
+force_snat_range = 0.0.0.0/0
+metadata_host = <controller>
+dhcp_domain = novalocal
+security_group_api = neutron
+scheduler_default_filters = RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,CoreFilter
+scheduler_driver = nova.scheduler.filter_scheduler.FilterScheduler
+vif_plugging_is_fatal = True
+vif_plugging_timeout = 300
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+debug = True
+verbose = True
+log_dir = /var/log/nova
+use_syslog = False
+syslog_log_facility = LOG_USER
+use_stderr = True
+notification_topics = notifications
+rpc_backend = rabbit
+amqp_durable_queues = False
+sql_connection = mysql://nova:<nova db password>@<controller>/nova
+image_service = nova.image.glance.GlanceImageService
+lock_path = /var/lib/nova/tmp
+osapi_volume_listen = 0.0.0.0
+novncproxy_base_url = http://0.0.0.0:6080/vnc_auto.html
 
-network_api_class=nova.network.neutronv2.api.API
-security_group_api=neutron
-linuxnet_interface_driver=nova.network.linux_net.LinuxOVSInterfaceDriver
-firewall_driver=nova.virt.firewall.NoopFirewallDriver
+[cinder]
+catalog_info = volumev2:cinderv2:publicURL
 
 [glance]
-host=controller
-port=9292
-protocol=http
-
-[oslo_concurrency]
-lock_path=/var/lib/nova/tmp
-
-[oslo_messaging_rabbit]
-rabbit_host=controller
-rabbit_port=5672
-rabbit_userid=guest
-rabbit_password=guest
-
-[database]
-connection=mysql://nova:<password>@localhost/nova
+api_servers = <controller>:9292
 
 [keystone_authtoken]
-auth_uri=http://controller:5000
-auth_url=http://controller:35357
-auth_plugin=password
-project_domain_id=default
-user_domain_id=default
-project_name=service
-username=nova
-password=<keystone service password>
+auth_uri = http://<controller>:5000/v2.0
+identity_uri = http://<controller>:35357
+admin_user = nova
+admin_password = <nova service password>
+admin_tenant_name = services
+
+[libvirt]
+vif_driver = nova.virt.libvirt.vif.LibvirtGenericVIFDriver
 
 [neutron]
-url=http://controller:9696
-auth_strategy=keystone
-admin_auth_url=http://controller:35357/v2.0
-admin_tenant_name=service
-admin_username=neutron
-admin_password=<neutron service password>
+service_metadata_proxy = True
+metadata_proxy_shared_secret = <shared secret>
+url = http://<controller>:9696
+admin_username = neutron
+admin_password = <neutron service password>
+admin_tenant_name = services
+region_name = RegionOne
+admin_auth_url = http://<controller>:5000/v2.0
+auth_strategy = keystone
+ovs_bridge = br-int
+extension_sync_interval = 600
+timeout = 30
+default_tenant_id = default
+
+[oslo_messaging_rabbit]
+rabbit_host = <controller>
+rabbit_port = 5672
+rabbit_hosts = <controller>:5672
+rabbit_use_ssl = False
+rabbit_userid = guest
+rabbit_password = guest
+rabbit_virtual_host = /
+rabbit_ha_queues = False
+heartbeat_timeout_threshold = 0
+heartbeat_rate = 2
+
+[osapi_v3]
+enabled = False
 ```
 
