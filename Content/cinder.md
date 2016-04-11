@@ -27,7 +27,7 @@ The Block Storage service contains the following components:
 
 ### Implementing Cinder
 
-Install the Cinder components
+On the Controller node, install the Cinder components
 ```
 # yum install -y openstack-cinder
 ```
