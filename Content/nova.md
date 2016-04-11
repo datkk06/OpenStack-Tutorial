@@ -76,7 +76,6 @@ force_snat_range = 0.0.0.0/0
 metadata_host = <controller>
 dhcp_domain = novalocal
 security_group_api = neutron
-scheduler_default_filters = RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,CoreFilter
 scheduler_driver = nova.scheduler.filter_scheduler.FilterScheduler
 vif_plugging_is_fatal = True
 vif_plugging_timeout = 300
