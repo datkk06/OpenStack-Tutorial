@@ -145,16 +145,22 @@ enabled = False
 
 On the Controller node, start and enable the services
 ```
-systemctl start openstack-nova-api
-systemctl start openstack-nova-scheduler
-systemctl start openstack-nova-cert
-systemctl start openstack-nova-conductor
-systemctl start openstack-nova-consoleauth
+# systemctl start openstack-nova-api
+# systemctl start openstack-nova-scheduler
+# systemctl start openstack-nova-cert
+# systemctl start openstack-nova-conductor
+# systemctl start openstack-nova-consoleauth
 
-systemctl enable openstack-nova-api
-systemctl enable openstack-nova-scheduler
-systemctl enable openstack-nova-cert
-systemctl enable openstack-nova-conductor
-systemctl enable openstack-nova-consoleauth
+# systemctl enable openstack-nova-api
+# systemctl enable openstack-nova-scheduler
+# systemctl enable openstack-nova-cert
+# systemctl enable openstack-nova-conductor
+# systemctl enable openstack-nova-consoleauth
 ```
+
+On each Compute node, install the Compute Service
+```
+
+```
+
 
