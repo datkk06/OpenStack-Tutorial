@@ -53,13 +53,13 @@ Create the _cinder_ user and the services. Both service versions 1 and 2 need to
 +----------------------------------+----------+----------+---------------------------+
 
 # keystone endpoint-create \
---service cinder \
+--service volume \
 --publicurl 'http://controller:8776/v1/%(tenant_id)s' \
 --adminurl 'http://controller:8776/v1/%(tenant_id)s' \
 --internalurl 'http://controller:8776/v1/%(tenant_id)s'
 
 # keystone endpoint-create \
---service cinderv2 \
+--service volumev2 \
 --publicurl 'http://controller:8776/v2/%(tenant_id)s' \
 --adminurl 'http://controller:8776/v2/%(tenant_id)s' \
 --internalurl 'http://controller:8776/v2/%(tenant_id)s'
