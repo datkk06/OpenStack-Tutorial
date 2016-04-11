@@ -11,7 +11,7 @@ The Compute Service provides:
 
 4. **openstack-nova-conductor**. Handles database requests made by Compute nodes, ensuring that individual Compute node do not require direct database access. 
 
-
+####Implementing Nova on the Controller node
 The Controller node is the node that runs most of the Nova services, especially the nova-scheduler, which coordinates the activities of the various Nova services. The Compute node runs the virtualization software to launch and manage instances for OpenStack.
 
 Install and configure the Nova components on the Controller node
@@ -157,6 +157,7 @@ On the Controller node, start and enable the services
 # systemctl enable openstack-nova-consoleauth
 ```
 
+####Add a new Compute node
 On each Compute node, install the Compute Service
 ```
 
