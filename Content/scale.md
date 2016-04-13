@@ -94,6 +94,13 @@ Create a second AZ and add one host to each AZ
 +-----------------------+----------------------------------------+
 ```
 
+Start a Virtual Machine specifying the AZ
+```
+# source keystonerc_tenant
+# nova boot --flavor small --image cirros --nic net-id=tenant-network --availability-zone AZ01 VM-in-AZ01
+# nova show VM-in-AZ01 | grep availability_zone
+| OS-EXT-AZ:availability_zone          | AZ01                                                     |
+```
 
 
 
