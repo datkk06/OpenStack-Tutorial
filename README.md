@@ -5,7 +5,7 @@ OpenStack Tutorial based on the RDO distribution.
 1. [Setup](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/preflight.md)
 2. [Keystone Authentication Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/keystone.md)
 3. [RabbitMQ Message Broker](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/rabbitmq.md)
-4. [_Nova Compute Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/nova.md)
+4. [Nova Compute Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/nova.md)
 5. [_Working with Nova Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-nova.md)
 6. [Cinder Block Storage Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/cinder.md)
 7. [Working with Cinder Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-cinder.md)
