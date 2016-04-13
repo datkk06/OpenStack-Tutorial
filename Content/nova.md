@@ -16,6 +16,7 @@ The Controller node is the node that runs most of the Nova services, especially 
 
 Install and configure the Nova components on the Controller node
 ```
+# yum install -y https://www.rdoproject.org/repos/rdo-release.rpm
 # yum install -y openstack-nova
 ```
 
