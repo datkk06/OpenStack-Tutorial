@@ -188,6 +188,7 @@ If the above command returns a zero value, the Compute node does not support har
 
 Then install the Compute Nova Service
 ```
+# yum install -y https://www.rdoproject.org/repos/rdo-release.rpm
 # yum install -y openstack-nova-compute
 ```
 
