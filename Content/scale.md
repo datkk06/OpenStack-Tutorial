@@ -16,4 +16,89 @@ OpenStack offers solutions for scaling the Cloud, called **Regions**, **Cells**,
 
 
 ###Implementing Availability Zones and Host Aggregates
-Considering an OpenStack Cloud made of a single Compute deployment. Default Availability Zone is the _nova_ zone.
+Considering an OpenStack Cloud made of a single Compute deployment. Default Availability Zone (AZ) is the _nova_ zone.
+```
+# nova availability-zone-list
++-----------------------+----------------------------------------+
+| Name                  | Status                                 |
++-----------------------+----------------------------------------+
+| internal              | available                              |
+| |- controller         |                                        |
+| | |- nova-conductor   | enabled :-) 2016-04-13T08:52:32.000000 |
+| | |- nova-consoleauth | enabled :-) 2016-04-13T08:52:32.000000 |
+| | |- nova-scheduler   | enabled :-) 2016-04-13T08:52:34.000000 |
+| | |- nova-cert        | enabled :-) 2016-04-13T08:52:32.000000 |
+| nova                  | available                              |
+| |- compute03          |                                        |
+| | |- nova-compute     | enabled :-) 2016-04-13T08:52:33.000000 |
+| |- compute04          |                                        |
+| | |- nova-compute     | enabled :-) 2016-04-13T08:52:34.000000 |
++-----------------------+----------------------------------------+
+```
+
+Creating an AZ, it actually creates a Host Aggregate with your wanted AZ name
+```
+# nova aggregate-create AZ01_SilverHosts AZ01
+```
+Add an host to the aggregate means add the host to the AZ too
+```
+# nova aggregate-add-host AZ01_SilverHosts compute03
+# nova aggregate-add-host AZ01_SilverHosts compute04
+# nova availability-zone-list
++-----------------------+----------------------------------------+
+| Name                  | Status                                 |
++-----------------------+----------------------------------------+
+| internal              | available                              |
+| |- controller         |                                        |
+| | |- nova-conductor   | enabled :-) 2016-04-13T09:05:02.000000 |
+| | |- nova-consoleauth | enabled :-) 2016-04-13T09:05:02.000000 |
+| | |- nova-scheduler   | enabled :-) 2016-04-13T09:05:04.000000 |
+| | |- nova-cert        | enabled :-) 2016-04-13T09:05:02.000000 |
+| AZ01                  | available                              |
+| |- compute03          |                                        |
+| | |- nova-compute     | enabled :-) 2016-04-13T09:05:03.000000 |
+| |- compute04          |                                        |
+| | |- nova-compute     | enabled :-) 2016-04-13T09:05:04.000000 |
+| nova                  | not available                          |
++-----------------------+----------------------------------------+
+
+# nova aggregate-details AZ01_SilverHosts
++----+------------------+-------------------+--------------------------+--------------------------+
+| Id | Name             | Availability Zone | Hosts                    | Metadata                 |
++----+------------------+-------------------+--------------------------+--------------------------+
+| 3  | AZ01_SilverHosts | AZ01              | 'compute03', 'compute04' | 'availability_zone=AZ01' |
++----+------------------+-------------------+--------------------------+--------------------------+
+```
+
+Create a second AZ and add one host to each AZ
+```
+# nova aggregate-create AZ02_SilverHosts AZ02
+# nova aggregate-add-host AZ02_SilverHosts compute04
+# nova availability-zone-list
++-----------------------+----------------------------------------+
+| Name                  | Status                                 |
++-----------------------+----------------------------------------+
+| internal              | available                              |
+| |- controller         |                                        |
+| | |- nova-conductor   | enabled :-) 2016-04-13T09:11:02.000000 |
+| | |- nova-consoleauth | enabled :-) 2016-04-13T09:11:02.000000 |
+| | |- nova-scheduler   | enabled :-) 2016-04-13T09:11:04.000000 |
+| | |- nova-cert        | enabled :-) 2016-04-13T09:11:02.000000 |
+| AZ01                  | available                              |
+| |- compute03          |                                        |
+| | |- nova-compute     | enabled :-) 2016-04-13T09:11:03.000000 |
+| AZ02                  | available                              |
+| |- compute04          |                                        |
+| | |- nova-compute     | enabled :-) 2016-04-13T09:11:04.000000 |
+| nova                  | not available                          |
++-----------------------+----------------------------------------+
+```
+
+
+
+
+
+
+
+
+
