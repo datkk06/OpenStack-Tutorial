@@ -186,6 +186,31 @@ Determine whether the Compute node supports hardware acceleration for virtual ma
 
 If the above command returns a zero value, the Compute node does not support hardware acceleration and you must configure the ``libvirtd`` service to use **QEMU** instead of **KVM**. To use **QEMU**, set ``virt_type=qemu`` int the ``/etc/nova/nova.conf`` configuration file as pointed below, otherwise to use **KVM**, instead set ``virt_type=kvm``.
 
+Edit the ``/etc/sysconfig/libvirtd`` ``/etc/libvirt/libvirtd.conf`` configuration files
+```
+# vi /etc/sysconfig/libvirtd
+...
+LIBVIRTD_ARGS="--listen"
+...
+
+# vi /etc/libvirt/libvirtd.conf
+...
+listen_tls = 0
+listen_tcp = 1
+auth_tcp = “none”
+...
+```
+
+Restart the service and make sure it is listening on 16509
+```
+# systemctl restart libvirtd
+# ps aux | grep libvirtd
+root      6128  0.3  0.5 936688 21892 ?        Ssl  16:53   0:01 /usr/sbin/libvirtd --listen
+
+# netstat -natp | grep 16509
+tcp        0      0 0.0.0.0:16509           0.0.0.0:*               LISTEN      6128/libvirtd
+```
+
 Then install the Compute Nova Service
 ```
 # yum install -y https://www.rdoproject.org/repos/rdo-release.rpm
