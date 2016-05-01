@@ -19,21 +19,19 @@ OpenStack Tutorial based on the RDO distribution.
 
 ###Do More
 15. [_Metering Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ceilometer.md)
-16. [_Murano Catalog Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/murano.md)
-17. [_Manila File Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/manila.md)
-18. [_Heat Orchestration Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/heat.md)
-19. [_Advanced Keystone Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/directory-keystone.md)
-20. [_Advanced Nova Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/advanced-nova.md)
-21. [Advanced Cinder Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/multiple_cinder.md)
-22. [_Creating Images](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/images.md)
-23. [LBaaS Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/load-balancer.md)
-24. [FWaaS Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/firewall.md)
-25. [_Autoscaling with Heath](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/autoscaling-heat.md)
-26. [_Ceph Unified Storage](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ceph.md)
-27. [_Distribuited Networking](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/distributed-neutron.md)
-28. [_High Availability](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ha.md)
-29. [Cloud Scaling](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/scale.md)
-
+16. [_Manila File Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/manila.md)
+17. [_Heat Orchestration Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/heat.md)
+18. [_Advanced Keystone Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/directory-keystone.md)
+19. [_Advanced Nova Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/advanced-nova.md)
+20. [Advanced Cinder Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/multiple_cinder.md)
+21. [_Creating Images](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/images.md)
+22. [LBaaS Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/load-balancer.md)
+23. [FWaaS Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/firewall.md)
+24. [_Autoscaling with Heath](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/autoscaling-heat.md)
+25. [_Ceph Unified Storage](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ceph.md)
+26. [_Distribuited Networking](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/distributed-neutron.md)
+27. [_High Availability](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ha.md)
+28. [Cloud Scaling](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/scale.md)
 
 ### Disclaimer
 This tutorial is for personal use only. The content is borrowed from many sources, including OpenStack online guide, blogs and online tutorials.
