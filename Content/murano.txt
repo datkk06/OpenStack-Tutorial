@@ -199,7 +199,8 @@ Make the tenant user an heat stack owner
 
 Login as a tenant user, e.g. bcloud, and add a murano package
 # source keystonerc_bcloud
-[root@controller ~(bcloud)]# murano --murano-repo-url="http://storage.apps.openstack.org/" package-import io.murano.apps.apache.ApacheHttpServer
+[root@controller ~(bcloud)]# murano --murano-repo-url="http://storage.apps.openstack.org/" \
+package-import io.murano.apps.apache.ApacheHttpServer
 
 This will add a Debian image to glance image service, wait until the image is in active status
 [root@controller ~(bcloud)]# glance image-list
