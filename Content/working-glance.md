@@ -7,11 +7,7 @@ The glance command can be used to manage images. If the image is already availab
 Upload it to Glance.
 ```
 # source /root/keystonerc_admin
-# glance image-create \
---name "fedora-19" \
---disk-format qcow2 \
---container-format bare\
---file /data/fedora-19.x86_64.qcow2
+# glance image-create --name "fedora-19" --disk-format qcow2 --container-format bare --file /data/fedora-19.x86_64.qcow2
 
 # glance image-list
 +--------------------------------------+-----------+-------------+------------------+-----------+--------+
