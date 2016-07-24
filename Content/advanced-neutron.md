@@ -1,4 +1,4 @@
-###Advanced Neutron Configuration
+###Provider Network Scenario
 The basic Neutron configuration uses tenant networks to provide internet access to the instances. All traffic coming from the Compute nodes is routed through the Network node. In this sections we are going to enhance the basic scenario by introducing advanced features of the Neutron Service.
 
 ####Flat Provider network scenario
