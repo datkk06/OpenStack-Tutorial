@@ -83,7 +83,7 @@ and restart the service
 # systemctl restart neutron-openvswitch-agent
 ```
 
-Now we are going to create an external network as a flat provider network and associate it with the configured physical network. Configuring it as a shared network will allow all tenants to create instances directly to it
+Now we are going to create an external network as a flat provider network and associate it with the configured physical network. Configuring it as a shared network will allow all tenants to create instances directly to it. 
 
 ```
 # source keystone_admin
@@ -162,12 +162,16 @@ We see the new VM getting IP address on the provider network
 +--------------------------------------+------------+--------+------------+-------------+--------------------------+
 ```
 
-####VLAN based Provider network scenario
-
-
-
-
+Please note that the external network is a network outside the domain of the OpenStack setup. The IP addressing schema, the default gateway and DNS server are defined by the network administrator of the organization. Only the DHCP server is provided by Neutron. When we are going to spawn an instance it will pick the address from Network node instead of external DHCP server. With external DHCP server Neutron will not have any control over the IP address assigned to instance hence the command output ```nova list``` and actual instance IP will mismatch.  
 
 
 ####Enable compute metadata in Provider networks scenario
+In the Provider networks scenario, the instances are directly attached to the provider external networks, and have an external routers configured as their default gateway. No Neutron routers are used. This means that neutron routers cannot be used to proxy metadata requests from instances to the metadata server, which may result in failures while running the cloud init initial task. However, this issue can be resolved by configuring the Neutron DHCP Agent to proxy metadata requests.
+
+To enable this functionality, edit the ``/etc/neutron/dhcp_agent.ini`` initialization file on the Network node
+```
+[DEFAULT]
+enable_isolated_metadata = True
+...
+```
 
