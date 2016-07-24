@@ -28,28 +28,27 @@ To enable OpenStack use Neutron for networking, on the Controller node, create t
 # keystone user-role-add --user neutron --role admin --tenant services
 ```
 
-###Setup Neutron networking with a flat external network
+###Setup Neutron networking
 The basic network implementation in OpenStack is made of a self-service virtual data center infrastructure permitting regular users to manage one or more virtual networks within a project. Connectivity to the external networks such as Internet is provided via the physical network infrastructure. Following concepts are introduced:
 
 * **Tenant networks**: networks providing connectivity to instances whithin a project. Regular users can manage project networks with the allocation that an administrator defines for for them. Tenant networks can use VLAN, GRE, or VXLAN transport methods depending on the allocation. Tenant networks generally use private IP address ranges and lack connectivity to external networks. IP addresses on the project networks are private IP space within the project and for this reason, they can overlap between different projects. An embedded DHCP service assignes the IP addresses to the Virtual Machines within the project.
 
 * **External network**: networks providing connectivity to external networks such as the Internet. Only administrative users can manage external networks because they use the physical network infrastructure. External networks can use Flat or VLAN transport methods depending on the physical network infrastructure and generally use public IP address ranges. A flat network essentially uses the untagged frames. Similar to physical networks, only one flat network can exist. In most cases, production deployments should use VLAN transport for external networks instead of a single flat network.
 
-* **Routers**: typically connect project and external networks by implementing source NAT to provide outbound external connectivity for instances on project networks. Each router uses an IP address in the external network allocation for source NAT. Routers also use destination NAT to provide inbound external connectivity for instances on project networks. The IP addresses on routers that provide inbound external connectivity for instances on project networks are refered as floating IP addresses. Routers can also connect project networks that belong to the same project.
+* **Routers**: typically connect tenant and external networks by implementing source NAT to provide outbound external connectivity for instances on tenant networks. Each router uses an IP address in the external network allocation for source NAT. Routers also use destination NAT to provide inbound external connectivity for instances on tenant networks. The IP addresses on routers that provide inbound external connectivity for instances on tenant networks are refered as floating IP addresses. Routers can also connect tenant networks that belong to the same project.
 
-In this section, we are going to creates one flat external network and multiple project networks using VxLAN. All traffic between different projects or to/from the Internet flows through the Network node. Also traffic between the same project flows through the Network node if the source and destination virtual machines are hosted on different Compute nodes. Only the traffic between the same project does not reach the Network node if the source and destination virtual machines are hosted on the same Compute node. We are going to use the Open vSwitch as **Software Defined Network** implementation.
+* **Provider networks**: networks providing connectivity to instances by mapping directly to an existing physical network in the data center. Provider networks generally offer simplicity, performance, and reliability at the cost of flexibility. Unlike tenant networks, only administrators can manage provider networks because they require configuration of physical network infrastructure. Also, provider networks lack the concept of fixed and floating IP addresses because they only handle layer-2 connectivity for the instances running on Compute nodes. Network types for provider networks are flat (untagged) and VLAN (tagged). It is possible to allow provider networks to be shared among tenants as part of the network creation process.
 
 Install and configure Neutron services as follow
 
-|Host Role|Service|Configuration File(s)|
-|---------|-------|---------------------|
-|Controller Node|Neutron Server|neutron.conf, ml2_conf.ini, nova.conf|
-|Compute Node 01|Neutron Open vSwitch Agent|neutron.conf, nova.conf, openvswitch_agent.ini|
-|Compute Node 02|Neutron Open vSwitch Agent|neutron.conf, nova.conf, openvswitch_agent.ini|
-|Network Node|Neutron L3 Agent|neutron.conf, l3_agent.ini|
-|Network Node|Neutron DHCP Agent|neutron.conf, dhcp_agent.ini|
-|Network Node|Neutron Metadata Agent|neutron.conf, metadata_agent.ini|
-|Network Node|Neutron Open vSwitch Agent|neutron.conf, openvswitch_agent.ini|
+|Service|Configuration File(s)|Host Role
+|-------|---------------------|---------------------|
+|Neutron Server|neutron.conf, ml2_conf.ini, nova.conf|Controller Node|
+|Neutron Open vSwitch Agent|neutron.conf, nova.conf, openvswitch_agent.ini|Compute Node|
+|Neutron L3 Agent|neutron.conf, l3_agent.ini|Network Node|
+|Neutron DHCP Agent|neutron.conf, dhcp_agent.ini|Network Node|
+|Neutron Metadata Agent|neutron.conf, metadata_agent.ini|Network Node|
+|Neutron Open vSwitch Agent|neutron.conf, openvswitch_agent.ini|Network Node|
 
 On the Controller node, install the Neutron packages
 ```
