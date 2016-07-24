@@ -142,11 +142,32 @@ Created a new subnet:
 +-------------------+----------------------------------------------------+
 ```
 
+Start a new VM on this network
+```
+# nova boot myinstance \
+> --flavor small \
+> --image cirros  \
+> --key_name demokey \
+> --security-groups default \
+> --nic net-id=<public_net_id>
+```
 
-
-
-
-
-
+We see the new VM getting IP address on the provider network
+```
+# nova list
++--------------------------------------+------------+--------+------------+-------------+--------------------------+
+| ID                                   | Name       | Status | Task State | Power State | Networks                 |
++--------------------------------------+------------+--------+------------+-------------+--------------------------+
+| 25705301-f197-4ace-bc82-2d537f136755 | myinstance | ACTIVE | -          | Running     | public_net=172.120.1.203 |
++--------------------------------------+------------+--------+------------+-------------+--------------------------+
+```
 
 ####VLAN based Provider network scenario
+
+
+
+
+
+
+####Enable compute metadata in Provider networks scenario
+
