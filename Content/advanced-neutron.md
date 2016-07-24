@@ -14,4 +14,15 @@ type_drivers = vxlan,flat
 flat_networks = *
 ```
 
+Restart the Neutron service to apply the change
+```
+systemctl restart neutron-server
+```
 
+On the Network node, 
+
+
+
+
+
+####VLAN based Provider network scenario
