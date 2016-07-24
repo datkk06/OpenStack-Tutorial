@@ -28,6 +28,7 @@ OpenStack Tutorial based on the RDO distribution.
 22. [_Ceph Unified Storage](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ceph.md)
 23. [_High Availability](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ha.md)
 24. [Cloud Scaling](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/scale.md)
+25. [Advanced Neutron Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/advanced-neutron.md)
 
 ### Disclaimer
 This tutorial is for personal use only.
