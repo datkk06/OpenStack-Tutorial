@@ -173,6 +173,21 @@ Start a VM on the tenant network
 --nic net-id=<internal_network_id>
 ```
 
+The OVS Layout should look like the following picture
+
+![](../img/ovs-layout-02.png)
+
+1. The VM is connected to a Lunix Bridge ``qbr-xx`` via a ``tap`` interface;
+2. Bridge ``qbr-xx`` is connected to ``br-int`` using virtual ethernet (veth) pair ``qvb-xx <-> qvo-xxx``;
+3. Interface ``qvb-xx`` is connected to the ``qbr-xx`` linux bridge, and ``qvo-xx`` is connected to the ``br-int`` Open vSwitch (OVS) bridge.
+
+The Linux bridge configuration can be inspected on Compute node by
+```
+# brctl show
+bridge name     bridge id               STP enabled     interfaces
+qbrbfee0484-ec          8000.e263d973999f       no      qvbbfee0484-ec
+                                                        tapbfee0484-ec
+```
 
 
 
