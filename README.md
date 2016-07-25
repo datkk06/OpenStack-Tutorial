@@ -29,7 +29,7 @@ OpenStack Tutorial based on the RDO distribution.
 23. [_High Availability](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ha.md)
 24. [Cloud Scaling](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/scale.md)
 25. [Provider Network Scenario](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/provider-network.md)
-26. [Provider Network Scenario (cont.)](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/provider-network-cont.md)
+26. [Open vSwitch layout](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/open-vswitch.md)
 
 ### Disclaimer
 This tutorial is for personal use only.
