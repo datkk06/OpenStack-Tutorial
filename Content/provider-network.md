@@ -11,6 +11,7 @@ On the Controller node, edit the ``/etc/neutron/plugin.ini`` initialization file
 type_drivers = vxlan,flat
 ...
 [ml2_type_flat]
+# use flat_networks = * to allow flat networks with arbitrary names
 flat_networks = *
 ...
 ```
@@ -184,7 +185,9 @@ On the Controller node, edit the ``/etc/neutron/plugin.ini`` initialization file
 
 ```
 [ml2]
-type_drivers = vxlan,flat, vlan
+type_drivers = vxlan,flat,vlan
+# use flat_networks = * to allow flat networks with arbitrary names
+flat_networks = *
 ...
 
 [ml2_type_vlan]
