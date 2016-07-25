@@ -146,7 +146,7 @@ Create a tenant network and related subnetwork
 ```
 # source keystonerc_demo
 # neutron net-create tenant-network
-neutron subnet-create tenant-network 192.168.1.0/24 \
+# neutron subnet-create tenant-network 192.168.1.0/24 \
 --name tenant-subnetwork \
 --gateway 192.168.1.1 \
 --enable-dhcp \
