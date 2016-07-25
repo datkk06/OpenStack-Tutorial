@@ -39,7 +39,9 @@ Making changes to the Open vSwitch Agent configuration requires always the agent
 ```
 
 ####Tenant network scenario
-To check the layout created by Neutron use the ``ovs-vsctl show`` command.
+We assume a Network node providing access to the outside and two Compute nodes for VMs. We'll check both the East-West traffic between VMs belonging to the same tenant and the North-South traffic between a VM and the outside.
+
+Starting with an empty layout without VMs. To check the layout created by Neutron use the ``ovs-vsctl show`` command.
 
 On the Network node
 ```
