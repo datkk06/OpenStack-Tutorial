@@ -123,6 +123,54 @@ vxlan-c0a80120
 vxlan-c0a80122
 ```
 
+####Packet flow in a Tenant scenario
+In this section we are going to check the packet flow when one or more instances need to communicate through the OVS layout.
+
+Create the external network and related subnetwork
+```
+# source keystonerc_admin
+# neutron net-create external-flat-network \
+--shared \
+--provider:network_type flat \
+--provider:physical_network external \
+--router:external True
+
+# neutron subnet-create external-flat-network 172.120.1.0/24  \
+--name external-flat-subnetwork \
+--gateway 172.120.1.1 \
+--disable-dhcp \
+--allocation-pool start=172.120.1.200,end=172.120.1.220
+```
+
+Create a tenant network and related subnetwork
+```
+# source keystonerc_demo
+# neutron net-create tenant-network
+neutron subnet-create tenant-network 192.168.1.0/24 \
+--name tenant-subnetwork \
+--gateway 192.168.1.1 \
+--enable-dhcp \
+--dns-nameserver 8.8.8.8 \
+--allocation-pool start=192.168.1.10,end=192.168.1.250
+```
+
+Create a tenant router to connect the tenant to the external network
+```
+# source keystonerc_demo
+# neutron router-create mygateway
+# neutron router-interface-add mygateway subnet=tenant-subnetwork
+# neutron router-gateway-set mygateway external-flat-network
+```
+
+Start a VM on the tenant network
+```
+# source keystonerc_demo
+
+```
+
+
+
+
 
 
 
