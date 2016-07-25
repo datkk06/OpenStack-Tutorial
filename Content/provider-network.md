@@ -20,7 +20,7 @@ Restart the Neutron service to apply the change
 # systemctl restart neutron-server
 ```
 
-On the Network node, configure the Open vSwitch Agent by editing the ``/etc/neutron/plugins/ml2/openvswitch_agent.ini`` initialization file
+On the Network node, configure the bridge mapping in the Open vSwitch Agent initialization file ``/etc/neutron/plugins/ml2/openvswitch_agent.ini``. The bridge mapping maps the external network bridge ``br-ex`` with a reference name for the external network. In this case, we are using ``external`` as reference name but this is simply a string of chars.
 ```
 [ovs]
 bridge_mappings = external:br-ex
