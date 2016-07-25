@@ -192,11 +192,8 @@ qbrbfee0484-ec          8000.e263d973999f       no      qvbbfee0484-ec
 The ``br-int`` Open vSwitch bridge on the Compute node is configured as
 ```
 # ovs-vsctl show
-    Bridge br-int
+Bridge br-int
         fail_mode: secure
-        Port "qvobfee0484-ec"
-            tag: 2
-            Interface "qvobfee0484-ec"
         Port br-int
             Interface br-int
                 type: internal
@@ -208,13 +205,25 @@ The ``br-int`` Open vSwitch bridge on the Compute node is configured as
             Interface patch-tun
                 type: patch
                 options: {peer=patch-int}
+        Port "qvo76e136f0-5c"
+            tag: 4
+            Interface "qvo76e136f0-5c"
+    ovs_version: "2.4.0"
 ```
 
-The port ``qvo-xx`` in the configuration above, is tagged with an internal VLAN tag associated with the flat provider network. In this example, the VLAN tag is **2**. Once the packet from the VM reaches ``qvo-xx``, the VLAN tag is appended to the packet header.
+The port ``qvo-xx`` in the configuration above, is tagged with an internal VLAN tag associated with the flat provider network. In this example, the **VLAN=4**. Once the packet from the VM reaches ``qvo-xx``, the VLAN tag is appended to the packet header.
 
-The packet is then moved to the ``br-ex`` OVS bridge using the patch-peer ``int-br-ex <-> phy-br-ex``.
+The packet is then moved to the ``br-tun`` OVS bridge using the patch-peer ``patch-tun <-> patch-int``. When the packet reaches the tunnel bridge, the VLAN tag is striped, tagged with the appropriate VxLAN tag and then sent over the VxLAN Tunnel.
 
-When this packet reaches ``phy-br-ex`` on ``br-ex``, an OVS flow inside ``br-ex`` bridge strips the VLAN tag and forwards the packet to the physical interface ``ens33``.
+```
+# ovs-ofctl dump-flows br-tun | grep vlan=4
+ cookie=0x8968752f83c2f3b2, duration=538.646s, table=22, n_packets=5, n_bytes=370, idle_age=530, dl_vlan=4 actions=strip_vlan,set_tunnel:0x431,output:3,output:5,output:4,output:2
+```
+
+The packet reaches its destination on the Network node via VxLAN tunnel and is passed to the tunnel bridge ``br-tun``.
+
+
+
 
 
 
