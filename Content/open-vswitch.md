@@ -165,7 +165,12 @@ Create a tenant router to connect the tenant to the external network
 Start a VM on the tenant network
 ```
 # source keystonerc_demo
-
+# nova boot myinstance \
+--flavor small \
+--image cirros  \
+--key_name demokey \
+--security-groups default 
+--nic net-id=<internal_network_id>
 ```
 
 
