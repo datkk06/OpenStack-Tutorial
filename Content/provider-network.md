@@ -46,7 +46,7 @@ Restart neutron-l3-agent for the changes to take effect.
 # systemctl restart neutron-l3-agent
 ```
 
-On each Compute node, create an additional bridge interface to connect the nodes to the external network, and allow instances to communicate directly with the external network. For example, if we have a physical interface called ``ens36``, create an external network bridge ``br-ex`` and associate the it
+On each Compute node, create an additional bridge interface to connect the nodes to the external network, and allow instances to communicate directly with the external network. For example, if we have a physical interface called ``ens36``, create an external network bridge ``br-ex`` and associate it
 ```
 # vi /etc/sysconfig/network-scripts/ifcfg-br-ex
 DEVICE=br-ex
@@ -175,3 +175,145 @@ enable_isolated_metadata = True
 ...
 ```
 
+####VLAN based Provider networks scenario
+In this section, we are going to create multiple VLAN provider networks that can connect instances directly to the external network. This is required if you want to connect multiple VLAN tagged interfaces, on a single NIC, to multiple provider networks. This example uses a physical network VLAN tagged with a range of VLAN ID 120-121. The Network node and all Compute nodes are connected to the physical network using a physical interface on them called ``ens36``. The switch ports to which these interfaces are connected must be configured to trunk the required VLAN ranges.
+
+
+On the Controller node, edit the ``/etc/neutron/plugin.ini`` initialization file
+
+```
+[ml2]
+type_drivers = vxlan,flat, vlan
+...
+
+[ml2_type_vlan]
+network_vlan_ranges=external:120:121
+...
+```
+
+Restart the Neutron service to apply the change
+```
+# systemctl restart neutron-server
+```
+
+On the Network node, configure the Open vSwitch Agent by editing the ``/etc/neutron/plugins/ml2/openvswitch_agent.ini`` initialization file
+```
+[ovs]
+bridge_mappings = external:br-ex
+...
+```
+
+and restart the service
+```
+# systemctl restart neutron-openvswitch-agent
+```
+
+Configure the L3 Agent by editing the ``/etc/neutron/l3_agent.ini`` initialization file
+```
+[DEFAULT]
+external_network_bridge =
+...
+```
+
+Restart neutron-l3-agent for the changes to take effect.
+```
+# systemctl restart neutron-l3-agent
+```
+
+On each Compute node, create an additional bridge interface to connect the nodes to the external network, and allow instances to communicate directly with the external network. Since we have a physical interface called ``ens36``, create an external network bridge ``br-ex`` and associate it
+```
+# vi /etc/sysconfig/network-scripts/ifcfg-br-ex
+DEVICE=br-ex
+TYPE=OVSBridge
+DEVICETYPE=ovs
+ONBOOT=yes
+NM_CONTROLLED=no
+BOOTPROTO=none
+
+# vi /etc/sysconfig/network-scripts/ifcfg-ens36
+DEVICE=ens36
+TYPE=OVSPort
+DEVICETYPE=ovs
+OVS_BRIDGE=br-ex
+ONBOOT=yes
+NM_CONTROLLED=no
+BOOTPROTO=none
+```
+
+Restart the network service to enable the bridge
+```
+# systemctl restart network
+```
+
+On each Compute node, configure the Open vSwitch Agent by editing the ``/etc/neutron/plugins/ml2/openvswitch_agent.ini`` initialization file
+```
+[ovs]
+bridge_mappings = external:br-ex
+...
+```
+
+and restart the service
+```
+# systemctl restart neutron-openvswitch-agent
+```
+
+Create the external networks with type VLAN, and associate them to the configured physical network. This example creates two networks: one for VLAN 120, and another for VLAN 121:
+
+```
+# neutron net-create provider-vlan120 \
+			--provider:network_type vlan \
+			--router:external true \
+			--provider:physical_network external \
+			--provider:segmentation_id 120 --shared
+
+# neutron net-create provider-vlan121 \
+			--provider:network_type vlan \
+			--router:external true \
+			--provider:physical_network external \
+			--provider:segmentation_id 121 --shared
+```
+
+Create a number of related subnets and configure them to use the external network. Pay attention to make certain that the external subnet details you have received from network administrator are correctly associated with each VLAN. In this example, VLAN 120 uses subnet 172.120.1.0/24 and VLAN 121 uses 172.121.1.0/24
+
+```
+# neutron subnet-create \
+      --name subnet-provider-120 provider-vlan120 172.120.1.0/24 \
+      --enable-dhcp=True \
+      --dns-nameserver=8.8.8.8 \
+      --allocation_pool start=172.120.1.200,end=172.120.1.210 \
+      --gateway=172.120.1.1
+
+# neutron subnet-create \
+      --name subnet-provider-120 provider-vlan120 172.120.1.0/24 \
+      --enable-dhcp=True \
+      --dns-nameserver=8.8.8.8 \
+      --allocation_pool start=172.120.1.200,end=172.120.1.210 \
+      --gateway=172.120.1.1
+```
+
+Start new VMs on these networks
+```
+# nova boot instance_on_120_vlan \
+> --flavor small \
+> --image cirros  \
+> --key_name demokey \
+> --security-groups default \
+> --nic net-id=<public_net_id>
+
+# nova boot instance_on_121_vlan \
+> --flavor small \
+> --image cirros  \
+> --key_name demokey \
+> --security-groups default \
+> --nic net-id=<public_net_id>
+```
+
+We see the VMs getting IP address on the providers networks
+```
+# nova list
++--------------------------------------+------------+--------+------------+-------------+--------------------------+
+| ID                                   | Name       | Status | Task State | Power State | Networks                 |
++--------------------------------------+------------+--------+------------+-------------+--------------------------+
+| 25705301-f197-4ace-bc82-2d537f136755 | myinstance | ACTIVE | -          | Running     | public_net=172.120.1.203 |
++--------------------------------------+------------+--------+------------+-------------+--------------------------+
+```
