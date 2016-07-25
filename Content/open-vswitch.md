@@ -169,7 +169,7 @@ Start a VM on the tenant network
 --flavor small \
 --image cirros  \
 --key_name demokey \
---security-groups default 
+--security-groups default \
 --nic net-id=<internal_network_id>
 ```
 
