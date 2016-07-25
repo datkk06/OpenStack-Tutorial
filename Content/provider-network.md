@@ -40,8 +40,6 @@ external_network_bridge =
 ...
 ```
 
-Unlike the Tenant networks scenario where ``external_network_bridge = br-ex``, in the Provider networks scenario, Neutron L3 Agent uses a blank string for connecting the Network node to an external network. When this parameter is set to a blank string, Neutron allows multiple flat provider networks by creating a patch port from each bridge interface to the ``br-int`` bridge.
-
 Restart neutron-l3-agent for the changes to take effect.
 ```
 # systemctl restart neutron-l3-agent
