@@ -189,8 +189,30 @@ qbrbfee0484-ec          8000.e263d973999f       no      qvbbfee0484-ec
                                                         tapbfee0484-ec
 ```
 
+4. The ``br-int`` Open vSwitch bridge on the Compute node is canfigured as
+```
+# ovs-vsctl show
+    Bridge br-int
+        fail_mode: secure
+        Port "qvobfee0484-ec"
+            tag: 2
+            Interface "qvobfee0484-ec"
+        Port br-int
+            Interface br-int
+                type: internal
+        Port int-br-ex
+            Interface int-br-ex
+                type: patch
+                options: {peer=phy-br-ex}
+        Port patch-tun
+            Interface patch-tun
+                type: patch
+                options: {peer=patch-int}
+```
 
-
+5. The port ``qvo-xx`` in the configuration above, is tagged with an internal VLAN tag associated with the flat provider network. In this example, the VLAN tag is **2**. Once the packet from the VM reaches ``qvo-xx``, the VLAN tag is appended to the packet header.
+6. The packet is then moved to the ``br-ex`` OVS bridge using the patch-peer ``int-br-ex <-> phy-br-ex``.
+7. When this packet reaches ``phy-br-ex`` on ``br-ex``, an OVS flow inside ``br-ex`` bridge strips the VLAN tag and forwards the packet to the physical interface ``ens33``.
 
 
 
