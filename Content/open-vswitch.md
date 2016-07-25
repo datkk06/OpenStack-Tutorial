@@ -45,9 +45,9 @@ Starting with an empty layout without VMs. Figure below shows the layout
 
 ![](../img/ovs-layout-01.png)
 
-To check the layout use ``ovs-vsctl show`` command. On the Network node
+To check the layout use ``ovs-vsctl show`` command.
 ```
-# ovs-vsctl show
+[root@network]# ovs-vsctl show
 d7930874-e155-42d7-978a-f78d0bcb218e
     Bridge br-ex
         Port phy-br-ex
@@ -92,69 +92,37 @@ d7930874-e155-42d7-978a-f78d0bcb218e
     ovs_version: "2.4.0"
 ```
 
-On the Compute 01 node
+To list the bridges on the system
 ```
-# ovs-vsctl show
-7bb6d324-ebd3-4c44-8448-63b6da83fc93
-    Bridge br-tun
-        fail_mode: secure
-        Port "vxlan-c0a80122"
-            Interface "vxlan-c0a80122"
-                type: vxlan
-                options: {df_default="true", in_key=flow, local_ip="192.168.1.32", out_key=flow, remote_ip="192.168.1.34"}
-        Port br-tun
-            Interface br-tun
-                type: internal
-        Port patch-int
-            Interface patch-int
-                type: patch
-                options: {peer=patch-tun}
-        Port "vxlan-c0a80126"
-            Interface "vxlan-c0a80126"
-                type: vxlan
-                options: {df_default="true", in_key=flow, local_ip="192.168.1.32", out_key=flow, remote_ip="192.168.1.38"}
-    Bridge br-int
-        fail_mode: secure
-        Port patch-tun
-            Interface patch-tun
-                type: patch
-                options: {peer=patch-int}
-        Port br-int
-            Interface br-int
-                type: internal
-    ovs_version: "2.4.0"
+[root@network ~]# ovs-vsctl list-br
+br-ex
+br-int
+br-tun
 ```
 
-On the Compute 02 node
+Check the chain of ports and bridges on the Network node. The bridge ``br-ex`` contains the physical network interface ``ens33`` and the virtual interface ``phy-br-ex`` attached to the ``int-br-ex`` of the ``br-int``
 ```
-# ovs-vsctl show
-e0ec8cf3-8df5-4ac5-9718-4223bcd54b0c
-    Bridge br-tun
-        fail_mode: secure
-        Port "vxlan-c0a80120"
-            Interface "vxlan-c0a80120"
-                type: vxlan
-                options: {df_default="true", in_key=flow, local_ip="192.168.1.34", out_key=flow, remote_ip="192.168.1.32"}
-        Port patch-int
-            Interface patch-int
-                type: patch
-                options: {peer=patch-tun}
-        Port br-tun
-            Interface br-tun
-                type: internal
-        Port "vxlan-c0a80126"
-            Interface "vxlan-c0a80126"
-                type: vxlan
-                options: {df_default="true", in_key=flow, local_ip="192.168.1.34", out_key=flow, remote_ip="192.168.1.38"}
-    Bridge br-int
-        fail_mode: secure
-        Port br-int
-            Interface br-int
-                type: internal
-        Port patch-tun
-            Interface patch-tun
-                type: patch
-                options: {peer=patch-int}
-    ovs_version: "2.4.0"
+[root@network ~]# ovs-vsctl list-ports br-ex
+em3
+phy-br-em3
 ```
+
+The integration bridge ``br-int`` is linked to the external bridge via ``int-br-ex`` interface and to the tunnel bridge via ``patch-tun`` interface
+```
+[root@network ~]# ovs-vsctl list-ports br-int
+int-br-ex
+patch-tun
+```
+
+The tunnel bridge ``br-tun`` is linked to the integration bridge via ``patch-int`` interface and to the VxLAN tunnel. The VxLAN tunnel consists in two separate ``vxlan-c0a80xxx`` interfaces. Remember that the VxLAN tunnel realize a L2 link on top of UDP/IP routed interfaces.
+
+```
+[root@network ~]# ovs-vsctl list-ports br-tun
+patch-int
+vxlan-c0a80120
+vxlan-c0a80122
+```
+
+
+
 
