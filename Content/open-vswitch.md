@@ -177,9 +177,11 @@ The OVS Layout should look like the following picture
 
 ![](../img/ovs-layout-02.png)
 
-*. The VM is connected to a Lunix Bridge ``qbr-xx`` via a ``tap`` interface;
-*. Bridge ``qbr-xx`` is connected to ``br-int`` using virtual ethernet (veth) pair ``qvb-xx <-> qvo-xxx``;
-*. Interface ``qvb-xx`` is connected to the ``qbr-xx`` linux bridge, and ``qvo-xx`` is connected to the ``br-int`` Open vSwitch (OVS) bridge. The Linux bridge configuration can be inspected on Compute node by
+The VM is connected to a Lunix Bridge ``qbr-xx`` via a ``tap`` interface;
+
+Bridge ``qbr-xx`` is connected to ``br-int`` using virtual ethernet (veth) pair ``qvb-xx <-> qvo-xxx``;
+
+Interface ``qvb-xx`` is connected to the ``qbr-xx`` linux bridge, and ``qvo-xx`` is connected to the ``br-int`` Open vSwitch (OVS) bridge. The Linux bridge configuration can be inspected on Compute node by
 ```
 # brctl show
 bridge name     bridge id               STP enabled     interfaces
@@ -187,7 +189,7 @@ qbrbfee0484-ec          8000.e263d973999f       no      qvbbfee0484-ec
                                                         tapbfee0484-ec
 ```
 
-*. The ``br-int`` Open vSwitch bridge on the Compute node is configured as
+The ``br-int`` Open vSwitch bridge on the Compute node is configured as
 ```
 # ovs-vsctl show
     Bridge br-int
@@ -208,9 +210,11 @@ qbrbfee0484-ec          8000.e263d973999f       no      qvbbfee0484-ec
                 options: {peer=patch-int}
 ```
 
-*. The port ``qvo-xx`` in the configuration above, is tagged with an internal VLAN tag associated with the flat provider network. In this example, the VLAN tag is **2**. Once the packet from the VM reaches ``qvo-xx``, the VLAN tag is appended to the packet header.
-*. The packet is then moved to the ``br-ex`` OVS bridge using the patch-peer ``int-br-ex <-> phy-br-ex``.
-*. When this packet reaches ``phy-br-ex`` on ``br-ex``, an OVS flow inside ``br-ex`` bridge strips the VLAN tag and forwards the packet to the physical interface ``ens33``.
+The port ``qvo-xx`` in the configuration above, is tagged with an internal VLAN tag associated with the flat provider network. In this example, the VLAN tag is **2**. Once the packet from the VM reaches ``qvo-xx``, the VLAN tag is appended to the packet header.
+
+The packet is then moved to the ``br-ex`` OVS bridge using the patch-peer ``int-br-ex <-> phy-br-ex``.
+
+When this packet reaches ``phy-br-ex`` on ``br-ex``, an OVS flow inside ``br-ex`` bridge strips the VLAN tag and forwards the packet to the physical interface ``ens33``.
 
 
 
