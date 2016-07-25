@@ -393,4 +393,4 @@ We see the VMs getting IP address on the providers networks
 +--------------------------------------+----------------------+--------+------------+-------------+--------------------------------+
 ```
 
-Please, note that at time of writing, tenant level segregation of provider networks is not yet possible. This means that it is not possible to assign only a provider network (VLAN) for each tenant. See (https://access.redhat.com/solutions/2022533
+Please, note that at time of writing, tenant level segregation of provider networks is not yet possible. This means that it is not possible to assign only a provider network (VLAN) for each tenant. See https://access.redhat.com/solutions/2022533
