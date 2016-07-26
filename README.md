@@ -1,5 +1,5 @@
 # OpenStack-Tutorial
-OpenStack Tutorial based on the RDO distribution.
+OpenStack Tutorial based on the RDO and RedHat OpenStack distribution.
 
 ###The Basics
 1. [Setup](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/preflight.md)
