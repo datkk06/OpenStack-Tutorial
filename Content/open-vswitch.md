@@ -179,7 +179,7 @@ The OVS Layout should look like the following picture
 
 The VM is connected to a Lunix Bridge ``qbr-xx`` via a ``tap`` interface;
 
-Bridge ``qbr-xx`` is connected to ``br-int`` using virtual ethernet (veth) pair ``qvb-xx <-> qvo-xxx``;
+Bridge ``qbr-xx`` is connected to ``br-int`` using virtual ethernet (veth) pair ``qvb-xx <-> qvo-xxx``.
 
 Interface ``qvb-xx`` is connected to the ``qbr-xx`` linux bridge, and ``qvo-xx`` is connected to the ``br-int`` Open vSwitch (OVS) bridge. The Linux bridge configuration can be inspected on Compute node by
 ```
@@ -321,4 +321,12 @@ phy-br-ex
 patch-int
 vxlan-c0a80121
 vxlan-c0a80123
+```
+
+The VM is connected via tap interface to the Linux bridge and then to the integration bridge using a virtual ethernet (veth) pair ``qvb-xx <-> qvo-xxx``. Linux bridge is configured as following
+```
+[root@compute ~]# brctl show
+bridge name     bridge id               STP enabled     interfaces
+qbr498a4343-33  8000.467e77af61a2       no              qvb498a4343-33
+                                                        tap498a4343-33
 ```
