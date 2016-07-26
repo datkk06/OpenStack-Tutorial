@@ -345,3 +345,7 @@ Check the list of Agents
 
 ###Configure GRE Tunnel encapsulation for Tenant networks
 
+###Configure VLANs for Tenant networks
+
+
+
