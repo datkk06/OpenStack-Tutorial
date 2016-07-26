@@ -211,7 +211,7 @@ Bridge br-int
     ovs_version: "2.4.0"
 ```
 
-The port ``qvo-xx`` in the configuration above, is tagged with an internal VLAN tag associated with the flat provider network. In this example, the **VLAN=5**. Once the packet from the VM reaches ``qvo-xx``, the VLAN tag is appended to the packet header.
+The port ``qvo-xx`` in the configuration above, is tagged with an internal VLAN tag associated with the tenant network. In this example, the **VLAN=5**. Once the packet from the VM reaches ``qvo-xx``, the VLAN tag is appended to the packet header.
 
 The packet is then moved to the ``br-tun`` OVS bridge using the patch-peer ``patch-tun <-> patch-int``. When the packet reaches the tunnel bridge, the VLAN tag is striped, tagged with the appropriate VxLAN tag, in this example **VNI=0x431** and then sent over the VxLAN Tunnel.
 ```
@@ -221,7 +221,7 @@ The packet is then moved to the ``br-tun`` OVS bridge using the patch-peer ``pat
 
 ```
 
-When the packet reaches its destination on the Network node via VxLAN tunnel, it is passed to the tunnel bridge ``br-tun``. Here, a new VLAN tag is added to the packet, **VLAN=1** in this case, and then pased to the integration bridge
+When the packet reaches its destination on the Network node via VxLAN tunnel, it is passed to the tunnel bridge ``br-tun``. Here, a new VLAN tag is added to the packet, **VLAN=1** in this case, and then passed to the integration bridge
 ```
 [root@network ~]# ovs-ofctl dump-flows br-tun | grep vlan
  cookie=0x8f99ac090d7ea598, duration=51240.498s, table=4, n_packets=4048, n_bytes=386483, idle_age=929, priority=1,tun_id=0x431 actions=mod_vlan_vid:1,resubmit(,10)
@@ -258,3 +258,10 @@ The ``br-int`` Open vSwitch bridge on the Network node is configured as
                 type: internal
 ```
 
+There are additional interfaces in the integration bridge:
+
+1. The ``tap`` interface connecting the ``br-int`` to the DHCP Agent.
+2. The ``qr-xxx`` interface connecting to the tenant port of the L3 Agent.
+3. The ``qg-xxx`` interface connecting to the external port of the L3 Agent.
+
+The packet reaching the integration bridge is then moved to the L3 Agent for routing.
