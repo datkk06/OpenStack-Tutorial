@@ -278,7 +278,7 @@ d7930874-e155-42d7-978a-f78d0bcb218e
                 type: internal
 ```
 
-Start a second VM making sure the new VM is started on the second Compute node (this can be achieved in many ways, forcing the avalibility zone, for example).
+Start a second VM making sure the new VM is started on the second Compute node (this can be achieved in many ways, forcing the avalibility zone, see [Cloud Scaling](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/scale.md)).
 
 ```
 # source keystonerc_demo
