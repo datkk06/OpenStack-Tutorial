@@ -114,12 +114,13 @@ Now we are going to create an external network as a flat provider network and as
 Create the related subnet
 ```
 # source keystonerc_admin
-# neutron subnet-create --name public_subnet \
+# neutron subnet-create \
+ --name public_subnet  public_net 172.120.1.0/24 \
  --enable_dhcp=True \
  --dns-nameserver=8.8.8.8 \
  --allocation_pool start=172.120.1.200,end=172.120.1.210 \
- --gateway=172.120.1.1 \
- public_net 172.120.1.0/24
+ --gateway=172.120.1.1
+
 
 Created a new subnet:
 +-------------------+----------------------------------------------------+
