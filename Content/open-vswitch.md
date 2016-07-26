@@ -296,4 +296,10 @@ The OVS Layout should look like the following picture
 
 Packet flow between the two VMs will happen between the two Compute nodes without passing through the Network node.
 
-####Packet flow in a Provide network scenario
+####Packet flow in a Provider networks scenario
+In the Tenant networks scenario, the traffic from/to the external network passes through the Network node, so the Compute nodes do not need to have access to the external network. In the Provider networks scenario, the Compute nodes are directly attached to the external physical network.
+
+Configure the setup as in [Provider Network Scenario](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/provider-network.md)
+
+The Open vSwitch layout will be like in the following picture
+
