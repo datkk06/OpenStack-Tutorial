@@ -299,7 +299,26 @@ Packet flow between the two VMs will happen between the two Compute nodes withou
 ####Packet flow in a Provider networks scenario
 In the Tenant networks scenario, the traffic from/to the external network passes through the Network node, so the Compute nodes do not need to have access to the external network. In the Provider networks scenario, the Compute nodes are directly attached to the external physical network.
 
-Configure the setup as in [Provider Network Scenario](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/provider-network.md)
+Configure the setup as in [Provider Network Scenario](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/provider-network.md) and start a VM on the provider network
 
 The Open vSwitch layout will be like in the following picture
 
+![](../img/ovs-layout-04.png)
+
+Unlike the tenant networks scenario, the integration bridge of Compute nodes is linked to the external bridge via ``int-br-ex`` interface. The external bridge ``br-ex`` is linked to the external physical network via the ``ens36`` NIC card. The integration bridge is still linked to the tunnel bridge ``br-tun``. This is still required when the VM starts in order to get the IP address from the DHCP Agent.
+
+```
+[root@compute ~]# ovs-vsctl list-ports br-int
+int-br-ex
+patch-tun
+qvo498a4343-33
+
+[root@compute0 ~]# ovs-vsctl list-ports br-ex
+ens36
+phy-br-ex
+
+[root@compute0 ~]# ovs-vsctl list-ports br-tun
+patch-int
+vxlan-c0a80121
+vxlan-c0a80123
+```
