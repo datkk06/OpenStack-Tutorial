@@ -123,7 +123,7 @@ vxlan-c0a80120
 vxlan-c0a80122
 ```
 
-####Packet flow in a Tenant scenario
+####Packet flow in a Tenant network scenario
 In this section we are going to check the packet flow when one or more instances need to communicate through the OVS layout.
 
 Create the external network and related subnetwork
@@ -211,24 +211,9 @@ Bridge br-int
     ovs_version: "2.4.0"
 ```
 
-The port ``qvo-xx`` in the configuration above, is tagged with an internal VLAN tag associated with the tenant network. In this example, the **VLAN=5**. Once the packet from the VM reaches ``qvo-xx``, the VLAN tag is appended to the packet header.
+The packet is then moved to the ``br-tun`` OVS bridge using the patch-peer ``patch-tun <-> patch-int``. When the packet reaches the tunnel bridge, it is tagged with the appropriate VxLAN tag, and then sent over the VxLAN Tunnel.
 
-The packet is then moved to the ``br-tun`` OVS bridge using the patch-peer ``patch-tun <-> patch-int``. When the packet reaches the tunnel bridge, the VLAN tag is striped, tagged with the appropriate VxLAN tag, in this example **VNI=0x431** and then sent over the VxLAN Tunnel.
-```
-[root@compute ~]# ovs-ofctl dump-flows br-tun | grep vlan
- cookie=0x8968752f83c2f3b2, duration=5814.171s, table=4, n_packets=3623, n_bytes=348156, idle_age=1003, priority=1,tun_id=0x431 actions=mod_vlan_vid:5,resubmit(,10)
- cookie=0x8968752f83c2f3b2, duration=5814.179s, table=22, n_packets=31, n_bytes=3266, idle_age=1149, dl_vlan=5 actions=strip_vlan,set_tunnel:0x431,output:3,output:5,output:4,output:2
-
-```
-
-When the packet reaches its destination on the Network node via VxLAN tunnel, it is passed to the tunnel bridge ``br-tun``. Here, a new VLAN tag is added to the packet, **VLAN=1** in this case, and then passed to the integration bridge
-```
-[root@network ~]# ovs-ofctl dump-flows br-tun | grep vlan
- cookie=0x8f99ac090d7ea598, duration=51240.498s, table=4, n_packets=4048, n_bytes=386483, idle_age=929, priority=1,tun_id=0x431 actions=mod_vlan_vid:1,resubmit(,10)
- cookie=0x8f99ac090d7ea598, duration=51240.517s, table=22, n_packets=14, n_bytes=1040, idle_age=51218, dl_vlan=1 actions=strip_vlan,set_tunnel:0x431,output:4,output:5,output:2,output:3
-```
-
-The ``br-int`` Open vSwitch bridge on the Network node is configured as
+When the packet reaches its destination on the Network node via VxLAN tunnel, it is passed to the tunnel bridge ``br-tun`` and then passed to the integration bridge using the pair ``patch-int <-> patch-tun``. The ``br-int`` Open vSwitch bridge on the Network node is configured as
 ```
 [root@network ~]# ovs-vsctl show
     Bridge br-int
@@ -264,4 +249,51 @@ There are additional interfaces in the integration bridge:
 2. The ``qr-xxx`` interface connecting to the tenant port of the L3 Agent.
 3. The ``qg-xxx`` interface connecting to the external port of the L3 Agent.
 
-The packet reaching the integration bridge is then moved to the L3 Agent for routing.
+The packet reaching the integration bridge is then moved to the L3 Agent for routing
+```
+[root@network ~]# ip netns
+qrouter-10793efd-76a5-4b33-9e16-1948cd6004af
+qdhcp-63e3bd14-ca36-447e-9c83-fb7efd1b3605
+[root@network ~]# ip netns exec qrouter-10793efd-76a5-4b33-9e16-1948cd6004af route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         gateway         0.0.0.0         UG    0      0        0 qg-2ac5a157-4b
+172.120.1.0     0.0.0.0         255.255.255.0   U     0      0        0 qg-2ac5a157-4b
+192.168.1.0     0.0.0.0         255.255.255.0   U     0      0        0 qr-69feb039-15
+```
+
+If the packet is destined to the external network, it is moved to the external bridge ``br-ex`` and finally, it reaches the physical external network via the NIC interface ``ens33``. The external bridge on the Network node is configured as
+```
+[root@network ~]# ovs-vsctl show
+d7930874-e155-42d7-978a-f78d0bcb218e
+    Bridge br-ex
+        Port "ens33"
+            Interface "ens33"
+        Port phy-br-ex
+            Interface phy-br-ex
+                type: patch
+                options: {peer=int-br-ex}
+        Port br-ex
+            Interface br-ex
+                type: internal
+```
+
+Start a second VM making sure the new VM is started on the second Compute node (this can be achieved in many ways, forcing the avalibility zone, for example).
+
+```
+# source keystonerc_demo
+# nova boot second_instance \
+--flavor small \
+--image cirros  \
+--key_name demokey \
+--security-groups default \
+--nic net-id=<internal_network_id>
+```
+
+The OVS Layout should look like the following picture
+
+![](../img/ovs-layout-03.png)
+
+Packet flow between the two VMs will happen between the two Compute nodes without passing through the Network node.
+
+####Packet flow in a Provide network scenario
