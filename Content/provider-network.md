@@ -145,7 +145,7 @@ Created a new subnet:
 
 Login as standard user and start a new VM on this network
 ```
-# source keystone_demo
+# source keystonerc_demo
 # nova boot myinstance \
   --flavor small \
   --image cirros  \
@@ -373,7 +373,7 @@ Created a new subnet:
 
 Login as a standard user and start new VMs on these networks
 ```
-# source keystone_demo
+# source keystonerc_demo
 
 # nova boot instance_on_120_vlan \
  --flavor small \
