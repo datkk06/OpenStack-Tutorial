@@ -183,7 +183,7 @@ Bridge ``qbr-xx`` is connected to ``br-int`` using virtual ethernet (veth) pair 
 
 Interface ``qvb-xx`` is connected to the ``qbr-xx`` linux bridge, and ``qvo-xx`` is connected to the ``br-int`` Open vSwitch (OVS) bridge. The Linux bridge configuration can be inspected on Compute node by
 ```
-# brctl show
+[root@compute ~]# brctl show
 bridge name     bridge id               STP enabled     interfaces
 qbrbfee0484-ec          8000.e263d973999f       no      qvbbfee0484-ec
                                                         tapbfee0484-ec
@@ -191,7 +191,7 @@ qbrbfee0484-ec          8000.e263d973999f       no      qvbbfee0484-ec
 
 The ``br-int`` Open vSwitch bridge on the Compute node is configured as
 ```
-# ovs-vsctl show
+[root@compute ~]# ovs-vsctl show
 Bridge br-int
         fail_mode: secure
         Port br-int
@@ -211,19 +211,50 @@ Bridge br-int
     ovs_version: "2.4.0"
 ```
 
-The port ``qvo-xx`` in the configuration above, is tagged with an internal VLAN tag associated with the flat provider network. In this example, the **VLAN=4**. Once the packet from the VM reaches ``qvo-xx``, the VLAN tag is appended to the packet header.
+The port ``qvo-xx`` in the configuration above, is tagged with an internal VLAN tag associated with the flat provider network. In this example, the **VLAN=5**. Once the packet from the VM reaches ``qvo-xx``, the VLAN tag is appended to the packet header.
 
-The packet is then moved to the ``br-tun`` OVS bridge using the patch-peer ``patch-tun <-> patch-int``. When the packet reaches the tunnel bridge, the VLAN tag is striped, tagged with the appropriate VxLAN tag and then sent over the VxLAN Tunnel.
+The packet is then moved to the ``br-tun`` OVS bridge using the patch-peer ``patch-tun <-> patch-int``. When the packet reaches the tunnel bridge, the VLAN tag is striped, tagged with the appropriate VxLAN tag, in this example **VNI=0x431** and then sent over the VxLAN Tunnel.
+```
+[root@compute ~]# ovs-ofctl dump-flows br-tun | grep vlan
+ cookie=0x8968752f83c2f3b2, duration=5814.171s, table=4, n_packets=3623, n_bytes=348156, idle_age=1003, priority=1,tun_id=0x431 actions=mod_vlan_vid:5,resubmit(,10)
+ cookie=0x8968752f83c2f3b2, duration=5814.179s, table=22, n_packets=31, n_bytes=3266, idle_age=1149, dl_vlan=5 actions=strip_vlan,set_tunnel:0x431,output:3,output:5,output:4,output:2
 
 ```
-# ovs-ofctl dump-flows br-tun | grep vlan=4
- cookie=0x8968752f83c2f3b2, duration=538.646s, table=22, n_packets=5, n_bytes=370, idle_age=530, dl_vlan=4 actions=strip_vlan,set_tunnel:0x431,output:3,output:5,output:4,output:2
+
+When the packet reaches its destination on the Network node via VxLAN tunnel, it is passed to the tunnel bridge ``br-tun``. Here, a new VLAN tag is added to the packet, **VLAN=1** in this case, and then pased to the integration bridge
+```
+[root@network ~]# ovs-ofctl dump-flows br-tun | grep vlan
+ cookie=0x8f99ac090d7ea598, duration=51240.498s, table=4, n_packets=4048, n_bytes=386483, idle_age=929, priority=1,tun_id=0x431 actions=mod_vlan_vid:1,resubmit(,10)
+ cookie=0x8f99ac090d7ea598, duration=51240.517s, table=22, n_packets=14, n_bytes=1040, idle_age=51218, dl_vlan=1 actions=strip_vlan,set_tunnel:0x431,output:4,output:5,output:2,output:3
 ```
 
-The packet reaches its destination on the Network node via VxLAN tunnel and is passed to the tunnel bridge ``br-tun``.
-
-
-
-
-
+The ``br-int`` Open vSwitch bridge on the Network node is configured as
+```
+[root@network ~]# ovs-vsctl show
+    Bridge br-int
+        fail_mode: secure
+        Port br-int
+            Interface br-int
+                type: internal
+        Port "qr-c040e20e-25"
+            tag: 1
+            Interface "qr-c040e20e-25"
+                type: internal
+        Port patch-tun
+            Interface patch-tun
+                type: patch
+                options: {peer=patch-int}
+        Port "tap2cda547c-d2"
+            tag: 1
+            Interface "tap2cda547c-d2"
+                type: internal
+        Port int-br-ex
+            Interface int-br-ex
+                type: patch
+                options: {peer=phy-br-ex}
+        Port "qg-7587486d-c3"
+            tag: 2
+            Interface "qg-7587486d-c3"
+                type: internal
+```
 
