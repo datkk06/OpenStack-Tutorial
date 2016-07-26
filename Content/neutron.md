@@ -28,7 +28,6 @@ To enable OpenStack use Neutron for networking, on the Controller node, create t
 # keystone user-role-add --user neutron --role admin --tenant services
 ```
 
-###Setup Neutron networking
 The basic network implementation in OpenStack is made of a self-service virtual data center infrastructure permitting regular users to manage one or more virtual networks within a project. Connectivity to the external networks such as Internet is provided via the physical network infrastructure. Following concepts are introduced:
 
 * **Tenant networks**: networks providing connectivity to instances whithin a project. Regular users can manage project networks with the allocation that an administrator defines for for them. Tenant networks can use VLAN, GRE, or VXLAN transport methods depending on the allocation. Tenant networks generally use private IP address ranges and lack connectivity to external networks. IP addresses on the project networks are private IP space within the project and for this reason, they can overlap between different projects. An embedded DHCP service assignes the IP addresses to the Virtual Machines within the project.
@@ -39,6 +38,7 @@ The basic network implementation in OpenStack is made of a self-service virtual 
 
 * **Provider networks**: networks providing connectivity to instances by mapping directly to an existing physical network in the data center. Provider networks generally offer simplicity, performance, and reliability at the cost of flexibility. Unlike tenant networks, only administrators can manage provider networks because they require configuration of physical network infrastructure. Also, provider networks lack the concept of fixed and floating IP addresses because they only handle layer-2 connectivity for the instances running on Compute nodes. Network types for provider networks are flat (untagged) and VLAN (tagged). It is possible to allow provider networks to be shared among tenants as part of the network creation process.
 
+###Setup Neutron networking
 Install and configure Neutron services as follow
 
 |Service|Configuration File(s)|Host Role
@@ -101,10 +101,12 @@ rabbit_userid = guest
 rabbit_password = <rabbit password>
 ```
 
-Configure the ML2 plugin by editing the ``/etc/neutron/plugin.ini`` initialization file
+Configure the ML2 plugin by editing the ``/etc/neutron/plugin.ini`` initialization file. We are going to configure the VxLAN for tunnel encapsulation of tenant networks. Other options are: vlan and gre.
 ```
 [ml2]
-type_drivers = flat,vxlan
+type_drivers = flat, vxlan, vlan, gre
+# we are going to configure the vxlan for tunnel encapsulation of tenant networks;
+# other options are: vlan and gre;
 tenant_network_types = vxlan
 mechanism_drivers = openvswitch,l2population
 extension_drivers = port_security
@@ -340,3 +342,6 @@ Check the list of Agents
 | 9fb1d4f9-4a34-4d70-8823-a5ed17124618 | Open vSwitch agent | network   | :-)   | True           | neutron-openvswitch-agent |
 +--------------------------------------+--------------------+-----------+-------+----------------+---------------------------+
 ```
+
+###Configure GRE Tunnel encapsulation for Tenant networks
+
