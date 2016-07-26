@@ -31,5 +31,8 @@ OpenStack Tutorial based on the RDO distribution.
 25. [Provider Network Scenario](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/provider-network.md)
 26. [Open vSwitch layout](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/open-vswitch.md)
 
+###Install RedHat OpenStack via Director
+27. [TripleO Installation](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/tripleo.md)
+
 ### Disclaimer
 This tutorial is for personal use only.
