@@ -85,12 +85,12 @@ and restart the service
 Now we are going to create an external network as a flat provider network and associate it with the configured physical network. Configuring it as a shared network will allow all tenants to create instances directly to it. 
 
 ```
-# source keystone_admin
+# source keystonerc_admin
 # neutron net-create public_net \
-> --provider:network_type flat \
-> --provider:physical_network external \
-> --router:external=True \
-> --shared
+  --provider:network_type flat \
+  --provider:physical_network external \
+  --router:external=True \
+  --shared
 
 # neutron net-show public_net
 +---------------------------+--------------------------------------+
@@ -113,12 +113,13 @@ Now we are going to create an external network as a flat provider network and as
 
 Create the related subnet
 ```
+# source keystonerc_admin
 # neutron subnet-create --name public_subnet \
-> --enable_dhcp=True \
-> --dns-nameserver=8.8.8.8 \
-> --allocation_pool start=172.120.1.200,end=172.120.1.210 \
-> --gateway=172.120.1.1
-> public_net 172.120.1.0/24
+ --enable_dhcp=True \
+ --dns-nameserver=8.8.8.8 \
+ --allocation_pool start=172.120.1.200,end=172.120.1.210 \
+ --gateway=172.120.1.1 \
+ public_net 172.120.1.0/24
 
 Created a new subnet:
 +-------------------+----------------------------------------------------+
@@ -145,11 +146,11 @@ Login as standard user and start a new VM on this network
 ```
 # source keystone_demo
 # nova boot myinstance \
-> --flavor small \
-> --image cirros  \
-> --key_name demokey \
-> --security-groups default \
-> --nic net-id=<public_net_id>
+  --flavor small \
+  --image cirros  \
+  --key_name demokey \
+  --security-groups default \
+  --nic net-id=<public_net_id>
 ```
 
 We see the new VM getting IP address on the provider network
@@ -262,11 +263,12 @@ and restart the service
 Create the external networks with type VLAN, and associate them to the configured physical network. This example creates two networks: one for VLAN 120, and another for VLAN 121:
 
 ```
+# source keystonerc_admin
 # neutron net-create provider-vlan120 \
-			--provider:network_type vlan \
-			--router:external true \
-			--provider:physical_network external \
-			--provider:segmentation_id 120 --shared
+  --provider:network_type vlan \
+  --router:external true \
+  --provider:physical_network external \
+  --provider:segmentation_id 120 --shared
 Created a new network:
 +---------------------------+--------------------------------------+
 | Field                     | Value                                |
@@ -285,11 +287,12 @@ Created a new network:
 | tenant_id                 | 613b2bc016c5428397b3fea6dc162af1     |
 +---------------------------+--------------------------------------+
 
+# source keystonerc_admin
 # neutron net-create provider-vlan121 \
-			--provider:network_type vlan \
-			--router:external true \
-			--provider:physical_network external \
-			--provider:segmentation_id 121 --shared
+  --provider:network_type vlan \
+  --router:external true \
+  --provider:physical_network external \
+  --provider:segmentation_id 121 --shared
 Created a new network:
 +---------------------------+--------------------------------------+
 | Field                     | Value                                |
@@ -312,6 +315,7 @@ Created a new network:
 Create a number of related subnets and configure them to use the external network. Pay attention to make certain that the external subnet details you have received from network administrator are correctly associated with each VLAN. In this example, VLAN 120 uses subnet 172.120.1.0/24 and VLAN 121 uses 172.121.1.0/24
 
 ```
+# source keystonerc_admin
 # neutron subnet-create \
       --name subnet-provider-120 provider-vlan120 172.120.1.0/24 \
       --enable-dhcp=True \
@@ -338,6 +342,7 @@ Created a new subnet:
 | tenant_id         | 613b2bc016c5428397b3fea6dc162af1                   |
 +-------------------+----------------------------------------------------+
 
+# source keystonerc_admin
 # neutron subnet-create \
       --name subnet-provider-121 provider-vlan121 172.121.1.0/24 \
       --enable-dhcp=True \
@@ -368,6 +373,7 @@ Created a new subnet:
 Login as a standard user and start new VMs on these networks
 ```
 # source keystone_demo
+
 # nova boot instance_on_120_vlan \
  --flavor small \
  --image cirros  \
