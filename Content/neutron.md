@@ -344,6 +344,30 @@ Check the list of Agents
 ```
 
 ###Configure GRE Tunnel encapsulation for Tenant networks
+In this section we are going to set the tunnel type used for the Tenant networks from the VxLAN to the **GRE** encapsulation. **Generic Routing Encapsulation** is a tunneling protocol (RFC2784) developed by **Cisco Systems** that can encapsulate a wide variety of network layer protocols inside virtual point-to-point links over an Internet Protocol network. In OpenStack, the GRE can be used as method to implement L2 Tenant networks over a L3 routed network.
+
+Change settings on Control node
+```
+[root@controller ~]# vi /etc/neutron/plugin.ini
+
+[ml2]
+type_drivers = flat,vxlan,vlan,gre
+tenant_network_types = gre
+mechanism_drivers = openvswitch
+...
+[ml2_type_gre]
+tunnel_id_ranges =1:1000
+...
+```
+and restart the Neutron service
+```
+[root@controller ~]# systemctl restart neutron-server
+```
+
+Change the settings on the Network node
+```
+
+```
 
 ###Configure VLANs for Tenant networks
 
