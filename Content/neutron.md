@@ -346,10 +346,9 @@ Check the list of Agents
 ###Configure GRE Tunnel encapsulation for Tenant networks
 In this section we are going to set the tunnel type used for the Tenant networks from the VxLAN to the **GRE** encapsulation. **Generic Routing Encapsulation** is a tunneling protocol (RFC2784) developed by **Cisco Systems** that can encapsulate a wide variety of network layer protocols inside virtual point-to-point links over an Internet Protocol network. In OpenStack, the GRE can be used as method to implement L2 Tenant networks over a L3 routed network.
 
-Change settings on Control node
+On the Control node, change the settings
 ```
-[root@controller ~]# vi /etc/neutron/plugin.ini
-
+# vi /etc/neutron/plugin.ini
 [ml2]
 type_drivers = flat,vxlan,vlan,gre
 tenant_network_types = gre
@@ -361,13 +360,54 @@ tunnel_id_ranges =1:1000
 ```
 and restart the Neutron service
 ```
-[root@controller ~]# systemctl restart neutron-server
+# systemctl restart neutron-server
 ```
 
-Change the settings on the Network node
+On the Network node, change the settings
+```
+# vi /etc/neutron/plugins/ml2/openvswitch_agent.ini
+[ovs]
+integration_bridge = br-int
+tunnel_bridge = br-tun
+# set the local IP as the IP address of the NIC where GRE tunnel will be initiated
+local_ip = 192.168.1.38
+bridge_mappings = external:br-ex
+enable_tunneling=True
+...
+[agent]
+tunnel_types = gre
+...
 ```
 
+and restart the OVS agent
 ```
+# systemctl restart neutron-openvswitch-agent
+```
+
+On all the Compute nodes, change the settings
+```
+# vi /etc/neutron/plugins/ml2/openvswitch_agent.ini
+[ovs]
+integration_bridge = br-int
+tunnel_bridge = br-tun
+# set the local IP as the IP address of the NIC where GRE tunnel will be initiated
+local_ip = 192.168.1.32
+enable_tunneling=True
+...
+[agent]
+tunnel_types = gre
+...
+```
+
+and restart the OVS agent
+```
+# systemctl restart neutron-openvswitch-agent
+```
+
+
+
+
+
 
 ###Configure VLANs for Tenant networks
 
