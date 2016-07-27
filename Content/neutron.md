@@ -379,9 +379,25 @@ tunnel_types = gre
 ...
 ```
 
-and restart the OVS agent
+restart the OVS agent
 ```
 # systemctl restart neutron-openvswitch-agent
+```
+
+and check the new OVS layout
+```
+# ovs-vsctl list-ports br-ex
+ens33
+phy-br-ex
+
+# ovs-vsctl list-ports br-int
+int-br-ex
+patch-tun
+
+# ovs-vsctl list-ports br-tun
+gre-c0a80120
+gre-c0a80122
+patch-int
 ```
 
 On all the Compute nodes, change the settings
@@ -399,17 +415,26 @@ tunnel_types = gre
 ...
 ```
 
-and restart the OVS agent
+restart the OVS agent
 ```
 # systemctl restart neutron-openvswitch-agent
 ```
 
+and check the new OVS layout
+```
+# ovs-vsctl list-ports br-int
+int-br-ex
+patch-tun
 
-
-
-
+# ovs-vsctl list-ports br-tun
+gre-c0a80122
+gre-c0a80126
+patch-int
+```
 
 ###Configure VLANs for Tenant networks
+In this section we are going to use a VLAN L2 switch to implement the Tenant networks. The switch must support the VLAN trunking in order to get working.
+
 
 
 
