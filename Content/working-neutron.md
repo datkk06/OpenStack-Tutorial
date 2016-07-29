@@ -347,8 +347,10 @@ On the Network node, change the settings
 [ovs]
 integration_bridge = br-int
 tunnel_bridge = br-tun
-# set the local IP as the IP address of the NIC where GRE tunnel will be initiated
+# In order to configure GRE Tunnel, all the physical NIC interfaces where GRE tunnel is attached must have an IP address.
+# Also Multicast traffic should be permitted.
 local_ip = 192.168.1.38
+#
 bridge_mappings = external:br-ex
 enable_tunneling=True
 ...
@@ -384,8 +386,10 @@ On all the Compute nodes, change the settings
 [ovs]
 integration_bridge = br-int
 tunnel_bridge = br-tun
-# set the local IP as the IP address of the NIC where GRE tunnel will be initiated
+# In order to configure GRE Tunnel, all the physical NIC interfaces where GRE tunnel is attached must have an IP address.
+# Also Multicast traffic should be permitted.
 local_ip = 192.168.1.32
+#
 enable_tunneling=True
 ...
 [agent]
