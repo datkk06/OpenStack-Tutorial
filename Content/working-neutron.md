@@ -188,10 +188,12 @@ restart the OVS agent
 and check the new OVS layout
 ```
 # ovs-vsctl list-ports br-int
-
+patch-tun
 
 # ovs-vsctl list-ports br-tun
-
+patch-int
+vxlan-c0a80121
+vxlan-c0a80122
 ```
 
 ####Configure Tenant networks
