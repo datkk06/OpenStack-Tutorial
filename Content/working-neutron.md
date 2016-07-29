@@ -470,7 +470,7 @@ flat_networks = physnet1
 #vxlan_group = 239.1.1.2
 
 [ml2_type_vlan]
-network_vlan_ranges = physnet:1001:2000
+network_vlan_ranges = physnet2:1001:2000
 
 [ml2_type_gre]
 #tunnel_id_ranges = 1:1000
@@ -484,8 +484,79 @@ and restart the Neutron service
 # systemctl restart neutron-server
 ```
 
+On the Network node, create an additional bridge interface to connect the node to the VLAN based network. For example, having a physical interface called ``ens36``, create an additional bridge ``br-vlan`` and associate it to the interface
 
+```
+# vi /etc/sysconfig/network-scripts/ifcfg-br-vlan
+DEFROUTE=yes
+PEERDNS=yes
+PEERROUTES=yes
+ONBOOT=yes
+DEVICE=br-vlan
+DEVICETYPE=ovs
+OVSBOOTPROTO=
+TYPE=OVSBridge
 
+# vi /etc/sysconfig/network-scripts/ifcfg-en36
+DEVICE=ens36
+DEVICETYPE=ovs
+TYPE=OVSPort
+OVS_BRIDGE=br-vlan
+ONBOOT=yes
+BOOTPROTO=none
+```
+
+and restart the network service to enable the bridge
+```
+# systemctl restart network
+```
+
+On the Network node, change the settings
+```
+# vi /etc/neutron/plugins/ml2/openvswitch_agent.ini
+[ovs]
+integration_bridge = br-int
+#tunnel_bridge = br-tun
+#int_peer_patch_port = patch-tun
+#tun_peer_patch_port = patch-int
+#enable_tunneling = True
+#local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
+#
+bridge_mappings = physnet1:br-ex,physnet2:br-vlan
+
+[agent]
+#tunnel_types = vxlan
+#vxlan_udp_port = 4789
+enable_distributed_routing = False
+l2_population = True
+prevent_arp_spoofing = True
+
+[securitygroup]
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+enable_security_group = True
+```
+
+Delete the br-tun from the OVS layout and restart the OVS agent
+```
+# ovs-vsctl del-br br-tun
+# ovs-vsctl del-port br-int patch-tun
+# systemctl restart neutron-openvswitch-agent
+```
+
+and check the new OVS layout
+```
+# ovs-vsctl list-ports br-ex
+ens33
+phy-br-ex
+
+# ovs-vsctl list-ports br-int
+int-br-ex
+int-br-vlan
+
+# ovs-vsctl list-ports br-vlan
+ens36
+phy-br-vlan
+```
 
 
 
