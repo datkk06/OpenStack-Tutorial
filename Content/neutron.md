@@ -226,7 +226,7 @@ Configure the Neutron L3 Agent by editing the ``/etc/neutron/l3_agent.ini`` init
 verbose = True
 interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
 use_namespaces = True
-external_network_bridge = br-ten
+external_network_bridge = br-ex
 enable_metadata_proxy = True
 metadata_port = 9697
 agent_mode = legacy
