@@ -38,8 +38,8 @@ Making changes to the Open vSwitch Agent configuration requires always the agent
 # systemctl restart neutron-openvswitch-agent
 ```
 
-####Tenant network scenario
-We assume a Network node providing access to the outside and two Compute nodes for VMs. We'll check both the East-West traffic between VMs belonging to the same tenant and the North-South traffic between a VM and the outside. Tenant networks connectivity is based on VxLAN tunnels.
+####Layout in Tenant network scenario
+We assume a Network node providing access to the outside and two Compute nodes for VMs. Tenant networks connectivity is based on VxLAN tunnels. GRE Tunnel has the same OVS layout with GRE tunnel endpoints instead of VxLAN endpoints.
 
 Starting with an empty layout without VMs. Figure below shows the layout
 
@@ -123,57 +123,7 @@ vxlan-c0a80120
 vxlan-c0a80122
 ```
 
-####Packet flow in a Tenant network scenario
-In this section we are going to check the packet flow when one or more instances need to communicate through the OVS layout.
-
-Create the external network and related subnetwork
-```
-# source keystonerc_admin
-# neutron net-create external-flat-network \
---shared \
---provider:network_type flat \
---provider:physical_network external \
---router:external True
-
-# neutron subnet-create external-flat-network 172.120.1.0/24  \
---name external-flat-subnetwork \
---gateway 172.120.1.1 \
---disable-dhcp \
---allocation-pool start=172.120.1.200,end=172.120.1.220
-```
-
-Create a tenant network and related subnetwork
-```
-# source keystonerc_demo
-# neutron net-create tenant-network
-# neutron subnet-create tenant-network 192.168.1.0/24 \
---name tenant-subnetwork \
---gateway 192.168.1.1 \
---enable-dhcp \
---dns-nameserver 8.8.8.8 \
---allocation-pool start=192.168.1.10,end=192.168.1.250
-```
-
-Create a tenant router to connect the tenant to the external network
-```
-# source keystonerc_demo
-# neutron router-create mygateway
-# neutron router-interface-add mygateway subnet=tenant-subnetwork
-# neutron router-gateway-set mygateway external-flat-network
-```
-
-Start a VM on the tenant network
-```
-# source keystonerc_demo
-# nova boot myinstance \
---flavor small \
---image cirros  \
---key_name demokey \
---security-groups default \
---nic net-id=<internal_network_id>
-```
-
-The OVS Layout should look like the following picture
+Create a network infrastructure for the tenant network scenario and start a VM on the tenant network. The OVS Layout should look like the following picture
 
 ![](../img/ovs-layout-02.png)
 
@@ -249,20 +199,7 @@ There are additional interfaces in the integration bridge:
 2. The ``qr-xxx`` interface connecting to the tenant port of the L3 Agent.
 3. The ``qg-xxx`` interface connecting to the external port of the L3 Agent.
 
-The packet reaching the integration bridge is then moved to the L3 Agent for routing
-```
-[root@network ~]# ip netns
-qrouter-10793efd-76a5-4b33-9e16-1948cd6004af
-qdhcp-63e3bd14-ca36-447e-9c83-fb7efd1b3605
-[root@network ~]# ip netns exec qrouter-10793efd-76a5-4b33-9e16-1948cd6004af route
-Kernel IP routing table
-Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
-default         gateway         0.0.0.0         UG    0      0        0 qg-2ac5a157-4b
-172.120.1.0     0.0.0.0         255.255.255.0   U     0      0        0 qg-2ac5a157-4b
-192.168.1.0     0.0.0.0         255.255.255.0   U     0      0        0 qr-69feb039-15
-```
-
-If the packet is destined to the external network, it is moved to the external bridge ``br-ex`` and finally, it reaches the physical external network via the NIC interface ``ens33``. The external bridge on the Network node is configured as
+The packet reaching the integration bridge is then moved to the L3 Agent for routing. If the packet is destined to the external network, it is moved to the external bridge ``br-ex`` and finally, it reaches the physical external network via the NIC interface ``ens33``. The external bridge on the Network node is configured as
 ```
 [root@network ~]# ovs-vsctl show
 d7930874-e155-42d7-978a-f78d0bcb218e
@@ -296,7 +233,20 @@ The OVS Layout should look like the following picture
 
 Packet flow between the two VMs will happen between the two Compute nodes without passing through the Network node.
 
-####Packet flow in a Provider networks scenario
+####Layout in Tenant VLAN scenario
+The OVS Layout in Tenant networks scenario is similar when using a tunneled tecnology like VxLAN or GRE encapsulation. In this section, we are going to check the layout when using VLAN based tenant networks. All the Compute and the Nework nodes have a dedicated physical interface attached to the VLAN L2 switch. This interface can be different from the physical interface used for the external network or it can be the same. In the first case, the external network can be flat or VLAN based; in the latter, the external network should be VLAN based to make things simple.
+
+In our case, we are going to use two separate physical interfaces:
+
+* On Network node: ``ens33`` interface for a flat external network mapped on the ``br-ex`` bridge and ``ens36`` interface for the VLAN based tenant networks mapped on the ``br-vla``n bridge.
+* On all Compute nodes: ``ens36`` for the VLAN based tenant networks mapped on the ``br-vlan`` bridge.
+
+Create the network infrastructure as per Tenant VLAN scenario and start a VM on the tenant network. The OVS Layout should look like the following picture
+
+![](../img/ovs-layout-05.png)
+
+
+####Layout in Provider networks scenario
 In the Tenant networks scenario, the traffic from/to the external network passes through the Network node, so the Compute nodes do not need to have access to the external network. In the Provider networks scenario, the Compute nodes are directly attached to the external physical network.
 
 Configure the setup as in [Provider Network Scenario](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/provider-network.md) and start a VM on the provider network
@@ -305,8 +255,10 @@ The Open vSwitch layout will be like in the following picture
 
 ![](../img/ovs-layout-04.png)
 
-Unlike the tenant networks scenario, the integration bridge of Compute nodes is linked to the external bridge via ``int-br-ex`` interface. The external bridge ``br-ex`` is linked to the external physical network via the ``ens36`` NIC card. The integration bridge is still linked to the tunnel bridge ``br-tun``. This is still required when the VM starts in order to get the IP address from the DHCP Agent.
+Unlike the tenant networks scenario, the integration bridge of Compute nodes is linked to the external bridge via ``int-br-ex`` interface. The external bridge ``br-ex`` is linked to the external physical network via the ``ens36`` NIC card. The integration bridge is still linked to the tunnel bridge ``br-tun``. This is still required when the VM starts in order to get the IP address from the DHCP Agent. Create the network infrastructure as per Provider network scenario and start a VM. 
 
+
+Check the OVS layout
 ```
 [root@compute ~]# ovs-vsctl list-ports br-int
 int-br-ex
@@ -321,12 +273,4 @@ phy-br-ex
 patch-int
 vxlan-c0a80121
 vxlan-c0a80123
-```
-
-The VM is connected via tap interface to the Linux bridge and then to the integration bridge using a virtual ethernet (veth) pair ``qvb-xx <-> qvo-xxx``. Linux bridge is configured as following
-```
-[root@compute ~]# brctl show
-bridge name     bridge id               STP enabled     interfaces
-qbr498a4343-33  8000.467e77af61a2       no              qvb498a4343-33
-                                                        tap498a4343-33
 ```
