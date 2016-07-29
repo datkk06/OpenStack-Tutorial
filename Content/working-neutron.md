@@ -351,20 +351,35 @@ Check that the VM gets IP Address from the tenant network IP allocation pool
 +--------------------------------------+-------+--------+------------+-------------+-----------------------------+
 ```
 
-####Configure GRE Tunnel encapsulation for Tenant networks
+####Configure GRE encapsulation for Tenant networks
 In this section we are going to set the tunnel type used for the Tenant networks from the VxLAN to the **GRE** encapsulation. **Generic Routing Encapsulation** is a tunneling protocol (RFC2784) developed by **Cisco Systems** that can encapsulate a wide variety of network layer protocols inside virtual point-to-point links over an Internet Protocol network. In OpenStack, the GRE can be used as method to implement L2 Tenant networks over a L3 routed network.
 
 On the Control node, change the settings
 ```
 # vi /etc/neutron/plugin.ini
 [ml2]
-type_drivers = flat,vxlan,vlan,gre
+type_drivers = flat, vxlan, vlan, gre
 tenant_network_types = gre
-mechanism_drivers = openvswitch
-...
+mechanism_drivers = openvswitch, l2population
+extension_drivers = port_security
+
+[ml2_type_flat]
+flat_networks = physnet
+# use flat_networks = * to allow flat networks with arbitrary names
+
+[ml2_type_vxlan]
+#vni_ranges = 1001:2000
+#vxlan_group = 239.1.1.2
+
+[ml2_type_vlan]
+#network_vlan_ranges = physnet:1001:2000
+
 [ml2_type_gre]
-tunnel_id_ranges =1:1000
-...
+tunnel_id_ranges = 1:1000
+
+[securitygroup]
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+enable_ipset = True
 ```
 and restart the Neutron service
 ```
@@ -377,15 +392,25 @@ On the Network node, change the settings
 [ovs]
 integration_bridge = br-int
 tunnel_bridge = br-tun
-# In order to configure GRE Tunnel, all the physical NIC interfaces where GRE tunnel is attached must have an IP address.
+int_peer_patch_port = patch-tun
+tun_peer_patch_port = patch-int
+enable_tunneling = True
+# In order to configure GRE, all the physical interfaces where tunnel is attached must have an IP address.
 local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
 #
-bridge_mappings = external:br-ex
-enable_tunneling=True
-...
+bridge_mappings = physnet:br-ex
+
 [agent]
 tunnel_types = gre
-...
+#tunnel_types = vxlan
+#vxlan_udp_port = 4789
+enable_distributed_routing = False
+l2_population = True
+prevent_arp_spoofing = True
+
+[securitygroup]
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+enable_security_group = True
 ```
 
 restart the OVS agent
@@ -415,14 +440,26 @@ On all the Compute nodes, change the settings
 [ovs]
 integration_bridge = br-int
 tunnel_bridge = br-tun
-# In order to configure GRE Tunnel, all the physical NIC interfaces where GRE tunnel is attached must have an IP address.
+int_peer_patch_port = patch-tun
+tun_peer_patch_port = patch-int
+enable_tunneling = True
+# In order to configure GRE, all the physical interfaces where tunnel is attached must have an IP address.
 local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
 #
-enable_tunneling=True
-...
+#bridge_mappings = physnet:br-ex
+
 [agent]
 tunnel_types = gre
-...
+#tunnel_types = vxlan
+#vxlan_udp_port = 4789
+enable_distributed_routing = False
+l2_population = True
+prevent_arp_spoofing = True
+
+[securitygroup]
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+enable_security_group = True
+```
 ```
 
 restart the OVS agent
