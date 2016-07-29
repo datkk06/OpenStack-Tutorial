@@ -199,7 +199,7 @@ vxlan-c0a80122
 ####Configure Tenant networks
 The tenant networks are created by the tenant users. Login as a tenant user and create a tenant network
 ```
-# source keystonerc_bcloud
+# source keystonerc_demo
 # neutron net-create tenant-network
 Created a new network:
 +-----------------+--------------------------------------+
