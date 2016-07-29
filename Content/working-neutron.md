@@ -22,7 +22,7 @@ Created a new network:
 | mtu                       | 0                                    |
 | name                      | external-flat-network                |
 | provider:network_type     | flat                                 |
-| provider:physical_network | physnet                             |
+| provider:physical_network | physnet                              |
 | provider:segmentation_id  |                                      |
 | router:external           | True                                 |
 | shared                    | True                                 |
@@ -49,24 +49,24 @@ The external network shares the same subnet and gateway associated with the phys
 --allocation-pool start=172.120.1.200,end=172.120.1.220
 
 Created a new subnet:
-+-------------------+--------------------------------------------------+
-| Field             | Value                                            |
-+-------------------+--------------------------------------------------+
-| allocation_pools  | {"start": "172.120.1.200", "end": "172.120.1.220"} |
++-------------------+---------------------------------------------------+
+| Field             | Value                                             |
++-------------------+---------------------------------------------------+
+| allocation_pools  | {"start": "172.120.1.200", "end": "172.120.1.220"}|
 | cidr              | 172.120.1.0/24                                    |
-| dns_nameservers   |                                                  |
-| enable_dhcp       | False                                            |
+| dns_nameservers   |                                                   |
+| enable_dhcp       | False                                             |
 | gateway_ip        | 172.120.1.1                                       |
-| host_routes       |                                                  |
-| id                | 40f89cb3-9474-48e0-ab4c-7fa3fb57009e             |
-| ip_version        | 4                                                |
-| ipv6_address_mode |                                                  |
-| ipv6_ra_mode      |                                                  |
-| name              | external-flat-subnetwork                         |
-| network_id        | 6ede0952-25f7-489d-9ce4-0126da7cb7d0             |
-| subnetpool_id     |                                                  |
-| tenant_id         | 5ccf7027366442709bde78831da6cce2                 |
-+-------------------+--------------------------------------------------+
+| host_routes       |                                                   |
+| id                | 40f89cb3-9474-48e0-ab4c-7fa3fb57009e              |
+| ip_version        | 4                                                 |
+| ipv6_address_mode |                                                   |
+| ipv6_ra_mode      |                                                   |
+| name              | external-flat-subnetwork                          |
+| network_id        | 6ede0952-25f7-489d-9ce4-0126da7cb7d0              |
+| subnetpool_id     |                                                   |
+| tenant_id         | 5ccf7027366442709bde78831da6cce2                  |
++-------------------+---------------------------------------------------+
 ```
 
 ####Configure VxLAN encapsulation for Tenant networks
