@@ -460,7 +460,6 @@ prevent_arp_spoofing = True
 firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
 enable_security_group = True
 ```
-```
 
 restart the OVS agent
 ```
