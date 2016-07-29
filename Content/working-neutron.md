@@ -70,7 +70,7 @@ Created a new subnet:
 ```
 
 ####Configure VxLAN encapsulation for Tenant networks
-In this section, we are going to configure the tenant network encapsulation based on **VxLAN** as tunneling protocol. Other options are: **VLAN** and **GRE**. The **Virtual extensible LAN** tunnels realize a L2 network on top of IP routed interfaces. Each L2 frame is tagged with an appropriate **Virtual Network Identifier** and wrapped into UDP packets. Tunnel endpoints listen on 4789 port, by default. IP Multicast can be used to flood broadcast and unknown L2 traffic.
+In this section, we are going to configure the tenant network encapsulation based on **VxLAN** as tunneling protocol. Other options are: **VLAN** and **GRE**. The **Virtual extensible LAN** tunnels realize a L2 network on top of IP routed interfaces. Each L2 frame is tagged with an appropriate **Virtual Network Identifier** and wrapped into UDP packets. Tunnel endpoints listen on 4789 port, by default. IP Multicast is used to flood broadcast and unknown L2 traffic.
 
 On the Control node, change the settings
 ```
@@ -112,7 +112,10 @@ integration_bridge = br-int
 tunnel_bridge = br-tun
 int_peer_patch_port = patch-tun
 tun_peer_patch_port = patch-int
-local_ip = LOCAL_TUNNEL_INTERFACE_IP_ADDRESS
+# In order to configure VxLAN Tunnel, all the physical NIC interfaces where GRE tunnel is attached must have an IP address.
+# Also Multicast traffic should be permitted.
+local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
+#
 bridge_mappings = physnet:br-ex
 
 [agent]
@@ -153,7 +156,10 @@ integration_bridge = br-int
 tunnel_bridge = br-tun
 int_peer_patch_port = patch-tun
 tun_peer_patch_port = patch-int
-local_ip = LOCAL_TUNNEL_INTERFACE_IP_ADDRESS
+# In order to configure VxLAN Tunnel, all the physical NIC interfaces where GRE tunnel is attached must have an IP address.
+# Also Multicast traffic should be permitted.
+local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
+#
 # uncomment when compute node is directly attached to external network
 # bridge_mappings = physnet:br-ex
 
@@ -348,8 +354,7 @@ On the Network node, change the settings
 integration_bridge = br-int
 tunnel_bridge = br-tun
 # In order to configure GRE Tunnel, all the physical NIC interfaces where GRE tunnel is attached must have an IP address.
-# Also Multicast traffic should be permitted.
-local_ip = 192.168.1.38
+local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
 #
 bridge_mappings = external:br-ex
 enable_tunneling=True
@@ -387,8 +392,7 @@ On all the Compute nodes, change the settings
 integration_bridge = br-int
 tunnel_bridge = br-tun
 # In order to configure GRE Tunnel, all the physical NIC interfaces where GRE tunnel is attached must have an IP address.
-# Also Multicast traffic should be permitted.
-local_ip = 192.168.1.32
+local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
 #
 enable_tunneling=True
 ...
