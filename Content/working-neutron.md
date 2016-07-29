@@ -120,7 +120,6 @@ local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
 bridge_mappings = physnet:br-ex
 
 [agent]
-enable_tunneling = True
 tunnel_types = vxlan
 vxlan_udp_port = 4789
 enable_distributed_routing = False
@@ -166,7 +165,6 @@ local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
 # bridge_mappings = physnet:br-ex
 
 [agent]
-enable_tunneling = True
 tunnel_types = vxlan
 vxlan_udp_port = 4789
 enable_distributed_routing = False
