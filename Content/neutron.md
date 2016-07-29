@@ -204,11 +204,11 @@ integration_bridge = br-int
 tunnel_bridge = br-tun
 int_peer_patch_port = patch-tun
 tun_peer_patch_port = patch-int
+enable_tunneling = True
 local_ip = LOCAL_TUNNEL_INTERFACE_IP_ADDRESS
 bridge_mappings = physnet:br-ex
 
 [agent]
-enable_tunneling = True
 tunnel_types = vxlan, vlan, gre
 vxlan_udp_port = 4789
 enable_distributed_routing = False
@@ -305,12 +305,12 @@ integration_bridge = br-int
 tunnel_bridge = br-tun
 int_peer_patch_port = patch-tun
 tun_peer_patch_port = patch-int
+enable_tunneling = True
 local_ip = LOCAL_TUNNEL_INTERFACE_IP_ADDRESS
 # uncomment when compute node is directly attached to external network
 # bridge_mappings = physnet:br-ex
 
 [agent]
-enable_tunneling = True
 tunnel_types = vxlan, vlan, gre
 vxlan_udp_port = 4789
 enable_distributed_routing = False
