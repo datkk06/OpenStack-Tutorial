@@ -100,8 +100,7 @@ rabbit_userid = guest
 rabbit_password = <rabbit password>
 ```
 
-Configure the ML2 plugin by editing the ``/etc/neutron/plugin.ini`` initialization file. This file is a link to ``/etc/neutron/plugins/ml2/ml2_conf.ini``
-
+Configure the ML2 plugin by editing the ``/etc/neutron/plugin.ini`` initialization file.
 ```
 # ll /etc/neutron/plugin.ini
 lrwxrwxrwx. 1 root root 37 Mar 14 22:55 /etc/neutron/plugin.ini -> /etc/neutron/plugins/ml2/ml2_conf.ini
@@ -109,7 +108,7 @@ lrwxrwxrwx. 1 root root 37 Mar 14 22:55 /etc/neutron/plugin.ini -> /etc/neutron/
 # ll /etc/neutron/plugins/ml2/ml2_conf.ini
 -rw-r-----. 1 root neutron 5252 Jul 29 01:34 /etc/neutron/plugins/ml2/ml2_conf.ini
 
-# vi /etc/neutron/plugin.ini
+# vi /etc/neutron/plugins/ml2/ml2_conf.ini
 
 [ml2]
 type_drivers = flat, vxlan, vlan, gre
