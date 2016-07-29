@@ -484,7 +484,29 @@ and restart the Neutron service
 # systemctl restart neutron-server
 ```
 
-On the Network node, create an additional bridge interface to connect the node to the VLAN based network. For example, having a physical interface called ``ens36``, create an additional bridge ``br-vlan`` and associate it to the interface
+On the Network node, check the node is connected to the physical network via the ``br-ex`` external bridge
+```
+# cat /etc/sysconfig/network-scripts/ifcfg-br-ex
+DEFROUTE=yes
+PEERDNS=yes
+PEERROUTES=yes
+ONBOOT=yes
+DEVICE=br-ex
+DEVICETYPE=ovs
+OVSBOOTPROTO=
+TYPE=OVSBridge
+
+# cat /etc/sysconfig/network-scripts/ifcfg-ens33
+DEVICE=ens33
+DEVICETYPE=ovs
+TYPE=OVSPort
+OVS_BRIDGE=br-ex
+ONBOOT=yes
+BOOTPROTO=none
+
+```
+
+Create an additional bridge interface to connect the Network node to the VLAN based network. For example, having a physical interface called ``ens36``, create an additional bridge ``br-vlan`` and associate it to the interface
 
 ```
 # vi /etc/sysconfig/network-scripts/ifcfg-br-vlan
@@ -506,7 +528,7 @@ ONBOOT=yes
 BOOTPROTO=none
 ```
 
-and restart the network service to enable the bridge
+Restart the network service to enable the new bridge
 ```
 # systemctl restart network
 ```
@@ -521,7 +543,8 @@ integration_bridge = br-int
 #tun_peer_patch_port = patch-int
 #enable_tunneling = True
 #local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
-#
+# physnet1 is for the external flat network
+# physnet2 is for the VLAN based tenant networks
 bridge_mappings = physnet1:br-ex,physnet2:br-vlan
 
 [agent]
@@ -558,6 +581,32 @@ ens36
 phy-br-vlan
 ```
 
+On all the Compute nodes, create an additional bridge interface to connect the Compute node to the VLAN based network. For example, having a physical interface called ``ens36``, create an additional bridge ``br-vlan`` and associate it to the interface
+
+```
+# vi /etc/sysconfig/network-scripts/ifcfg-br-vlan
+DEFROUTE=yes
+PEERDNS=yes
+PEERROUTES=yes
+ONBOOT=yes
+DEVICE=br-vlan
+DEVICETYPE=ovs
+OVSBOOTPROTO=
+TYPE=OVSBridge
+
+# vi /etc/sysconfig/network-scripts/ifcfg-en36
+DEVICE=ens36
+DEVICETYPE=ovs
+TYPE=OVSPort
+OVS_BRIDGE=br-vlan
+ONBOOT=yes
+BOOTPROTO=none
+```
+
+Restart the network service to enable the new bridge
+```
+# systemctl restart network
+```
 
 
 
