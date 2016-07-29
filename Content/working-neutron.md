@@ -139,13 +139,17 @@ restart the OVS agent
 and check the new OVS layout
 ```
 # ovs-vsctl list-ports br-ex
-
+ens33
+phy-br-ex
 
 # ovs-vsctl list-ports br-int
-
+int-br-ex
+patch-tun
 
 # ovs-vsctl list-ports br-tun
-
+patch-int
+vxlan-c0a80120
+vxlan-c0a80121
 ```
 
 On all the Compute nodes, change the settings
