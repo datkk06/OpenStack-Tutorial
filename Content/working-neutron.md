@@ -70,7 +70,7 @@ Created a new subnet:
 ```
 
 ####Configure VxLAN encapsulation for Tenant networks
-In this section, we are going to configure the tenant network encapsulation based on **VxLAN** as tunneling protocol. Other options are: **VLAN** and **GRE**. The **Virtual extensible LAN** tunnels realize a L2 network on top of IP routed interfaces. Each L2 frame is tagged with an appropriate **Virtual Network Identifier** and wrapped into UDP packets. Tunnel endpoints listen on 4789 port, by default. 
+In this section, we are going to configure the tenant network encapsulation based on **VxLAN** as tunneling protocol. Other options are: **VLAN** and **GRE**. The **Virtual extensible LAN** tunnels realize a L2 network on top of IP routed interfaces. Each L2 frame is tagged with an appropriate **Virtual Network Identifier** and wrapped into UDP packets. Tunnel endpoints listen on 4789 port, by default. IP Multicast can be used to flood broadcast and unknown L2 traffic.
 
 On the Control node, change the settings
 ```
