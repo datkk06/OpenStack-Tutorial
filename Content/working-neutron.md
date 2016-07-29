@@ -10,7 +10,7 @@ On the Control node, login as ``admin`` user and create the external network
 # neutron net-create external-flat-network \
 --shared \
 --provider:network_type flat \
---provider:physical_network external \
+--provider:physical_network physnet \
 --router:external True
 
 Created a new network:
@@ -22,7 +22,7 @@ Created a new network:
 | mtu                       | 0                                    |
 | name                      | external-flat-network                |
 | provider:network_type     | flat                                 |
-| provider:physical_network | external                             |
+| provider:physical_network | physnet                             |
 | provider:segmentation_id  |                                      |
 | router:external           | True                                 |
 | shared                    | True                                 |
@@ -35,28 +35,28 @@ Created a new network:
 Pay attention to the following parameters:
 
 * ``provider:network_type flat``
-* ``provider:physical_network external``
+* ``provider:physical_network physnet``
 * ``router:external True``
 * ``shared``
 
 The external network shares the same subnet and gateway associated with the physical network connected to the external interface on the Network node. Specify an exclusive slice of this subnet for router and IP addresses to prevent interference with other devices on the same external network
 
 ```
-# neutron subnet-create external-flat-network 172.16.1.0/24  \
+# neutron subnet-create external-flat-network 172.120.1.0/24  \
 --name external-flat-subnetwork \
---gateway 172.16.1.1 \
+--gateway 172.120.1.1 \
 --disable-dhcp \
---allocation-pool start=172.16.1.200,end=172.16.1.220
+--allocation-pool start=172.120.1.200,end=172.120.1.220
 
 Created a new subnet:
 +-------------------+--------------------------------------------------+
 | Field             | Value                                            |
 +-------------------+--------------------------------------------------+
-| allocation_pools  | {"start": "172.16.1.200", "end": "172.16.1.220"} |
-| cidr              | 172.16.1.0/24                                    |
+| allocation_pools  | {"start": "172.120.1.200", "end": "172.120.1.220"} |
+| cidr              | 172.120.1.0/24                                    |
 | dns_nameservers   |                                                  |
 | enable_dhcp       | False                                            |
-| gateway_ip        | 172.16.1.1                                       |
+| gateway_ip        | 172.120.1.1                                       |
 | host_routes       |                                                  |
 | id                | 40f89cb3-9474-48e0-ab4c-7fa3fb57009e             |
 | ip_version        | 4                                                |
