@@ -608,9 +608,258 @@ Restart the network service to enable the new bridge
 # systemctl restart network
 ```
 
+On each Compute node, change the settings
+```
+# vi /etc/neutron/plugins/ml2/openvswitch_agent.ini
+[ovs]
+integration_bridge = br-int
+#tunnel_bridge = br-tun
+#int_peer_patch_port = patch-tun
+#tun_peer_patch_port = patch-int
+#enable_tunneling = True
+#local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
+# physnet2 is for the VLAN based tenant networks
+bridge_mappings = physnet2:br-vlan
 
+[agent]
+#tunnel_types = vxlan
+#vxlan_udp_port = 4789
+enable_distributed_routing = False
+l2_population = True
+prevent_arp_spoofing = True
 
+[securitygroup]
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+enable_security_group = True
+```
 
+Delete the br-tun from the OVS layout and restart the OVS agent
+```
+# ovs-vsctl del-br br-tun
+# ovs-vsctl del-port br-int patch-tun
+# systemctl restart neutron-openvswitch-agent
+```
+
+and check the new OVS layout
+```
+# ovs-vsctl list-ports br-int
+int-br-ex
+int-br-vlan
+
+# ovs-vsctl list-ports br-vlan
+ens36
+phy-br-vlan
+```
+
+On the Network node, change the settings
+```
+# vi /etc/neutron/plugins/ml2/openvswitch_agent.ini
+[ovs]
+integration_bridge = br-int
+#tunnel_bridge = br-tun
+#int_peer_patch_port = patch-tun
+#tun_peer_patch_port = patch-int
+#enable_tunneling = True
+#local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
+# physnet1 is for the external flat network
+# physnet2 is for the VLAN based tenant networks
+bridge_mappings = physnet1:br-ex,physnet2:br-vlan
+
+[agent]
+#tunnel_types = vxlan
+#vxlan_udp_port = 4789
+enable_distributed_routing = False
+l2_population = True
+prevent_arp_spoofing = True
+
+[securitygroup]
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+enable_security_group = True
+```
+
+Delete the br-tun from the OVS layout and restart the OVS agent
+```
+# ovs-vsctl del-br br-tun
+# ovs-vsctl del-port br-int patch-tun
+# systemctl restart neutron-openvswitch-agent
+```
+
+and check the new OVS layout
+```
+# ovs-vsctl list-ports br-ex
+ens33
+phy-br-ex
+
+# ovs-vsctl list-ports br-int
+int-br-ex
+int-br-vlan
+
+# ovs-vsctl list-ports br-vlan
+ens36
+phy-br-vlan
+```
+
+Login as admin user and create an external flat network
+```
+# source keystonerc_admin
+# neutron net-create external-flat-network \
+ --shared --provider:network_type flat \
+ --provider:physical_network physnet1 \
+ --router:external True
+Created a new network:
++---------------------------+--------------------------------------+
+| Field                     | Value                                |
++---------------------------+--------------------------------------+
+| admin_state_up            | True                                 |
+| id                        | 5365929b-ab4a-4d32-82c2-70b33989ef58 |
+| mtu                       | 0                                    |
+| name                      | external-flat-network                |
+| provider:network_type     | flat                                 |
+| provider:physical_network | physnet1                             |
+| provider:segmentation_id  |                                      |
+| router:external           | True                                 |
+| shared                    | True                                 |
+| status                    | ACTIVE                               |
+| subnets                   |                                      |
+| tenant_id                 | 613b2bc016c5428397b3fea6dc162af1     |
++---------------------------+--------------------------------------+
+
+# neutron subnet-create external-flat-network 172.120.1.0/24  \
+ --name external-flat-subnetwork \
+ --gateway 172.120.1.1 \
+ --disable-dhcp \
+ --allocation-pool start=172.120.1.200,end=172.120.1.220
+Created a new subnet:
++-------------------+----------------------------------------------------+
+| Field             | Value                                              |
++-------------------+----------------------------------------------------+
+| allocation_pools  | {"start": "172.120.1.200", "end": "172.120.1.220"} |
+| cidr              | 172.120.1.0/24                                     |
+| dns_nameservers   |                                                    |
+| enable_dhcp       | False                                              |
+| gateway_ip        | 172.120.1.1                                        |
+| host_routes       |                                                    |
+| id                | 9e82ca73-c5f9-45ad-ad4f-ce16c4d9fb7c               |
+| ip_version        | 4                                                  |
+| ipv6_address_mode |                                                    |
+| ipv6_ra_mode      |                                                    |
+| name              | external-flat-subnetwork                           |
+| network_id        | 5365929b-ab4a-4d32-82c2-70b33989ef58               |
+| subnetpool_id     |                                                    |
+| tenant_id         | 613b2bc016c5428397b3fea6dc162af1                   |
++-------------------+----------------------------------------------------+
+```
+
+Login as tenant user and create a tenant network
+```
+# source keystonerc_demo
+# neutron net-create tenant-network
+Created a new network:
++-----------------+--------------------------------------+
+| Field           | Value                                |
++-----------------+--------------------------------------+
+| admin_state_up  | True                                 |
+| id              | 9b8b2375-1d51-4433-9ea2-2f0f5e573014 |
+| mtu             | 0                                    |
+| name            | tenant-network                       |
+| router:external | False                                |
+| shared          | False                                |
+| status          | ACTIVE                               |
+| subnets         |                                      |
+| tenant_id       | cbaae2b354d84f8098fb99a6012234e8     |
++-----------------+--------------------------------------+
+# neutron subnet-create tenant-network 192.168.1.0/24 \
+ --name tenant-subnetwork \
+ --gateway 192.168.1.1 \
+ --enable-dhcp \
+ --dns-nameserver 8.8.8.8 \
+ --allocation-pool start=192.168.1.10,end=192.168.1.250
+Created a new subnet:
++-------------------+---------------------------------------------------+
+| Field             | Value                                             |
++-------------------+---------------------------------------------------+
+| allocation_pools  | {"start": "192.168.1.10", "end": "192.168.1.250"} |
+| cidr              | 192.168.1.0/24                                    |
+| dns_nameservers   | 8.8.8.8                                           |
+| enable_dhcp       | True                                              |
+| gateway_ip        | 192.168.1.1                                       |
+| host_routes       |                                                   |
+| id                | 6e265a32-0f5b-4261-a2f5-a07daa295cd7              |
+| ip_version        | 4                                                 |
+| ipv6_address_mode |                                                   |
+| ipv6_ra_mode      |                                                   |
+| name              | tenant-subnetwork                                 |
+| network_id        | 9b8b2375-1d51-4433-9ea2-2f0f5e573014              |
+| subnetpool_id     |                                                   |
+| tenant_id         | cbaae2b354d84f8098fb99a6012234e8                  |
++-------------------+---------------------------------------------------+
+```
+
+As you can see as admin user, the external network is flat and the tenant network is VLAN based. The VLAN ID (1099 in this case) is automatically assigned by the system since the tenant user cannot interact with physical infrastructure backing the tenant network
+```
+# source keystonerc_admin
+# neutron net-list
++--------------------------------------+-----------------------+-----------------------------------------------------+
+| id                                   | name                  | subnets                                             |
++--------------------------------------+-----------------------+-----------------------------------------------------+
+| 5365929b-ab4a-4d32-82c2-70b33989ef58 | external-flat-network | 9e82ca73-c5f9-45ad-ad4f-ce16c4d9fb7c 172.120.1.0/24 |
+| 9b8b2375-1d51-4433-9ea2-2f0f5e573014 | tenant-network        | 6e265a32-0f5b-4261-a2f5-a07daa295cd7 192.168.1.0/24 |
++--------------------------------------+-----------------------+-----------------------------------------------------+
+
+# neutron net-show external-flat-network
++---------------------------+--------------------------------------+
+| Field                     | Value                                |
++---------------------------+--------------------------------------+
+| admin_state_up            | True                                 |
+| id                        | 5365929b-ab4a-4d32-82c2-70b33989ef58 |
+| mtu                       | 0                                    |
+| name                      | external-flat-network                |
+| provider:network_type     | flat                                 |
+| provider:physical_network | physnet1                             |
+| provider:segmentation_id  |                                      |
+| router:external           | True                                 |
+| shared                    | True                                 |
+| status                    | ACTIVE                               |
+| subnets                   | 9e82ca73-c5f9-45ad-ad4f-ce16c4d9fb7c |
+| tenant_id                 | 613b2bc016c5428397b3fea6dc162af1     |
++---------------------------+--------------------------------------+
+
+# neutron net-show tenant-network
++---------------------------+--------------------------------------+
+| Field                     | Value                                |
++---------------------------+--------------------------------------+
+| admin_state_up            | True                                 |
+| id                        | 9b8b2375-1d51-4433-9ea2-2f0f5e573014 |
+| mtu                       | 0                                    |
+| name                      | tenant-network                       |
+| provider:network_type     | vlan                                 |
+| provider:physical_network | physnet2                             |
+| provider:segmentation_id  | 1099                                 |
+| router:external           | False                                |
+| shared                    | False                                |
+| status                    | ACTIVE                               |
+| subnets                   | 6e265a32-0f5b-4261-a2f5-a07daa295cd7 |
+| tenant_id                 | cbaae2b354d84f8098fb99a6012234e8     |
++---------------------------+--------------------------------------+
+```
+
+As tenant user, create a gateway to connect the external with the tenant network
+```
+# source keystonerc_demo
+# neutron router-create mygateway
+# neutron router-interface-add mygateway subnet=tenant-subnetwork
+# neutron router-gateway-set mygateway external-flat-network
+```
+
+and then start a VM on the tenant network
+```
+# nova boot vmkvm \
+ --flavor small \
+ --image cirros  \
+ --key_name demokey \
+ --security-groups default \
+ --nic net-id=<tenant_net_id>
+```
 
 
 
