@@ -341,6 +341,16 @@ As tenant user, start a VM on the provisioned tenant network
 --nic net-id=<internal_network_id>
 ```
 
+Check that the VM gets IP Address from the tenant network IP allocation pool
+```
+# nova list
++--------------------------------------+-------+--------+------------+-------------+-----------------------------+
+| ID                                   | Name  | Status | Task State | Power State | Networks                    |
++--------------------------------------+-------+--------+------------+-------------+-----------------------------+
+| 81df7a9d-f780-4b07-9421-e361afb473aa | vmkvm | ACTIVE | -          | Running     | tenant-network=192.168.1.12 |
++--------------------------------------+-------+--------+------------+-------------+-----------------------------+
+```
+
 ####Configure GRE Tunnel encapsulation for Tenant networks
 In this section we are going to set the tunnel type used for the Tenant networks from the VxLAN to the **GRE** encapsulation. **Generic Routing Encapsulation** is a tunneling protocol (RFC2784) developed by **Cisco Systems** that can encapsulate a wide variety of network layer protocols inside virtual point-to-point links over an Internet Protocol network. In OpenStack, the GRE can be used as method to implement L2 Tenant networks over a L3 routed network.
 
@@ -432,9 +442,55 @@ gre-c0a80126
 patch-int
 ```
 
-Create tenant and external networks as usual and start a new VM in order to check things happen as expected.
+Create tenant and external networks as above and start a new VM in order to check things happen as expected.
 
 ###Configure VLANs for Tenant networks
-In this section we are going to use a VLAN L2 switch to implement the Tenant networks. The switch must support the VLAN trunking in order to get working.
+In this section we are going to use a VLAN L2 switch to implement the Tenant networks. The switch must support the VLAN trunking in order to get working. All the Compute and the Nework nodes have a dedicated physical interface attached to the VLAN L2 switch. This interface can be different from the physical interface used for the external network or it can be the same. In the first case, the external network can be flat or VLAN based; in the latter, the external network should be VLAN based to make things simple.
+
+In our case, we are going to use two separate physical interfaces:
+
+ * On Network node: ``ens33`` interface for a flat external network mapped on the ``br-ex`` bridge and ``ens36`` interface for the VLAN based tenant networks mapped on the ``br-vlan`` bridge.
+ * On all Compute nodes: ``ens36`` for the VLAN based tenant networks mapped on the ``br-vlan`` bridge.
+
+On the Control node, change the settings
+```
+# vi /etc/neutron/plugin.ini
+[ml2]
+type_drivers = flat, vxlan, vlan, gre
+tenant_network_types = vlan
+mechanism_drivers = openvswitch, l2population
+extension_drivers = port_security
+
+[ml2_type_flat]
+flat_networks = physnet1
+# use flat_networks = * to allow flat networks with arbitrary names
+
+[ml2_type_vxlan]
+#vni_ranges = 1001:2000
+#vxlan_group = 239.1.1.2
+
+[ml2_type_vlan]
+network_vlan_ranges = physnet:1001:2000
+
+[ml2_type_gre]
+#tunnel_id_ranges = 1:1000
+
+[securitygroup]
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+enable_ipset = True
+```
+and restart the Neutron service
+```
+# systemctl restart neutron-server
+```
+
+
+
+
+
+
+
+
+
 
 
