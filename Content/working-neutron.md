@@ -112,7 +112,8 @@ integration_bridge = br-int
 tunnel_bridge = br-tun
 int_peer_patch_port = patch-tun
 tun_peer_patch_port = patch-int
-# In order to configure VxLAN Tunnel, all the physical NIC interfaces where GRE tunnel is attached must have an IP address.
+enable_tunneling = True
+# In order to configure VxLAN, all the physical interfaces where tunnel is attached must have an IP address.
 # Also Multicast traffic should be permitted.
 local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
 #
@@ -156,7 +157,8 @@ integration_bridge = br-int
 tunnel_bridge = br-tun
 int_peer_patch_port = patch-tun
 tun_peer_patch_port = patch-int
-# In order to configure VxLAN Tunnel, all the physical NIC interfaces where GRE tunnel is attached must have an IP address.
+enable_tunneling = True
+# In order to configure VxLAN, all the physical interfaces where tunnel is attached must have an IP address.
 # Also Multicast traffic should be permitted.
 local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
 #
