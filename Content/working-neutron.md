@@ -1,4 +1,4 @@
-###Configure external shared networks
+###Configure the external network
 In the basic networking scenario with a single flat external network, only administrative users can manage external networks because they use the physical network infrastructure. In this example, we are going to create a shared external network to be used by all tenants.
 
 On the Control node, login as ``admin`` Keystone user and create the external network
@@ -66,8 +66,8 @@ Created a new subnet:
 +-------------------+--------------------------------------------------+
 ```
 
-###Configure tenant networks
-The tenant networks are created by the tenant users. Login as a tenant user and create a tenant network
+###Configure Tenant networks
+The tenant networks are created by the tenant users. In this section, we are going to configure a Tenant network based on VxLAN as tunneling protocol. Login as a tenant user and create a tenant network
 ```
 # source keystonerc_bcloud
 # neutron net-create tenant-network
@@ -130,7 +130,7 @@ tap9fc1c45b-f9: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
 
 The tenant network just created need to be connected to the external network via a virtual router. Create the virtual router as tenant user
 ```
-# source keystonerc_bcloud
+# source keystonerc_demo
 # neutron router-create mygateway
 Created a new router:
 +-----------------------+--------------------------------------+
@@ -166,7 +166,7 @@ qr-9c0083e4-0a: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet 192.168.1.1  netmask 255.255.255.0  broadcast 192.168.1.255
 ```
 
-###Configure security groups
+###Configure Security Groups
 Security Groups control traffic incoming and outcoming to and from virtual machines. As tenant user, configure a securty group and add rules
 ```
 # neutron security-group-create myaccess
@@ -202,3 +202,97 @@ myaccess
 | a7db323f-87ce-4745-b0be-97f4d45f6ea3 | myaccess       | egress    | IPv6      | any           | any    |
 +--------------------------------------+----------------+-----------+-----------+---------------+--------+
 ```
+
+###Configure GRE Tunnel encapsulation for Tenant networks
+In this section we are going to set the tunnel type used for the Tenant networks from the VxLAN to the **GRE** encapsulation. **Generic Routing Encapsulation** is a tunneling protocol (RFC2784) developed by **Cisco Systems** that can encapsulate a wide variety of network layer protocols inside virtual point-to-point links over an Internet Protocol network. In OpenStack, the GRE can be used as method to implement L2 Tenant networks over a L3 routed network.
+
+On the Control node, change the settings
+```
+# vi /etc/neutron/plugin.ini
+[ml2]
+type_drivers = flat,vxlan,vlan,gre
+tenant_network_types = gre
+mechanism_drivers = openvswitch
+...
+[ml2_type_gre]
+tunnel_id_ranges =1:1000
+...
+```
+and restart the Neutron service
+```
+# systemctl restart neutron-server
+```
+
+On the Network node, change the settings
+```
+# vi /etc/neutron/plugins/ml2/openvswitch_agent.ini
+[ovs]
+integration_bridge = br-int
+tunnel_bridge = br-tun
+# set the local IP as the IP address of the NIC where GRE tunnel will be initiated
+local_ip = 192.168.1.38
+bridge_mappings = external:br-ex
+enable_tunneling=True
+...
+[agent]
+tunnel_types = gre
+...
+```
+
+restart the OVS agent
+```
+# systemctl restart neutron-openvswitch-agent
+```
+
+and check the new OVS layout
+```
+# ovs-vsctl list-ports br-ex
+ens33
+phy-br-ex
+
+# ovs-vsctl list-ports br-int
+int-br-ex
+patch-tun
+
+# ovs-vsctl list-ports br-tun
+gre-c0a80120
+gre-c0a80122
+patch-int
+```
+
+On all the Compute nodes, change the settings
+```
+# vi /etc/neutron/plugins/ml2/openvswitch_agent.ini
+[ovs]
+integration_bridge = br-int
+tunnel_bridge = br-tun
+# set the local IP as the IP address of the NIC where GRE tunnel will be initiated
+local_ip = 192.168.1.32
+enable_tunneling=True
+...
+[agent]
+tunnel_types = gre
+...
+```
+
+restart the OVS agent
+```
+# systemctl restart neutron-openvswitch-agent
+```
+
+and check the new OVS layout
+```
+# ovs-vsctl list-ports br-int
+int-br-ex
+patch-tun
+
+# ovs-vsctl list-ports br-tun
+gre-c0a80122
+gre-c0a80126
+patch-int
+```
+
+###Configure VLANs for Tenant networks
+In this section we are going to use a VLAN L2 switch to implement the Tenant networks. The switch must support the VLAN trunking in order to get working.
+
+
