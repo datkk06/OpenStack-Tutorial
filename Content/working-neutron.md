@@ -861,5 +861,14 @@ and then start a VM on the tenant network
  --nic net-id=<tenant_net_id>
 ```
 
+Check that the VM gets IP Address from the tenant network IP allocation pool
+```
+# nova list
++--------------------------------------+-------+--------+------------+-------------+-----------------------------+
+| ID                                   | Name  | Status | Task State | Power State | Networks                    |
++--------------------------------------+-------+--------+------------+-------------+-----------------------------+
+| 81df7a9d-f780-4b07-9421-e361afb473aa | vmkvm | ACTIVE | -          | Running     | tenant-network=192.168.1.11 |
++--------------------------------------+-------+--------+------------+-------------+-----------------------------+
+```
 
 
