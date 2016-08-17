@@ -687,54 +687,6 @@ ens36
 phy-br-vlan
 ```
 
-On the Network node, change the settings
-```
-# vi /etc/neutron/plugins/ml2/openvswitch_agent.ini
-[ovs]
-integration_bridge = br-int
-#tunnel_bridge = br-tun
-#int_peer_patch_port = patch-tun
-#tun_peer_patch_port = patch-int
-#enable_tunneling = True
-#local_ip = <LOCAL_TUNNEL_INTERFACE_IP_ADDRESS>
-# physnet1 is for the external flat network
-# physnet2 is for the VLAN based tenant networks
-bridge_mappings = physnet1:br-ex,physnet2:br-vlan
-
-[agent]
-#tunnel_types = vxlan
-#vxlan_udp_port = 4789
-enable_distributed_routing = False
-l2_population = True
-prevent_arp_spoofing = True
-
-[securitygroup]
-firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
-enable_security_group = True
-```
-
-Delete the br-tun from the OVS layout and restart the OVS agent
-```
-# ovs-vsctl del-br br-tun
-# ovs-vsctl del-port br-int patch-tun
-# systemctl restart neutron-openvswitch-agent
-```
-
-and check the new OVS layout
-```
-# ovs-vsctl list-ports br-ex
-ens33
-phy-br-ex
-
-# ovs-vsctl list-ports br-int
-int-br-ex
-int-br-vlan
-
-# ovs-vsctl list-ports br-vlan
-ens36
-phy-br-vlan
-```
-
 Login as admin user and create an external flat network
 ```
 # source keystonerc_admin
