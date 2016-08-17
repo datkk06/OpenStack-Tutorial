@@ -234,7 +234,7 @@ The OVS Layout should look like the following picture
 Packet flow between the two VMs will happen between the two Compute nodes without passing through the Network node.
 
 ####Layout in Tenant VLAN scenario
-The OVS Layout in Tenant networks scenario is similar when using a tunneled tecnology like VxLAN or GRE encapsulation. In this section, we are going to check the layout when using VLAN based tenant networks. All the Compute and the Nework nodes have a dedicated physical interface attached to the VLAN L2 switch. This interface can be different from the physical interface used for the external network or it can be the same. In the first case, the external network can be flat or VLAN based; in the latter, the external network should be VLAN based to make things simple.
+The OVS Layout in Tenant networks scenario is similar when using a tunneled tecnology like VxLAN or GRE encapsulation. In this section, we are going to check the layout when using VLAN based tenant networks. All the Compute and the Nework nodes have a dedicated physical interface attached to the VLAN L2 switch. This interface can be different from the physical interface used for the external network. The external network is flat or VLAN based.
 
 In our case, we are going to use two separate physical interfaces:
 
