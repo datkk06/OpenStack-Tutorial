@@ -481,7 +481,7 @@ patch-int
 Create tenant and external networks as above and start a new VM in order to check things happen as expected.
 
 ###Configure VLANs for Tenant networks
-In this section we are going to use a VLAN L2 switch to implement the Tenant networks. The switch must support the VLAN trunking in order to get working. All the Compute and the Nework nodes have a dedicated physical interface attached to the VLAN L2 switch. This interface can be different from the physical interface used for the external network or it can be the same. In the first case, the external network can be flat or VLAN based; in the latter, the external network should be VLAN based to make things simple.
+In this section we are going to use a VLAN L2 switch to implement the Tenant networks. The switch must support the VLAN trunking in order to get working. All the Compute and the Nework nodes have a dedicated physical interface attached to the VLAN L2 switch. This interface can be different from the physical interface used for the external network. The external network is flat or VLAN based.
 
 In our case, we are going to use two separate physical interfaces:
 
