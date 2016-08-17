@@ -679,7 +679,6 @@ Delete the br-tun from the OVS layout and restart the OVS agent
 and check the new OVS layout
 ```
 # ovs-vsctl list-ports br-int
-int-br-ex
 int-br-vlan
 
 # ovs-vsctl list-ports br-vlan
