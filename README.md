@@ -28,7 +28,7 @@ OpenStack Tutorial based on both the RDO and the RedHat OpenStack distributions.
 22. [FWaaS Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/firewall.md)
 23. [_Autoscaling with Heath](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/autoscaling-heat.md)
 24. [_Ceph Unified Storage](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ceph.md)
-25. [_High Availability](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ha.md)
+25. [High Availability](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ha.md)
 26. [Cloud Scaling](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/scale.md)
 
 ###Install RedHat OpenStack via Director
