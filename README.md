@@ -32,7 +32,7 @@ OpenStack Tutorial based on both the RDO and the RedHat OpenStack distributions.
 26. [Cloud Scaling](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/scale.md)
 
 ###Install RedHat OpenStack via Director
-27. [TripleO Installation](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/tripleo.md)
+27. [_TripleO Installation](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/tripleo.md)
 
 ### Disclaimer
 This tutorial is for personal use only.
