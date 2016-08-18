@@ -20,17 +20,18 @@ OpenStack Tutorial based on both the RDO and the RedHat OpenStack distributions.
 16. [Nova Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/novanetwork.md)
 
 ###Do More
-17. [_Metering Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ceilometer.md)
-18. [_Heat Orchestration Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/heat.md)
+17. [_TripleO Installation](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/tripleo.md)
+18. [Heat Orchestration Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/heat.md)
+18. [_Metering Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ceilometer.md)
 19. [_Autoscaling with Heath](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/autoscaling-heat.md)
 19. [Advanced Cinder Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/multiple_cinder.md)
 10. [_Creating Images](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/images.md)
 21. [LBaaS Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/load-balancer.md)
 22. [FWaaS Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/firewall.md)
+23. [High Availability](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ha.md)
 24. [_Ceph Unified Storage](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ceph.md)
-25. [High Availability](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ha.md)
 26. [Cloud Scaling](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/scale.md)
-27. [_TripleO Installation](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/tripleo.md)
+
 
 ### Disclaimer
 This tutorial is for personal use only.
