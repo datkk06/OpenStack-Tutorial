@@ -93,3 +93,8 @@ Configure Heat services by editing the ``/etc/heat/heat.conf`` configuration fil
     admin_tenant_name=services
     identity_uri=http://10.10.10.30:35357
     auth_uri=http://10.10.10.30:5000/v2.0
+
+Start and enable Heat services
+
+    # systemctl start openstack-heat-api openstack-heat-api-cfn openstack-heat-engine 
+    # systemctl enable openstack-heat-api openstack-heat-api-cfn openstack-heat-engine 
