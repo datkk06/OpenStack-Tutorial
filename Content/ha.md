@@ -136,17 +136,22 @@ All these services are listening specifically on virtual IP ``10.10.10.101`` on 
 
 ![](../img/haproxy.png?raw=true)
 
-If that controller goes down, Pacemaker only needs to reassign the virtual IP to another controller where all the services are already running.
-
-Most services are configured as Clone Set resources, where they are started on each controller and set to always run on each controller. Services are cloned if they need to be active on multiple nodes. For each of the Clone Set resources, we can see:
+If the controller owning the virtual IP address goes down, Pacemaker only needs to reassign the virtual IP to another controller where all the services are already running. For this reaseon, most services are configured as Clone Set resources, where they are started on each controller and set to always run on each controller. Services are cloned if they need to be active on multiple nodes. For each of the Clone Set resources, we can see:
 
 1. The name Pacemaker assigns to the service
 2. The actual service name
-3. The controllers on which the services are started or stopped
+3. The controllers on which the services are started or stopped.
 
-With Clone Set, the service is intended to start the same way on all controllers.
+The MySQL Galera and Redis services are run as Master/Slave resources
+
+     Master/Slave Set: redis-master [redis]
+         Masters: [ overcloud-controller-2 ]
+         Slaves: [ overcloud-controller-0 overcloud-controller-1 ]
+     Master/Slave Set: galera-master [galera]
+         Masters: [ overcloud-controller-0 overcloud-controller-1 overcloud-controller-2 ]
+
+For the MySQL Galera resource, all three controllers are running as masters. For the Redis resource, ``overcloud-controller-2`` is running as the master, while the other two controllers are running as slaves. This means the MySQL Galera service is running under one set of constraints on all three controllers, while Redis may be subject to different constraints on the master and slave controllers. 
 
 
 
-
-
+The HAProxy load balancing feature distribute the client requests toward all the controllers for better performances. Howewer, not all Cloned Set resources use the HAProxy. Some services as RabbitMQ, memcached and MongoDB do not use HAProxy. Instead, clients of these services use a full list of the controller running the services.
