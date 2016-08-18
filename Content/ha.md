@@ -138,8 +138,13 @@ All these services are listening specifically on virtual IP ``10.10.10.101`` on 
 
 If that controller goes down, Pacemaker only needs to reassign the virtual IP to another controller where all the services are already running.
 
+Most services are configured as Clone Set resources, where they are started on each controller and set to always run on each controller. Services are cloned if they need to be active on multiple nodes. For each of the Clone Set resources, we can see:
 
+1. The name Pacemaker assigns to the service
+2. The actual service name
+3. The controllers on which the services are started or stopped
 
+With Clone Set, the service is intended to start the same way on all controllers.
 
 
 
