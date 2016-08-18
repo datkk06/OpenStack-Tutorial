@@ -161,9 +161,12 @@ Here is the list of OpenStack services managed by HAProxy on the controller node
 * nova_ec2
 * nova_metadata
 * nova_novncproxy
+* nova_osapi
+* redis
+* swift_proxy
 
 
-The MySQL Galera and Redis services are run as Master/Slave resources
+The MariaDB Galera and Redis services are run as Master/Slave resources
 
      Master/Slave Set: redis-master [redis]
          Masters: [ overcloud-controller-2 ]
@@ -171,4 +174,4 @@ The MySQL Galera and Redis services are run as Master/Slave resources
      Master/Slave Set: galera-master [galera]
          Masters: [ overcloud-controller-0 overcloud-controller-1 overcloud-controller-2 ]
 
-For the MySQL Galera resource, all three controllers are running as masters. For the Redis resource, ``overcloud-controller-2`` is running as the master, while the other two controllers are running as slaves. This means the MySQL Galera service is running under one set of constraints on all three controllers, while Redis may be subject to different constraints on the master and slave controllers.
+For the MariaDB Galera resource, all three controllers are running as masters. For the Redis resource, ``overcloud-controller-2`` is running as the master, while the other two controllers are running as slaves. This means the MariaDB Galera service is running under one set of constraints on all three controllers, while Redis may be subject to different constraints on the master and slave controllers.
