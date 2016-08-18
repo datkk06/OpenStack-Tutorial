@@ -124,7 +124,7 @@ Login to that controller and check the IP address and which services are listeni
     tcp        0      0 10.10.10.101:8774       0.0.0.0:*               LISTEN      4338/haproxy
 
 
-The port numbers shown in the ``netstat`` output helps to identify the exact service AHProxy is listening for. Check the ``/etc/haproxy/haproxy.cfg`` file to see what services those port numbers represent. Here are just a few examples:
+We have HAProxy listening on all the service ports. The port numbers shown in the ``netstat`` output helps to identify the service HAProxy is listening for. Check the ``/etc/haproxy/haproxy.cfg`` file to see what services those port numbers represent. Here are just a few examples:
 
     TCP port 5000: keystone
     TCP port 9696: neutron
@@ -132,7 +132,13 @@ The port numbers shown in the ``netstat`` output helps to identify the exact ser
     TCP port 9292: glance-api
     TCP port 80: horizon
 
-All these services are listening specifically on ``10.10.10.101`` on all three controllers. However, only ``overcloud-controller-2`` is actually listening externally on ``10.10.10.101``. If that controller goes down, Pacemaker only needs to reassign the virtual IP to another controller and all the services will already be running.
+All these services are listening specifically on virtual IP ``10.10.10.101`` on all three controllers. However, only ``overcloud-controller-2`` is actually listening externally on it.
+
+![](../img/haproxy.png?raw=true)
+
+If that controller goes down, Pacemaker only needs to reassign the virtual IP to another controller where all the services are already running.
+
+
 
 
 
