@@ -1,5 +1,5 @@
 ###High Availability in OpenStack
-OpenStack framework currently meets high availability requirements for its own infrastructure services like MySQL backend database, RabbitMQ messaging server, Neutron services, Nova services, Cinder Services, etc. However, OpenStack does not guarantee high availability for individual guest instances. This section reports some common methods of implementing highly available systems, with an emphasis on the core OpenStack services and other open source services that are closely aligned with the OpenStack framework.
+OpenStack framework currently meets high availability requirements for its own infrastructure services like MySQL backend database, RabbitMQ messaging server, Neutron services, Nova services, Cinder services, etc. However, OpenStack does not guarantee high availability for individual guest instances. This section reports some common methods of implementing highly available systems, with an emphasis on the core OpenStack services and other open source services that are closely aligned with the OpenStack framework.
 
 In an High Availability system, preventing single points of failure can depend on whether or not a service is stateless.
 
@@ -21,7 +21,7 @@ By combining the Cluster Manager and the Proxy Server capabilities, the OpenStac
 ###Pacemaker usage
 In OpenStack, the Pacemaker application is used as Cluster Manager for all the HA functions. In general, an HA deployment of OpenStack uses three Controller nodes as result of TripleO installation.
 
-Pacemaker relies on the Corosync messaging layer for reliable cluster communications. Corosync implements the Totem single-ring ordering and membership protocol. Pacemaker does not understand the applications it manages. Instead, it relies on resource agents, scripts that encapsulate the knowledge of how to start, stop, and check the health of each application managed by the cluster. These agents must conform to the OCF or systemd standards. Pacemaker ships with a large set of OCF and systemd agents.
+Pacemaker relies on the Corosync messaging layer for reliable cluster communications. Corosync implements the Totem single-ring ordering and membership protocol. Pacemaker does not understand the applications it manages. Instead, it relies on resource agents, scripts that encapsulate the knowledge of how to start, stop, and check the health of each application managed by the cluster. These agents must conform to the OCF or systemd standards. Pacemaker ships with a large set of Open Cluster Format and systemd agents.
 
 From one of the Controller nodes, check the status of the cluster
 
@@ -142,6 +142,8 @@ If the controller owning the virtual IP address goes down, Pacemaker only needs 
 2. The actual service name
 3. The controllers on which the services are started or stopped.
 
+The HAProxy load balancing feature distribute the client requests toward all the controllers for better performances. Howewer, not all Cloned Set resources use the HAProxy. Some services as RabbitMQ, memcached and MongoDB do not use HAProxy. Instead, clients of these services use a full list of the controller running the services.
+
 The MySQL Galera and Redis services are run as Master/Slave resources
 
      Master/Slave Set: redis-master [redis]
@@ -150,8 +152,4 @@ The MySQL Galera and Redis services are run as Master/Slave resources
      Master/Slave Set: galera-master [galera]
          Masters: [ overcloud-controller-0 overcloud-controller-1 overcloud-controller-2 ]
 
-For the MySQL Galera resource, all three controllers are running as masters. For the Redis resource, ``overcloud-controller-2`` is running as the master, while the other two controllers are running as slaves. This means the MySQL Galera service is running under one set of constraints on all three controllers, while Redis may be subject to different constraints on the master and slave controllers. 
-
-
-
-The HAProxy load balancing feature distribute the client requests toward all the controllers for better performances. Howewer, not all Cloned Set resources use the HAProxy. Some services as RabbitMQ, memcached and MongoDB do not use HAProxy. Instead, clients of these services use a full list of the controller running the services.
+For the MySQL Galera resource, all three controllers are running as masters. For the Redis resource, ``overcloud-controller-2`` is running as the master, while the other two controllers are running as slaves. This means the MySQL Galera service is running under one set of constraints on all three controllers, while Redis may be subject to different constraints on the master and slave controllers.
