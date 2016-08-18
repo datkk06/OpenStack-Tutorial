@@ -144,6 +144,25 @@ If the controller owning the virtual IP address goes down, Pacemaker only needs 
 
 The HAProxy load balancing feature distribute the client requests toward all the controllers for better performances. Howewer, not all Cloned Set resources use the HAProxy. Some services as RabbitMQ, memcached and MongoDB do not use HAProxy. Instead, clients of these services use a full list of the controller running the services.
 
+Here is the list of OpenStack services managed by HAProxy on the controller nodes:
+
+* ceilometer
+* cinder
+* glance_api
+* glance_registry
+* heat_api
+* heat_cfn
+* heat_cloudwatch
+* horizon
+* keystone_admin
+* keystone_public
+* mysql
+* neutron
+* nova_ec2
+* nova_metadata
+* nova_novncproxy
+
+
 The MySQL Galera and Redis services are run as Master/Slave resources
 
      Master/Slave Set: redis-master [redis]
