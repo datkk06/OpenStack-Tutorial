@@ -94,7 +94,7 @@ There are:
 * Master/Slave resources
 * Clone Set resources
 
-An IP Address resource sets a virtual IP address that clients use to request access to a service. If the Controller Node assigned to that IP address goes down, the IP address gets reassigned to a different controller. Note that each IP address is initially attached to a particular controller. However, if that controller goes down, its virtual IP address will be reassigned by Pacemaker to other controllers in the cluster. For example, the virtual IP address ``10.10.10.101``  isa siigned to the controller ``overcloud-controller-2``.
+An IP Address resource sets a virtual IP address that clients use to request access to a service. If the Controller Node assigned to that IP address goes down, the IP address gets reassigned to a different controller. Note that each IP address is initially attached to a particular controller. However, if that controller goes down, its virtual IP address will be reassigned by Pacemaker to other controllers in the cluster. For example, the virtual IP address ``10.10.10.101``  is assigned to the controller ``overcloud-controller-2``.
 
 Login to that controller and check the IP address and which services are listening on
 
@@ -124,7 +124,15 @@ Login to that controller and check the IP address and which services are listeni
     tcp        0      0 10.10.10.101:8774       0.0.0.0:*               LISTEN      4338/haproxy
 
 
+The port numbers shown in the ``netstat`` output helps to identify the exact service AHProxy is listening for. Check the ``/etc/haproxy/haproxy.cfg`` file to see what services those port numbers represent. Here are just a few examples:
 
+    TCP port 5000: keystone
+    TCP port 9696: neutron
+    TCP port 8776: cinder
+    TCP port 9292: glance-api
+    TCP port 80: horizon
+
+All these services are listening specifically on ``10.10.10.101`` on all three controllers. However, only ``overcloud-controller-2`` is actually listening externally on ``10.10.10.101``. If that controller goes down, Pacemaker only needs to reassign the virtual IP to another controller and all the services will already be running.
 
 
 
