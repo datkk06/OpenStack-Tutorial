@@ -41,6 +41,30 @@ From one of the Controller nodes, check the status of the cluster
         overcloud-controller-1: Online
         overcloud-controller-2: Online
 
+There are three nodes on-line: overcloud-controller-0, overcloud-controller-1 and overcloud-controller-2 and 112 resources configured. Check the resources:
 
+    $ sudo pcs status resources
+     ip-10.10.10.101 (ocf::heartbeat:IPaddr2):       Started overcloud-controller-2
+     ip-172.19.1.10  (ocf::heartbeat:IPaddr2):       Started overcloud-controller-2
+     ip-172.20.1.10  (ocf::heartbeat:IPaddr2):       Started overcloud-controller-1
+     ip-172.18.1.10  (ocf::heartbeat:IPaddr2):       Started overcloud-controller-2
+     ip-172.20.1.11  (ocf::heartbeat:IPaddr2):       Started overcloud-controller-0
+     ip-192.0.2.15   (ocf::heartbeat:IPaddr2):       Started overcloud-controller-2
+     Master/Slave Set: redis-master [redis]
+         Masters: [ overcloud-controller-2 ]
+         Slaves: [ overcloud-controller-0 overcloud-controller-1 ]
+     Master/Slave Set: galera-master [galera]
+         Masters: [ overcloud-controller-0 overcloud-controller-1 overcloud-controller-2 ]
+     Clone Set: haproxy-clone [haproxy]
+         Started: [ overcloud-controller-0 overcloud-controller-1 overcloud-controller-2 ]
+     Clone Set: mongod-clone [mongod]
+         Started: [ overcloud-controller-0 overcloud-controller-1 overcloud-controller-2 ]
+     Clone Set: rabbitmq-clone [rabbitmq]
+         Started: [ overcloud-controller-0 overcloud-controller-1 overcloud-controller-2 ]
+     Clone Set: memcached-clone [memcached]
+         Started: [ overcloud-controller-0 overcloud-controller-1 overcloud-controller-2 ]
+     Clone Set: openstack-nova-scheduler-clone [openstack-nova-scheduler]
+         Started: [ overcloud-controller-0 overcloud-controller-1 overcloud-controller-2 ]
+    ...
 
 
