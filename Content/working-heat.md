@@ -87,7 +87,7 @@ The stack can be deleted including all resources created
 +--------------------------------------+-------+
 +--------------------------------------+-------+
 ```
-The complete first_heat_stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/first_heat_stack.yaml)
+The complete first_heat_stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/first-heat-stack.yaml)
 
 
 ####An improved Stack example
@@ -126,14 +126,6 @@ resources:
       flavor: { get_param: flavor }
       networks:
         - network: { get_param: private_network }
-
- outputs:
-  instance_name:
-    description: Name of the instance
-    value: { get_attr: [my_instance, name] }
-  instance_ip:
-    description: IP address of the instance
-    value: { get_attr: [my_instance, first_address] }
 ```
 
 Login as user to the Controller node and run the stack creation by providing the requested input parameters
@@ -166,8 +158,7 @@ parameters:
     default: small
 ```
 
-
-In the **output** section, we specified outputs to the user: the name of the instance and the IP address. Otherwise, the user would have to look it up themselves once the stack has been created.
+In the **output** section, we can specify outputs to the user: the name of the instance and the IP address. Otherwise, the user would have to look it up themselves once the stack has been created.
 ```
  outputs:
   instance_name:
@@ -187,7 +178,7 @@ After stack creation, check the output from the stack
 |     "output_key": "instance_ip"                                                                             
 ```
 
-The complete second_heat_stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/second_heat_stack.yaml)
+The complete second_heat_stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/second-heat-stack.yaml)
 
 
 ####A networking resource example
