@@ -19,44 +19,15 @@ In this section we are going to implement a simple HOT template example for star
 heat_template_version: 2015-10-15
   description: Simple template to deploy a single compute instance
   
-  parameters:
-    image:
-      type: string
-      label: Image name or ID
-      description: Image to be used for compute instance
-      default: cirros
-    flavor:
-      type: string
-      label: Flavor
-      description: Type of instance (flavor) to be used
-      constraints:
-      - allowed_values: [tiny, medium, small]
-      default: small
-    key:
-      type: string
-      label: Key name
-      description: Name of key-pair to be used for compute instance
-      default: demokey
-    private_network:
-      type: string
-      label: Private network name or ID
-      description: Network to attach instance to.
-      default: tenant-network
-  
   resources:
     my_instance:
       type: OS::Nova::Server
       properties:
-        image: { get_param: image }
-        flavor: { get_param: flavor }
-        key_name: { get_param: key }
+        image: cirros
+        flavor: small
+        key_name: demokey
         networks:
-          - network: { get_param: private_network }
-  
-  outputs:
-    instance_ip:
-      description: IP address of the instance
-      value: { get_attr: [my_instance, first_address] }
+          - network: tenant_network
 ```
 
 First, each template has to include a valid version and an optional description telling the user what the template is doing
@@ -67,23 +38,97 @@ First, each template has to include a valid version and an optional description 
 
 In the **resources** section, there is just one type of resource: a server. We know it is a server because its type tells us it is an ``OpenStack Nova Server (OS::Nova::Server)``. We have given it a name: *“my_instance”*.
 
-  resources:
-    my_instance:
-      type: OS::Nova::Server
-      properties:
-        image: { get_param: image }
-        flavor: { get_param: flavor }
-        key_name: { get_param: key }
-        networks:
-          - network: { get_param: private_network }
-
 We want our server to have certain properties:
-* This instance is based on a certain image that we have in our OpenStack glance repository, and
-* It uses certain size or flavor, and
-* We also want to control access to this instance by injecting a key name, and
-* The instance has to be placed on a specific network
+* image: this instance is based on a certain image that we have in our OpenStack glance repository
+* flavor: it uses certain size or flavor
+* key-name: we also want to control access to this instance by injecting a keyname
+* network: the instance has to be placed on a specific network
+
+To create the stack, make sure the user has the Heat Stack Owner role
+```
+# source keystonerc_admin
+# openstack role list --user demo --project demo
++----------------------------------+------------------+---------+------+
+| ID                               | Name             | Project | User |
++----------------------------------+------------------+---------+------+
+| 9fe2ff9ee4384b1894a90878d3e92bab | _member_         | demo    | demo |
+| be2de476946c43dfb71196a961eebc6a | heat_stack_owner | demo    | demo |
++----------------------------------+------------------+---------+------+
+```
+
+Login as user to the Controller node and run the stack creation
+```
+# source keystonerc_demo
+# heat stack-create first_heat_stack -f first_heat_stack.yaml
+# heat stack-list
++--------------------------------------+------------------+-----------------+---------------------+--------------+
+| id                                   | stack_name       | stack_status    | creation_time       | updated_time |
++--------------------------------------+------------------+-----------------+---------------------+--------------+
+| b546cd6d-38b6-4ef0-91fa-54314093e305 | first_heat_stack | CREATE_COMPLETE | 2016-08-19T13:34:48 | None         |
++--------------------------------------+------------------+-----------------+---------------------+--------------+
+```
+
+After stack creation completes, check the instance created
+```
+# nova list --fields name
++--------------------------------------+-------------------------------------------+
+| ID                                   | Name                                      |
++--------------------------------------+-------------------------------------------+
+| c58fc820-a2a4-403e-b128-c473d960856b | first_heat_stack-my_instance-7fnnigpd6s3b |
++--------------------------------------+-------------------------------------------+
+```
+
+The stack can be deleted including all resources created
+```
+# heat stack-delete first_heat_stack
+# nova list --fields name
++--------------------------------------+-------+
+| ID                                   | Name  |
++--------------------------------------+-------+
++--------------------------------------+-------+
+```
 
 
 
-d
+In the above case, all the properties are hardcoded into the **resources** section. Alternatively, we can specify those values as input parameters in the **parameters** section and ask the user to provide the values
 
+```
+heat_template_version: 2015-10-15
+description: Simple template to deploy a single compute instance
+
+parameters:
+  image:
+    type: string
+    label: Image name or ID
+    description: Image to be used for compute instance
+  flavor:
+    type: string
+    label: Flavor
+    description: Type of instance (flavor) to be used
+  key:
+    type: string
+    label: Key name
+    description: Name of key-pair to be used for compute instance
+  private_network:
+    type: string
+    label: Private network name or ID
+    description: Network to attach instance to.
+    default: tenant-network
+
+resources:
+  my_instance:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      key_name: { get_param: key }
+      flavor: { get_param: flavor }
+      networks:
+        - network: { get_param: private_network }
+```
+
+
+
+
+In this case, the values specified into the parameters section, if present, will be overwritten by the values hardcoded into the resouces section.
+
+In the **output** section, we specified 
