@@ -87,6 +87,8 @@ The stack can be deleted including all resources created
 +--------------------------------------+-------+
 +--------------------------------------+-------+
 ```
+The complete first_heat_stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/first_heat_stack.yaml)
+
 
 ####An improved Stack example
 In the above example, all the properties are hardcoded into the **resources** section. Alternatively, we can specify those values as input parameters in the **parameters** section and ask the user to provide the values. In this way, the user can start different stacks without change the template file
@@ -184,6 +186,9 @@ After stack creation, check the output from the stack
 |     "output_value": "192.168.1.25",                                                                         
 |     "output_key": "instance_ip"                                                                             
 ```
+
+The complete second_heat_stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/second_heat_stack.yaml)
+
 
 ####A networking resource example
 In the examples above, we defined a template creating a single resource of Compute type ``OS::Nova::Server``. In this section, we are going to define other resources of Network type. The new template requires an external network parameter that can be used as a source of floating IP addresses. With just this information, the template creates its own private network, plus a router that connects it to the outside world.
@@ -285,4 +290,4 @@ Create the stack and check the output
 |     "output_key": "floating_ip" 
 ```
 
-The complete net-heat-stack.yaml file is (here)[https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/net-heat-stack.yaml]
+The complete net-heat-stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/net-heat-stack.yaml)
