@@ -11,7 +11,7 @@ Heat major components are:
 
 All of these components would typically be installed on the Controller node even if there is nothing that requires them to be installed on other nodes. Like other OpenStack services, Heat uses a back-end MySQL database for maintaining state information.
 
-The Orchestration service also runs **Heat Orchestration Template** templates that are written in **YAML**. YAML is a non procedural notation that are similar to Python or Ruby. Therefore, it is easier to write, parse, grep, generate with tools, and maintain source-code management systems.
+The Heat Orchestration service is compatible with AWS CloudFormation by running the same CFN templates simplifying application portability between AWS and OpenStack. CFN templates are usually written in JSON language. The Heat Orchestration service also runs **Heat Orchestration Template** templates that are written in **YAML**. YAML is a non procedural notation that are similar to Python or Ruby. Therefore, it is easier to write, parse, grep, generate with tools, and maintain source-code management systems.
 
 ####Authorization model for orchestration
 The Orchestration authorization model defines the authorization process for requests during its operations. For example during the auto-scaling procedure, the Orchestration service requests resources of other components, such as servers from compute or networks to extend or reduce the capacity of an auto-scaling group. The orchestration service needs for authorization to accomplish deferred operations like an auto-scaling. Authorization is based on two different models:
