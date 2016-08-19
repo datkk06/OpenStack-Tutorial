@@ -59,3 +59,31 @@ heat_template_version: 2015-10-15
       value: { get_attr: [my_instance, first_address] }
 ```
 
+First, each template has to include a valid version and an optional description telling the user what the template is doing
+
+    heat_template_version: 2015-10-15
+      description: Simple template to deploy a single compute instance
+
+
+In the **resources** section, there is just one type of resource: a server. We know it is a server because its type tells us it is an ``OpenStack Nova Server (OS::Nova::Server)``. We have given it a name: *“my_instance”*.
+
+  resources:
+    my_instance:
+      type: OS::Nova::Server
+      properties:
+        image: { get_param: image }
+        flavor: { get_param: flavor }
+        key_name: { get_param: key }
+        networks:
+          - network: { get_param: private_network }
+
+We want our server to have certain properties:
+* This instance is based on a certain image that we have in our OpenStack glance repository, and
+* It uses certain size or flavor, and
+* We also want to control access to this instance by injecting a key name, and
+* The instance has to be placed on a specific network
+
+
+
+
+
