@@ -12,10 +12,11 @@ Some basic terminology is in order to help navigate the YAML structure:
   * **Output**: this is what is passed back to the user. It may be displayed in the dashboard, or revealed in command line ``heat stack-list`` or ``heat stack-show`` commands.
 
 ####First eaxample
-In this section we are going to implement a simple HOT template for starting an instance. This is not so useful but it helps to understand the basics. Here the example:
+In this section we are going to implement a simple HOT template example for starting an instance. This is not so useful but it helps to understand the basics. Here the example:
 
 ```
-heat_template_version: 2016-08-19
+# vi heat-template-01.yaml
+heat_template_version: 2015-10-15
   description: Simple template to deploy a single compute instance
   
   parameters:
