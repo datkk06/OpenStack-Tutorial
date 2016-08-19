@@ -88,7 +88,7 @@ The stack can be deleted including all resources created
 +--------------------------------------+-------+
 ```
 
-####Parameters Stack example
+####An improved Stack example
 In the above example, all the properties are hardcoded into the **resources** section. Alternatively, we can specify those values as input parameters in the **parameters** section and ask the user to provide the values. In this way, the user can start different stacks without change the template file
 
 ```
@@ -176,7 +176,7 @@ In the **output** section, we specified outputs to the user: the name of the ins
     value: { get_attr: [my_instance, first_address] }
 ```
 
-After stack creation, check the output from the template
+After stack creation, check the output from the stack
 ```
 # heat stack-show second_heat_stack | grep output
 |     "output_value": "second_heat_stack-my_instance-5q5knjktvy5b",                                           
@@ -185,7 +185,80 @@ After stack creation, check the output from the template
 |     "output_key": "instance_ip"                                                                             
 ```
 
+####A networking resource example
+In the examples above, we defined a template creating a single resource of Compute type ``OS::Nova::Server``. In this section, we are going to define other resources of Network type. The new template requires an external network parameter that can be used as a source of floating IP addresses. With just this information, the template creates its own private network, plus a router that connects it to the outside world.
 
+Add the external network parameter to the template:
+```
+...
+  public_network:
+    type: string
+    label: Public network name or ID
+    description: Public network with floating IP addresses.
+    default: provider-network
+  ...
+```
+
+Add the new resources to create private network, subnet and router
+```
+resources:
+  ...
+  private_network:
+    type: OS::Neutron::Net
+
+  private_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: private_network }
+      cidr: 192.168.100.0/24
+      dns_nameservers:
+        - 8.8.8.8
+
+  router:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info:
+        network: { get_param: public_network }
+
+  router-interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet: { get_resource: private_subnet }
+```
+
+Add other resources to create port, floating IP and the related association
+
+```
+resources:
+  ...
+  flasky_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: private_network }
+      security_groups:
+        - { get_resource: web_server_security_group }
+
+  flasky_instance:
+    type: OS::Nova::Server
+    properties:
+      ...
+      networks:
+        - port: { get_resource: flasky_port }
+
+  floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: { get_param: public_network }
+
+  floating_ip_assoc:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: floating_ip }
+      port_id: { get_resource: flasky_port }
+```
+
+The complete net-heat-stack.yaml file is (here)[]
 
 
 
