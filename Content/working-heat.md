@@ -228,39 +228,61 @@ resources:
       subnet: { get_resource: private_subnet }
 ```
 
-Add other resources to create port, floating IP and the related association
+Add other resources to create the instance, the floating IP and the related association between them
 
 ```
 resources:
   ...
-  flasky_port:
-    type: OS::Neutron::Port
-    properties:
-      network: { get_resource: private_network }
-      security_groups:
-        - { get_resource: web_server_security_group }
-
-  flasky_instance:
-    type: OS::Nova::Server
-    properties:
-      ...
-      networks:
-        - port: { get_resource: flasky_port }
-
   floating_ip:
     type: OS::Neutron::FloatingIP
     properties:
       floating_network: { get_param: public_network }
 
-  floating_ip_assoc:
-    type: OS::Neutron::FloatingIPAssociation
+  my_instance:
+    type: OS::Nova::Server
     properties:
-      floatingip_id: { get_resource: floating_ip }
-      port_id: { get_resource: flasky_port }
+      image: { get_param: image }
+      key_name: { get_param: key }
+      flavor: { get_param: flavor }
+      networks:
+        - network: { get_resource: private_network }
+
+  floating_ip_assoc:
+    type: OS::Nova::FloatingIPAssociation
+    properties:
+      floating_ip: { get_resource: floating_ip }
+      server_id: { get_resource: my_instance }
+```
+
+Add some useful output to the user
+```
+outputs:
+ instance_name:
+   description: Name of the instance
+   value: { get_attr: [my_instance, name] }
+ instance_ip:
+   description: IP address of the instance
+   value: { get_attr: [my_instance, first_address] }
+ floating_ip:
+   description: Floating IP address assigned to the instance
+   value: { get_attr: [floating_ip, floating_ip_address] }
+ private_network:
+   description: Private network name assigned to the instance
+   value: { get_attr: [private_network, name] }
+```
+
+Create the stack and check the output
+```
+# heat stack-create net-heat-stack -f net-heat-stack.yaml
+# heat stack-show net-heat-stack | grep output
+|     "output_value": "net-heat-stack-my_instance-xefchgawjhsl", 
+|     "output_key": "instance_name" 
+|     "output_value": "net-heat-stack-private_network-464lgqhodqc6", 
+|     "output_key": "private_network" 
+|     "output_value": "192.168.100.3",
+|     "output_key": "instance_ip" 
+|     "output_value": "172.120.1.213",
+|     "output_key": "floating_ip" 
 ```
 
 The complete net-heat-stack.yaml file is (here)[]
-
-
-
-
