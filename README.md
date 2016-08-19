@@ -22,6 +22,7 @@ OpenStack Tutorial based on both the RDO and the RedHat OpenStack distributions.
 ###Do More
 17. [_TripleO Installation](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/tripleo.md)
 18. [Heat Orchestration Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/heat.md)
+19. [Working with Heat Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-heat.md)
 18. [_Metering Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/ceilometer.md)
 19. [_Autoscaling with Heath](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/autoscaling-heat.md)
 19. [Advanced Cinder Configuration](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/multiple_cinder.md)
