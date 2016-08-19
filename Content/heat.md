@@ -1,5 +1,5 @@
 ###Heat Orchestration Service
-OpenStack Heat is the orchestration service that allow to spin up multiple instances, logical networks, and other cloud services in an automated fashion. Heat major components are:
+Orchestration is the ability to automate the deployment and configuration of IT infrastructure. OpenStack Heat is the orchestration service that allow to spin up multiple instances, logical networks, and other cloud services in an automated fashion. Heat major components are:
 
   1.The **heat-api** component implements an OpenStack-native RESTful API. This components processes API requests by sending them to the Heat engine via AMQP.
 
