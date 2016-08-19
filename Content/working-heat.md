@@ -285,4 +285,4 @@ Create the stack and check the output
 |     "output_key": "floating_ip" 
 ```
 
-The complete net-heat-stack.yaml file is (here)[]
+The complete net-heat-stack.yaml file is (here)[https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/net-heat-stack.yaml]
