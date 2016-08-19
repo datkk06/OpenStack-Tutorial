@@ -190,6 +190,7 @@ In the examples above, we defined a template creating a single resource of Compu
 
 Add the external network parameter to the template:
 ```
+parameters:
 ...
   public_network:
     type: string
