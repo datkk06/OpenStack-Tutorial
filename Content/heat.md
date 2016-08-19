@@ -9,7 +9,7 @@ OpenStack Heat is the orchestration service that allow to spin up multiple insta
 
 All of these components would typically be installed on the Controller node even if there is nothing that requires them to be installed on other nodes. Like other OpenStack services, Heat uses a back-end MySQL database for maintaining state information.
 
-The Orchestration service also runs Heat Orchestration Template (HOT) templates that are written in YAML. YAML is a non procedural notation that are similar to Python or Ruby. Therefore, it is easier to write, parse, grep, generate with tools, and maintain source-code management systems.
+The Orchestration service also runs **Heat Orchestration Template** templates that are written in **YAML**. YAML is a non procedural notation that are similar to Python or Ruby. Therefore, it is easier to write, parse, grep, generate with tools, and maintain source-code management systems.
 
 ####Implementing Heat
 On the Controller node, install the Heat components
