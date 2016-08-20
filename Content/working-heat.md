@@ -20,6 +20,7 @@ In the following sections, we are going to work with examples of heat templates:
 3. [A networking resource example](./working-heat.md#a-networking-resource-example)
 4. [A volume resource stack example](./working-heat.md#a-volume-resource-stack-example)
 5. [A user data stack example](./working-heat.md#a-user-data-stack-example)
+6. [A nested stack example](./working-heat.md#a-nested-stack-example)
 
 
 ####A very basic example
@@ -460,4 +461,4 @@ Filesystem     Type      Size  Used Avail Use% Mounted on
 The complete userdata-heat-stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/userdata-heat-stack.yaml)
 
 
-
+####A nested stack example
