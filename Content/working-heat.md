@@ -17,7 +17,7 @@ In the following sections, we are going to work with examples of heat templates:
 2. [An improved stack example](./working-heat.md#an-improved-stack-example)
 3. [A networking resource example](./working-heat.md#a-networking-resource-example)
 4. [A volume resource stack example](./working-heat.md#a-volume-resource-stack-example)
-5. [A user data stack example](,/working-heat.md#a-user-data-stack-example)
+5. [A user data stack example](./working-heat.md#a-user-data-stack-example)
 
 
 ####A very basic example
@@ -398,8 +398,47 @@ Create the stack and check the output
 The complete vol-heat-stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/vol-heat-stack.yaml)
 
 ####A user data stack example
+In the previous example, we create a volume resource and attached it to a compute server. However, that volume is still not usable from the compute server since it needs to be formatted before to be available. In this section, we are going to create a user data script to format the volume after it has been attached to the instance. To accomplish this task, we are use the *cloud-init* capabilities.
+
+The cloud-init package is the standard for initialization of cloud instances. It comes pre-installed on the cloud images, including the Cirros images used for OpenStack testing. Cloud-init runs during the initial boot of an instance, and it contacts the Nova metadata service to get any actions that need to be executed at boot time. The standard way to interact with the cloud-init service is by providing a bash script to run. The script is executed as the root user, so it has full access to the instance.
+
+We change the above volume template by forcing the device where the volume has to be attached
+
+```
+resources:
+...
+  my_vol:
+   type: OS::Cinder::Volume
+   properties:
+      size: { get_param: volume_size }
+
+  vol_attachment:
+   type: OS::Cinder::VolumeAttachment
+   properties:
+      instance_uuid: { get_resource: my_db }
+      volume_id: { get_resource: my_vol }
+      mountpoint: /dev/vdc
+```
 
 
+Providing a script to format the attached volume as xfs file system
+```
+resources:
+...
+  my_db:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key_name: { get_param: key }
+      networks:
+        - network: { get_param: private_network }
+      user_data: |
+        #!/bin/bash
+         mkfs.xfs /dev/vdc
+         echo '/dev/vdc /mnt xfs defaults 1 1' >> /etc/fstab
+         mount -a
+```
 
 
 
