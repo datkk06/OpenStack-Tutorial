@@ -139,11 +139,11 @@ ERROR: The Parameter (image) was not provided.
 -P "image=cirros;key=demokey;flavor=small;private_network=tenant-network"
 
 # heat stack-list
-+--------------------------------------+-------------------+-----------------+---------------------+--------------+
-| id                                   | stack_name        | stack_status    | creation_time       | updated_time |
-+--------------------------------------+-------------------+-----------------+---------------------+--------------+
-| 1d1f4824-91a3-48c4-9828-b9fbf49e28f8 | second_heat_stack | CREATE_COMPLETE | 2016-08-19T14:03:42 | None         |
-+--------------------------------------+-------------------+-----------------+---------------------+--------------+
++--------------------------------------+----------------+-----------------+---------------------+--------------+
+| id                                   | stack_name     | stack_status    | creation_time       | updated_time |
++--------------------------------------+----------------+-----------------+---------------------+--------------+
+| 1d1f4824-91a3-48c4-9828-b9fbf49e28f8 | second_heat_st | CREATE_COMPLETE | 2016-08-19T14:03:42 | None         |
++--------------------------------------+----------------+-----------------+---------------------+--------------+
 ```
 
 We can also define default values for input parameters which will be used in case the user does not provide the parameter during deployment. In addition, we can restrict the imput value to a specific set of predefined values. For example, the following definition for the flavor parameter will select the *"small"* flavor unless specified otherwise by the user. Also the user is forced to choise between a predefined list of flavors
@@ -182,7 +182,7 @@ The complete second_heat_stack.yaml file can be found [here](https://github.com/
 
 
 ####A networking resource example
-In the examples above, we defined a template creating a single resource of Compute type ``OS::Nova::Server``. In this section, we are going to define other resources of Network type. The new template requires an external network parameter that can be used as a source of floating IP addresses. With just this information, the template creates its own private network, plus a router that connects it to the outside world.
+In the examples above, we defined a template creating a single resource of Compute type ``OS::Nova::Server``. In this section, we are going to define other resources of Network type. The new template requires an external network parameter that can be used as a source of floating IP addresses. With just this information (along with the server parameters), the template creates its own private network, plus a router that connects it to the outside world.
 
 Add the external network parameter to the template:
 ```
@@ -269,7 +269,7 @@ outputs:
 
 Create the stack and check the output
 ```
-# heat stack-create net-heat-stack -f net-heat-stack.yaml
+# heat stack-create net-heat-stack -f net-heat-stack.yaml -P "public_network=provider-network"
 # heat stack-show net-heat-stack | grep output
 |     "output_value": "net-heat-stack-my_instance-xefchgawjhsl", 
 |     "output_key": "instance_name" 
@@ -280,5 +280,91 @@ Create the stack and check the output
 |     "output_value": "172.120.1.213",
 |     "output_key": "floating_ip" 
 ```
+Note that we created the stack providing only the ``public_network `` parameter. The server related parameters, as image, flavor, etc. are set with their own default values specified into the **parameters** section of the template.
 
 The complete net-heat-stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/net-heat-stack.yaml)
+
+
+####A volume resource stack example
+With the Heat templates, users can create any type of stacks and any type of cloud resources. In this example we are going to setup a stack made of two server instance, a Web Server and a Database Server with a persistent volume of storage attached. The new template requires (along the servers parameters) the following parameters: private network name where the servers are running and the volume size in GB of the attached storage.
+
+Add the private network parameter to the template:
+```
+parameters:
+...
+  private_network:
+    type: string
+    label: Private network name or ID
+    description: Network to attach instance to.
+```
+
+Add the volume size parameter
+```
+parameters:
+...
+  volume_size:
+    type: string
+    label: size of volume
+    description: This is the size GB of the volume to be attached to the Database Server for persistent storage
+```
+
+Add the resources for the Web Server, the Dabase Server and the Volume
+```
+resources:
+  my_web:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key_name: { get_param: key }
+      networks:
+        - network: { get_param: private_network }
+
+  my_db:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key_name: { get_param: key }
+      networks:
+        - network: { get_param: private_network }
+
+  my_vol:
+   type: OS::Cinder::Volume
+   properties:
+      size: { get_param: volume_size }
+
+  vol_attachment:
+   type: OS::Cinder::VolumeAttachment
+   properties:
+      instance_uuid: { get_resource: my_db }
+      volume_id: { get_resource: my_vol }
+```
+
+Add some useful output to the user
+```
+outputs:
+ web_instance_name:
+   description: Name of the web instance
+   value: { get_attr: [my_web, name] }
+ web_instance_ip:
+   description: IP address of the web instance
+   value: { get_attr: [my_web, first_address] }
+ db_instance_name:
+   description: Name of the db instance
+   value: { get_attr: [my_db, name] }
+ db_instance_ip:
+   description: IP address of the db instance
+   value: { get_attr: [my_db, first_address] }
+ private_network:
+   description: Private network name assigned to both the instances
+   value: { get_attr: [private_network, name] }
+ volume_name:
+   description: Volume name attached to the db instance
+   value: { get_attr: [my_vol, name] }
+ volume_type:
+   description: Volume type attached to the db instance
+   value: { get_attr: [my_vol, volume_type] }
+```
+
+Create the stack and check the output
