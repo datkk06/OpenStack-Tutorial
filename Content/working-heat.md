@@ -11,6 +11,16 @@ Some basic terminology is in order to help navigate the YAML structure:
   * **Parameters**: these are properties values that must be passed when running the Heat template. In HOT format, they appear before the resources section and are mapped to properties.
   * **Output**: this is what is passed back to the user. It may be displayed in the dashboard, or revealed in command line ``heat stack-show`` commands.
 
+In the following sections, we are going to work with examples of heat templates:
+
+1. [A very basic example](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-heat.md#a-very-basic-example)
+2. [An improved Stack example](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-heat.md#an-improved-stack-example)
+3. [A networking resource example](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-heat.md#a-networking-resource-example)
+4. [A volume resource stack example](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-heat.md#a-volume-resource-stack-example)
+5. []()
+
+
+
 ####A very basic example
 In this section we are going to implement a simple HOT template example for starting an instance. This is not so useful but it helps to understand the basics. Here the example:
 
