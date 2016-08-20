@@ -17,7 +17,7 @@ In the following sections, we are going to work with examples of heat templates:
 2. [An improved stack example](./working-heat.md#an-improved-stack-example)
 3. [A networking resource example](./working-heat.md#a-networking-resource-example)
 4. [A volume resource stack example](./working-heat.md#a-volume-resource-stack-example)
-5. [A user data stack example](./working-heat.md#a-volume-resource-stack-example)
+5. [A user data stack example](,/working-heat.md#a-user-data-stack-example)
 
 
 ####A very basic example
