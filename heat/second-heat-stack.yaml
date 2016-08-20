@@ -1,5 +1,5 @@
 heat_template_version: 2015-10-15
-description: Simple template (improved) to deploy a single compute instance
+description: Simple template (improved) to deploy a compute instance
 
 parameters:
   image:
