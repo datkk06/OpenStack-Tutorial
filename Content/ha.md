@@ -136,11 +136,20 @@ All these services are listening specifically on virtual IP ``10.10.10.101`` on 
 
 ![](../img/haproxy.png?raw=true)
 
-If the controller owning the virtual IP address goes down, Pacemaker only needs to reassign the virtual IP to another controller where all the services are already running. For this reaseon, most services are configured as Clone Set resources, where they are started on each controller and set to always run on each controller. Services are cloned if they need to be active on multiple nodes. For each of the Clone Set resources, we can see:
+If the controller owning the virtual IP address goes down, Pacemaker only needs to reassign the virtual IP to another controller where all the services are already running. For this reaseon, most services are configured as Clone Set resources, where they are started on each controller and set to always run on each controller. Services are cloned if they need to be active on multiple nodes.
 
-1. The name Pacemaker assigns to the service
-2. The actual service name
-3. The controllers on which the services are started or stopped.
+    ...
+    Clone Set: openstack-nova-scheduler-clone [openstack-nova-scheduler]
+         Started: [ overcloud-controller-0 overcloud-controller-1 ]
+         Stopped: [ overcloud-controller-2 ]
+    ...
+
+For the Clone Set resource, we can see:
+
+1. The name Pacemaker assigns to the service: ``openstack-nova-scheduler-clone``
+2. The actual service name: ``openstack-nova-scheduler``
+3. The set of controllers on which the services are started: ``[overcloud-controller-0 overcloud-controller-1]``
+4. The set of controllers on which the services are stopped: ``[overcloud-controller-2]``
 
 The HAProxy load balancing feature distribute the client requests toward all the controllers for better performances. Howewer, not all Cloned Set resources use the HAProxy. Some services as RabbitMQ, memcached and MongoDB do not use HAProxy. Instead, clients of these services use a full list of the controller running the services.
 
