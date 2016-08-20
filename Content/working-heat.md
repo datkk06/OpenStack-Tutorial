@@ -435,10 +435,27 @@ resources:
         - network: { get_param: private_network }
       user_data: |
         #!/bin/bash
-         mkfs.xfs /dev/vdc
-         echo '/dev/vdc /mnt xfs defaults 1 1' >> /etc/fstab
+         mkfs.ext4 /dev/vdc
+         echo '/dev/vdc /mnt ext4 defaults 1 1' >> /etc/fstab
          mount -a
 ```
+
+Create the stack, login to the server and check the volume is correctly formatted and mounted as espected
+```
+# heat stack-create userdata-heat-stack \
+-f _userdata-heat-stack.yaml \
+-P "image=ubuntu;private_network=tenant-network;volume_size=1"
+
+# ssh -i demokey.pem ubuntu@userdata-heat-stack-my-db
+Welcome to Ubuntu 14.04.5 LTS (GNU/Linux 3.13.0-93-generic x86_64)
+ubuntu@userdata-heat-stack-my-db:~$ df -Th
+Filesystem     Type      Size  Used Avail Use% Mounted on
+/dev/vda1      ext4      7.9G  787M  6.8G  11% /
+/dev/vdb       ext4      976M  1.3M  908M   1% /mnt
+...
+```
+
+The complete user-heat-stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/user-heat-stack.yaml)
 
 
 
