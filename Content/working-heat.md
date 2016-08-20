@@ -356,15 +356,34 @@ outputs:
  db_instance_ip:
    description: IP address of the db instance
    value: { get_attr: [my_db, first_address] }
- private_network:
-   description: Private network name assigned to both the instances
-   value: { get_attr: [private_network, name] }
  volume_name:
    description: Volume name attached to the db instance
-   value: { get_attr: [my_vol, name] }
+   value: { get_attr: [my_vol, display_name] }
  volume_type:
    description: Volume type attached to the db instance
    value: { get_attr: [my_vol, volume_type] }
 ```
 
 Create the stack and check the output
+```
+# heat stack-create vol-heat-stack \
+-f vol-heat-stack.yaml \
+-P "private_network=tenant-network;volume_size=10"
+
+# heat stack-show vol-heat-stack | grep output
+
+|     "output_key": "web_instance_name"
+|     "output_value": "vol-heat-stack-my_web-6gesxcofz5ai",
+|     "output_key": "web_instance_ip"
+|     "output_value": "192.168.1.13",                                                                         
+|     "output_key": "db_instance_name"
+|     "output_value": "vol-heat-stack-my_db-snpzic7w4z3w",
+|     "output_key": "db_instance_ip"
+|     "output_value": "192.168.1.12", 
+|     "output_key": "volume_name"
+|     "output_value": "vol-heat-stack-my_vol-7qujfgwhcshc",
+|     "output_key": "volume_type"
+|     "output_value": "nfs",
+```
+
+The complete vol-heat-stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/vol-heat-stack.yaml)
