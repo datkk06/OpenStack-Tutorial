@@ -16,7 +16,7 @@ In the following sections, we are going to work with examples of heat templates:
 1. [A very basic example](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-heat.md#a-very-basic-example)
 2. [An improved Stack example](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-heat.md#an-improved-stack-example)
 3. [A networking resource example](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-heat.md#a-networking-resource-example)
-4. [A volume resource stack example](https://./working-heat.md#a-volume-resource-stack-example)
+4. [A volume resource stack example](./working-heat.md#a-volume-resource-stack-example)
 5. []()
 
 
