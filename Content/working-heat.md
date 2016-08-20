@@ -457,7 +457,7 @@ Filesystem     Type      Size  Used Avail Use% Mounted on
 ...
 ```
 
-The complete user-heat-stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/user-heat-stack.yaml)
+The complete userdata-heat-stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/userdata-heat-stack.yaml)
 
 
 
