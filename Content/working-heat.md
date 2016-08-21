@@ -540,14 +540,60 @@ outputs:
    value: { get_attr: [db, volume_type] }
 ```
 
-The properties of a nested resource are the parameters defined in the sub-template, while the attributes of a nested resource are its outputs defined in the sub-template. This is extremely useful, as a nested resource can be seen as a specialized resource that can be written to be a black-box through its inputs and outputs. So, we have
+The properties of a nested resource are the parameters defined in the sub-template, while the attributes of a nested resource are its outputs defined in the sub-template. This is extremely useful, as a nested resource can be seen as a specialized resource that can be written to be a black-box through its inputs and outputs. So, we have:
 
 |Main Template|In/Out|Sub Template|
 |-------------|------|------------|
 |property|->|parameter|
 |attribute|<-|output|
 
+With this in mind, we can define the webserver sub-template:
+```
+# vi webserver.yaml
+heat_template_version: 2015-10-15
+description: template to create a webserver instance
 
+parameters:
+  server_image:
+    type: string
+    label: Image name or ID
+    description: Image to be used for compute instance
+  server_flavor:
+    type: string
+    label: Flavor
+    description: Type of flavor to be used
+  server_key:
+    type: string
+    label: Key name
+    description: Name of key-pair to be used for compute instance
+  server_network:
+    type: string
+    label: Private network name or ID
+    description: Network to attach instance to.
+
+resources:
+  webserver:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: server_image }
+      flavor: { get_param: server_flavor }
+      key_name: { get_param: server_key }
+      networks:
+        - network: { get_param: server_network }
+
+outputs:
+ server_name:
+   description: Name of the webserver instance
+   value: { get_attr: [webserver, name] }
+ server_address:
+   description: IP address of the webserver instance
+   value: { get_attr: [webserver, first_address] }
+
+```
+
+and the database sub-template:
+```
+```
 
 
 
