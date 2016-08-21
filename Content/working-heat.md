@@ -620,4 +620,46 @@ resources:
       mountpoint: /dev/vdb
 ```
 
+with input parameters:
+```
+parameters:
+  server_image:
+    type: string
+    label: Image name or ID
+    description: Image to be used for compute instance
+  server_flavor:
+    type: string
+    label: Flavor
+    description: Type of flavor to be used
+  server_key:
+    type: string
+    label: Key name
+    description: Name of key-pair to be used for compute instance
+  server_network:
+    type: string
+    label: Private network name or ID
+    description: Network to attach instance to.
+  volume_size:
+    type: string
+    label: size of volume
+    description: This is the size of the Volume
+```
+
+and outputs:
+```
+outputs:
+ server_name:
+   description: Name of the server instance
+   value: { get_attr: [server, name] }
+ server_address:
+   description: IP address of the server instance
+   value: { get_attr: [server, first_address] }
+ volume_name:
+   description: Volume name attached to the server instance
+   value: { get_attr: [volume, display_name] }
+ volume_type:
+   description: Volume type attached to the server instance
+   value: { get_attr: [volume, volume_type] }
+```
+
 All the main template and sub-templates can be found here [nested-heat-stack.yaml](../heat/nested-heat-stack.yaml), [webserver.yaml](../heat/webserver.yaml) and [database.yaml](../heat/database.yaml) 
