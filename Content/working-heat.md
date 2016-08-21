@@ -98,7 +98,7 @@ The stack can be deleted including all resources created
 +--------------------------------------+-------+
 +--------------------------------------+-------+
 ```
-The complete first_heat_stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/first-heat-stack.yaml)
+The complete first_heat_stack.yaml file can be found [here](../heat/first-heat-stack.yaml)
 
 
 ####An improved Stack example
@@ -189,7 +189,7 @@ After stack creation, check the output from the stack
 |     "output_key": "instance_ip"                                                                             
 ```
 
-The complete second_heat_stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/second-heat-stack.yaml)
+The complete second_heat_stack.yaml file can be found [here](../heat/second-heat-stack.yaml)
 
 
 ####A networking resource example
@@ -293,7 +293,7 @@ Create the stack and check the output
 ```
 Note that we created the stack providing only the ``public_network `` parameter. The server related parameters, as image, flavor, etc. are set with their own default values specified into the **parameters** section of the template.
 
-The complete net-heat-stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/net-heat-stack.yaml)
+The complete net-heat-stack.yaml file can be found [here](../heat/net-heat-stack.yaml)
 
 
 ####A volume resource stack example
@@ -397,7 +397,7 @@ Create the stack and check the output
 |     "output_value": "nfs",
 ```
 
-The complete vol-heat-stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/vol-heat-stack.yaml)
+The complete vol-heat-stack.yaml file can be found [here](../heat/vol-heat-stack.yaml)
 
 ####A user data stack example
 In the previous example, we create a volume resource and attached it to a compute server. However, that volume is still not usable from the compute server since it needs to be formatted before to be available. In this section, we are going to create a user data script to format the volume after it has been attached to the instance. To accomplish this task, we are use the *cloud-init* capabilities.
@@ -541,11 +541,10 @@ outputs:
 
 The properties of a nested resource are the parameters defined in the sub-template, while the attributes of a nested resource are its outputs defined in the sub-template. This is extremely powerful, as a nested resource can be seen as a specialized resource that can be written to be a black-box through its inputs and outputs. So, we have:
 
-|Main Template|In/Out|Sub Template|
+|Main Template| |Sub Template|
 |-------------|------|------------|
 |resource's properties|>>|template's parameters|
 |resource's attributes|<<|template's outputs|
-|-------------|------|------------|
 
 With this in mind, we can define the webserver resource in the ``webserver.yaml`` sub-template:
 ```
