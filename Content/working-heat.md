@@ -549,7 +549,7 @@ The properties of a nested resource are the parameters defined in the sub-templa
 With this in mind, we can define the webserver resource in the ``webserver.yaml`` sub-template:
 ```
 resources:
-  webserver:
+  server:
     type: OS::Nova::Server
     properties:
       image: { get_param: server_image }
@@ -583,11 +583,11 @@ and the outputs:
 ```
 outputs:
  server_name:
-   description: Name of the webserver instance
-   value: { get_attr: [webserver, name] }
+   description: Name of the server instance
+   value: { get_attr: [server, name] }
  server_address:
-   description: IP address of the webserver instance
-   value: { get_attr: [webserver, first_address] }
+   description: IP address of the server instance
+   value: { get_attr: [server, first_address] }
 ```
 
-All the main template and sub-templates can be found here [nested-heat-stack.yaml](), [webserver.yaml]() and [datase.yaml]() 
+All the main template and sub-templates can be found here [nested-heat-stack.yaml](../heat/nested-heat-stack.yaml), [webserver.yaml](../heat/webserver.yaml) and [database.yaml](../heat/database.yaml) 
