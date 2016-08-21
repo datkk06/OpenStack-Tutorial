@@ -699,9 +699,26 @@ resources:
       volume_size: { get_param: volume_size }
 ```
 
+To create the stack using environment files use the following notation:
+```
+# heat stack-create env-heat-stack \
+-f env-heat-stack.yaml \
+-e simple-environment.yaml \
+-P "private_network=tenant-network"
+```
 
+In the Heat environment files we can define default values for all templates, including the main-template and all the nested sub-templates. This is accomplished by defining default values in the *parameter_defaults:* section of the environment file. These defaults are passed into all template resources.
 
+For example, we can force the image type to be used for all servers by defining the default value in the ``simple-environment.yaml`` file:
+```
+resource_registry:
+  OS::Application::WebServer: ./webserver.yaml
+  OS::Application::DataBase: ./database.yaml
 
+parameter_defaults:
+  image: ubuntu
+```
 
+This value will be loaded by the Heat engine before the main template file parsing and applied to all server resources defined in the sub-templates along with the main-template.
 
-
+The environment file and the main template file can be found here: [main-heat-stack.yaml](../heat/main-heat-stack.yaml) and [simple-environment.yaml](../heat/simple-environment.yaml).
