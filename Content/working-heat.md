@@ -590,4 +590,34 @@ outputs:
    value: { get_attr: [server, first_address] }
 ```
 
+Similarly, we can define the database resource by hyding the complexity of server and volume creation, the volume attachment and formatting into a black-box style ``database.yaml`` sub-template:
+```
+resources:
+  server:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: server_image }
+      flavor: { get_param: server_flavor }
+      key_name: { get_param: server_key }
+      networks:
+        - network: { get_param: server_network }
+      user_data_format: RAW
+      user_data: |
+        #!/bin/bash
+        mkfs.ext4 /dev/vdb
+        echo '/dev/vdb /mnt ext4 defaults 1 1' >> /etc/fstab
+        mount -a
+  volume:
+   type: OS::Cinder::Volume
+   properties:
+      size: { get_param: volume_size }
+
+  volume_attachment:
+   type: OS::Cinder::VolumeAttachment
+   properties:
+      instance_uuid: { get_resource: server }
+      volume_id: { get_resource: volume }
+      mountpoint: /dev/vdb
+```
+
 All the main template and sub-templates can be found here [nested-heat-stack.yaml](../heat/nested-heat-stack.yaml), [webserver.yaml](../heat/webserver.yaml) and [database.yaml](../heat/database.yaml) 
