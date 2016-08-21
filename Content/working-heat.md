@@ -457,8 +457,7 @@ Filesystem     Type      Size  Used Avail Use% Mounted on
 ...
 ```
 
-The complete userdata-heat-stack.yaml file can be found [here](https://github.com/kalise/OpenStack-Tutorial/blob/master/heat/userdata-heat-stack.yaml)
-
+The complete template can be found here: [userdata-heat-stack.yaml](../heat/userdata-heat-stack.yaml)
 
 ####A nested stack example
 When need to deploy a multi resources application with Heat, is to just put several resources into the template, along with their parameters and outputs. This approach can work, but it leads to very large template files that are very hard to debug or update. To keep things easier, we can split complex templates into smaller sub-templates, and use nesting to combine the parts into the whole picture. In this section we are going to split a multiserver stack made of a webserver and a database into several small and reusable templates.
@@ -484,7 +483,7 @@ resources:
       volume_size: { get_param: volume_size }
 ```
 
-The above snippet creates two custom resources that have their type set into the YAML files of the two sub-templates: ``webserver.yaml`` and ``database.yaml``. In the context of the master template ``nested-heat-stack.yaml``, all the resources defined in the sub-template are encapsulated in single resources. Resources that reference a nested template also have properties and attributes, like other regular resources. We can specify their parameters 
+The above snippet creates two custom resources that have their type set into the YAML files of the two sub-templates: ``webserver.yaml`` and ``database.yaml``. In the context of the master template ``nested-heat-stack.yaml``, all the resources defined in the sub-template are encapsulated in single resources. Resources that reference a nested template also have properties and attributes, like other regular resources. We can specify the parameters to be assigned to the resource's properties
 ```
 parameters:
   image:
@@ -517,7 +516,7 @@ parameters:
     default: 3
 ```
 
-and reference their outputs
+and reference the resource's attributes as output for the user
 ```
 outputs:
  web_instance_name:
@@ -540,37 +539,16 @@ outputs:
    value: { get_attr: [db, volume_type] }
 ```
 
-The properties of a nested resource are the parameters defined in the sub-template, while the attributes of a nested resource are its outputs defined in the sub-template. This is extremely useful, as a nested resource can be seen as a specialized resource that can be written to be a black-box through its inputs and outputs. So, we have:
+The properties of a nested resource are the parameters defined in the sub-template, while the attributes of a nested resource are its outputs defined in the sub-template. This is extremely powerful, as a nested resource can be seen as a specialized resource that can be written to be a black-box through its inputs and outputs. So, we have:
 
 |Main Template|In/Out|Sub Template|
 |-------------|------|------------|
-|property|->|parameter|
-|attribute|<-|output|
+|resource's properties|>>|template's parameters|
+|resource's attributes|<<|template's outputs|
+|-------------|------|------------|
 
-With this in mind, we can define the webserver sub-template:
+With this in mind, we can define the webserver resource in the ``webserver.yaml`` sub-template:
 ```
-# vi webserver.yaml
-heat_template_version: 2015-10-15
-description: template to create a webserver instance
-
-parameters:
-  server_image:
-    type: string
-    label: Image name or ID
-    description: Image to be used for compute instance
-  server_flavor:
-    type: string
-    label: Flavor
-    description: Type of flavor to be used
-  server_key:
-    type: string
-    label: Key name
-    description: Name of key-pair to be used for compute instance
-  server_network:
-    type: string
-    label: Private network name or ID
-    description: Network to attach instance to.
-
 resources:
   webserver:
     type: OS::Nova::Server
@@ -580,7 +558,30 @@ resources:
       key_name: { get_param: server_key }
       networks:
         - network: { get_param: server_network }
+```
+as well as the parameters:
+```
+parameters:
+  server_image:
+    type: string
+    label: Image name or ID
+    description: Image to be used for compute instance
+  server_flavor:
+    type: string
+    label: Flavor
+    description: Type of flavor to be used
+  server_key:
+    type: string
+    label: Key name
+    description: Name of key-pair to be used for compute instance
+  server_network:
+    type: string
+    label: Private network name or ID
+    description: Network to attach instance to.
+```
 
+and the outputs:
+```
 outputs:
  server_name:
    description: Name of the webserver instance
@@ -588,161 +589,6 @@ outputs:
  server_address:
    description: IP address of the webserver instance
    value: { get_attr: [webserver, first_address] }
-
 ```
 
-and the database sub-template:
-```
-heat_template_version: 2015-10-15
-description: template to create a db instance with an attached volume
-
-parameters:
-  server_image:
-    type: string
-    label: Image name or ID
-    description: Image to be used for compute instance
-  server_flavor:
-    type: string
-    label: Flavor
-    description: Type of flavor to be used
-  server_key:
-    type: string
-    label: Key name
-    description: Name of key-pair to be used for compute instance
-  server_network:
-    type: string
-    label: Private network name or ID
-    description: Network to attach instance to.
-  volume_size:
-    type: string
-    label: size of volume
-    description: This is the size of the Volume
-
-resources:
-  database:
-    type: OS::Nova::Server
-    properties:
-      image: { get_param: server_image }
-      flavor: { get_param: server_flavor }
-      key_name: { get_param: server_key }
-      networks:
-        - network: { get_param: server_network }
-#      user_data_format: RAW
-#      user_data: |
-#        #!/bin/bash
-#        mkfs.ext4 /dev/vdb
-#        echo '/dev/vdb /mnt ext4 defaults 1 1' >> /etc/fstab
-#        mount -a
-
-  my_vol:
-   type: OS::Cinder::Volume
-   properties:
-      size: { get_param: volume_size }
-
-  vol_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-      instance_uuid: { get_resource: database }
-      volume_id: { get_resource: my_vol }
-      mountpoint: /dev/vdb
-
-outputs:
- server_name:
-   description: Name of the db instance
-   value: { get_attr: [database, name] }
- server_address:
-   description: IP address of the db instance
-   value: { get_attr: [database, first_address] }
- volume_name:
-   description: Volume name attached to the db instance
-   value: { get_attr: [my_vol, display_name] }
- volume_type:
-   description: Volume type attached to the db instance
-   value: { get_attr: [my_vol, volume_type] }
-
-heat_template_version: 2015-10-15
-description: template to create a db instance with an attached volume
-
-parameters:
-  server_image:
-    type: string
-    label: Image name or ID
-    description: Image to be used for compute instance
-  server_flavor:
-    type: string
-    label: Flavor
-    description: Type of flavor to be used
-  server_key:
-    type: string
-    label: Key name
-    description: Name of key-pair to be used for compute instance
-  server_network:
-    type: string
-    label: Private network name or ID
-    description: Network to attach instance to.
-  volume_size:
-    type: string
-    label: size of volume
-    description: This is the size of the Volume
-
-resources:
-  database:
-    type: OS::Nova::Server
-    properties:
-      image: { get_param: server_image }
-      flavor: { get_param: server_flavor }
-      key_name: { get_param: server_key }
-      networks:
-        - network: { get_param: server_network }
-#      user_data_format: RAW
-#      user_data: |
-#        #!/bin/bash
-#        mkfs.ext4 /dev/vdb
-#        echo '/dev/vdb /mnt ext4 defaults 1 1' >> /etc/fstab
-#        mount -a
-
-  my_vol:
-   type: OS::Cinder::Volume
-   properties:
-      size: { get_param: volume_size }
-
-  vol_attachment:
-   type: OS::Cinder::VolumeAttachment
-   properties:
-      instance_uuid: { get_resource: database }
-      volume_id: { get_resource: my_vol }
-      mountpoint: /dev/vdb
-
-outputs:
- server_name:
-   description: Name of the db instance
-   value: { get_attr: [database, name] }
- server_address:
-   description: IP address of the db instance
-   value: { get_attr: [database, first_address] }
- volume_name:
-   description: Volume name attached to the db instance
-   value: { get_attr: [my_vol, display_name] }
- volume_type:
-   description: Volume type attached to the db instance
-   value: { get_attr: [my_vol, volume_type] }
-
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+All the main template and sub-templates can be found here [nested-heat-stack.yaml](), [webserver.yaml]() and [datase.yaml]() 
