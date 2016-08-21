@@ -669,3 +669,39 @@ outputs:
 All the main template and sub-templates can be found here [nested-heat-stack.yaml](../heat/nested-heat-stack.yaml), [webserver.yaml](../heat/webserver.yaml) and [database.yaml](../heat/database.yaml) 
 
 ####Simple environment example
+Heat provides an alternative way to nested templates by using the so called **Environment Files**. An environment file is a YAML file that has global definitions that are imported in the Heat engine before the template itself is parsed. An environment file can be used to define custom resource types defined into external template files.
+
+Consider the following ``simple-environment.yaml`` file:
+```
+resource_registry:
+  OS::Application::WebServer: ./webserver.yaml
+  OS::Application::DataBase: ./database.yaml
+```
+
+The ``resource_registry`` section in the file above contains a mapping of custom resource types described in the external templates that implement them. We assigned a custom prefix as namespace ``OS::Application`` and the type: ``WebServer`` and ``DataBase``. After Heat imports this environment file, it can recognize the custom types, so the resource section of the main template used above can be rewritten as:
+```
+resources:
+  web:
+    type: OS::Application::WebServer
+    properties:
+      server_image: { get_param: image }
+      server_flavor: { get_param: flavor }
+      server_key: { get_param: key }
+      server_network: { get_param: private_network }
+
+  db:
+    type: OS::Application::DataBase
+    properties:
+      server_image: { get_param: image }
+      server_flavor: { get_param: flavor }
+      server_key: { get_param: key }
+      server_network: { get_param: private_network }
+      volume_size: { get_param: volume_size }
+```
+
+
+
+
+
+
+
