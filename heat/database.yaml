@@ -1,0 +1,68 @@
+heat_template_version: 2015-10-15
+description: template to create a db instance with an attached volume
+
+parameters:
+  server_image:
+    type: string
+    label: Image name or ID
+    description: Image to be used for compute instance
+  server_flavor:
+    type: string
+    label: Flavor
+    description: Type of flavor to be used
+  server_key:
+    type: string
+    label: Key name
+    description: Name of key-pair to be used for compute instance
+  server_network:
+    type: string
+    label: Private network name or ID
+    description: Network to attach instance to.
+  volume_size:
+    type: string
+    label: size of volume
+    description: This is the size of the Volume
+
+resources:
+  database:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: server_image }
+      flavor: { get_param: server_flavor }
+      key_name: { get_param: server_key }
+      networks:
+        - network: { get_param: server_network }
+      user_data_format: RAW
+      user_data: |
+        #!/bin/bash
+        mkfs.ext4 /dev/vdb
+        echo '/dev/vdb /mnt ext4 defaults 1 1' >> /etc/fstab
+        mount -a
+
+  my_vol:
+   type: OS::Cinder::Volume
+   properties:
+      size: { get_param: volume_size }
+
+  vol_attachment:
+   type: OS::Cinder::VolumeAttachment
+   properties:
+      instance_uuid: { get_resource: database }
+      volume_id: { get_resource: my_vol }
+      mountpoint: /dev/vdb
+
+outputs:
+ server_name:
+   description: Name of the db instance
+   value: { get_attr: [database, name] }
+ server_address:
+   description: IP address of the db instance
+   value: { get_attr: [database, first_address] }
+ volume_name:
+   description: Volume name attached to the db instance
+   value: { get_attr: [my_vol, display_name] }
+ volume_type:
+   description: Volume type attached to the db instance
+   value: { get_attr: [my_vol, volume_type] }
+
+
