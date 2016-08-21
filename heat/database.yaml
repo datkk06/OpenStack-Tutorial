@@ -1,5 +1,5 @@
 heat_template_version: 2015-10-15
-description: template to create a db instance with an attached volume
+description: template to create a server instance with an attached volume
 
 parameters:
   server_image:
@@ -24,7 +24,7 @@ parameters:
     description: This is the size of the Volume
 
 resources:
-  database:
+  server:
     type: OS::Nova::Server
     properties:
       image: { get_param: server_image }
@@ -39,30 +39,30 @@ resources:
         echo '/dev/vdb /mnt ext4 defaults 1 1' >> /etc/fstab
         mount -a
 
-  my_vol:
+  volume:
    type: OS::Cinder::Volume
    properties:
       size: { get_param: volume_size }
 
-  vol_attachment:
+  volume_attachment:
    type: OS::Cinder::VolumeAttachment
    properties:
-      instance_uuid: { get_resource: database }
-      volume_id: { get_resource: my_vol }
+      instance_uuid: { get_resource: server }
+      volume_id: { get_resource: volume }
       mountpoint: /dev/vdb
 
 outputs:
  server_name:
-   description: Name of the db instance
-   value: { get_attr: [database, name] }
+   description: Name of the server instance
+   value: { get_attr: [server, name] }
  server_address:
-   description: IP address of the db instance
-   value: { get_attr: [database, first_address] }
+   description: IP address of the server instance
+   value: { get_attr: [server, first_address] }
  volume_name:
-   description: Volume name attached to the db instance
-   value: { get_attr: [my_vol, display_name] }
+   description: Volume name attached to the server instance
+   value: { get_attr: [volume, display_name] }
  volume_type:
-   description: Volume type attached to the db instance
-   value: { get_attr: [my_vol, volume_type] }
+   description: Volume type attached to the server instance
+   value: { get_attr: [volume, volume_type] }
 
 
