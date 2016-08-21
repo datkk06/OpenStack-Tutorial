@@ -7,11 +7,10 @@ Some basic terminology is in order to help navigate the YAML structure:
 
 2. **Template**: this is the design of the resources that will make up the stack. For example, if we want to have two instances connected on a private network, we need to define a template for each instance as well as the network.
 
-A template is made up of four different sections:
- * **Resources**: these are the details of the specific stack. These are the objects that will be created or modified when the template runs. Resources could be Instances, Volumes, Security Groups, Floating IPs, or any number of objects in OpenStack.
- * **Properties**: these are specifics of the template. For example, if we want to specify a CentOS instance in a small flavor, we need to define a property for the "CentOS" image and a property for the "small" flavor. Properties may be hard coded in the template, or may be prompted as parameters.
- * **Parameters**: these are properties values that must be passed when running the Heat template. In HOT format, they appear before the resources section and are mapped to properties.
- * **Output**: this is what is passed back to the user. It may be displayed in the dashboard, or revealed in command line ``heat stack-show`` commands.
+A template is made up of three different sections:
+ * **Resources**: these are the details of the specific stack. These are the objects that will be created or modified when the template runs. Resources could be Instances, Volumes, Security Groups, Floating IPs, or any number of objects in OpenStack. A resouce has properties and attributes.
+ * **Parameters**: these are the values assigned to the properties of a resource and that must be passed to the template. In HOT format, they appear before the resources section and are directly mapped to properties.
+ * **Outputs**: these are the attributes of a resource and are passed back to the user. It may be displayed in the dashboard, or revealed in command line ``heat stack-show`` commands.
 
 In the following sections, we are going to work with examples of heat templates:
 
@@ -462,3 +461,107 @@ The complete userdata-heat-stack.yaml file can be found [here](https://github.co
 
 
 ####A nested stack example
+When need to deploy a multi resources application with Heat, is to just put several resources into the template, along with their parameters and outputs. This approach can work, but it leads to very large template files that are very hard to debug or update. To keep things easier, we can split complex templates into smaller sub-templates, and use nesting to combine the parts into the whole picture. In this section we are going to split a multiserver stack made of a webserver and a database into several small and reusable templates.
+
+In the main template we define two custom resources, one for the webserver and another one for the database
+```
+resources:
+  web:
+    type: ./webserver.yaml
+    properties:
+      server_image: { get_param: image }
+      server_flavor: { get_param: flavor }
+      server_key: { get_param: key }
+      server_network: { get_param: private_network }
+
+  db:
+    type: ./database.yaml
+    properties:
+      server_image: { get_param: image }
+      server_flavor: { get_param: flavor }
+      server_key: { get_param: key }
+      server_network: { get_param: private_network }
+      volume_size: { get_param: volume_size }
+```
+
+The above snippet creates two custom resources that have their type set into the YAML files of the two sub-templates: ``webserver.yaml`` and ``database.yaml``. In the context of the master template ``nested-heat-stack.yaml``, all the resources defined in the sub-template are encapsulated in single resources. Resources that reference a nested template also have properties and attributes, like other regular resources. We can specify their parameters 
+```
+parameters:
+  image:
+    type: string
+    label: Image name or ID
+    description: Image to be used for compute instance
+    constraints:
+    - allowed_values: [cirros, centos, ubuntu]
+    default: cirros
+  flavor:
+    type: string
+    label: Flavor
+    description: Type of flavor to be used
+    constraints:
+    - allowed_values: [small, medium, large]
+    default: small
+  key:
+    type: string
+    label: Key name
+    description: Name of key-pair to be used for compute instance
+    default: demokey
+  private_network:
+    type: string
+    label: Private network name or ID
+    description: Network to attach instance to.
+  volume_size:
+    type: string
+    label: size of volume
+    description: This is the size of the Volume
+    default: 3
+```
+
+and reference their outputs
+```
+outputs:
+ web_instance_name:
+   description: Name of the web instance
+   value: { get_attr: [web, server_name] }
+ web_instance_ip:
+   description: IP address of the web instance
+   value: { get_attr: [web, server_address] }
+ db_instance_name:
+   description: Name of the db instance
+   value: { get_attr: [db, server_name] }
+ db_instance_ip:
+   description: IP address of the db instance
+   value: { get_attr: [db, server_address] }
+ volume_name:
+   description: Volume name attached to the db instance
+   value: { get_attr: [db, volume_name] }
+ volume_type:
+   description: Volume type attached to the db instance
+   value: { get_attr: [db, volume_type] }
+```
+
+The properties of a nested resource are the parameters defined in the sub-template, while the attributes of a nested resource are its outputs defined in the sub-template. This is extremely useful, as a nested resource can be seen as a specialized resource that can be written to be a black-box through its inputs and outputs. So, we have
+
+|Main Template|In/Out|Sub Template|
+|-------------|------|------------|
+|property|->|parameter|
+|attribute|<-|output|
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
