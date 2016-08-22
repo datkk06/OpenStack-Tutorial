@@ -84,8 +84,10 @@ The ``loadbalancer`` resource creates a Load Balancer application based on the H
 Also the Load Balancer requires a Load Balancer ``pool`` resource where we specify:
 * the load balance method (ROUND_ROBIN)
 * the protocol (HTTP)
-* the port (80)
-* the subnet where the Load Balancer has to run
+* the Virtual IP where it is listening for
+* the port where it is listening for (80)
+
+Note: when not specified, as in the above case, the Virtual IP address of the Load Balancer is automatically picked up from the subnet.
 
 
 ####Automatic Horizontal Scaling
