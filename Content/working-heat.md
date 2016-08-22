@@ -21,10 +21,7 @@ In the following sections, we are going to work with examples of heat templates:
 5. [A user data stack example](./working-heat.md#a-user-data-stack-example)
 6. [A nested stack example](./working-heat.md#a-nested-stack-example)
 
-Also we introduce the Heat Environment files and work with few examples:
-
-1. [Simple environment example](./working-heat.md#simple-environment-example)
-2. 
+Also we introduce the Heat Environment files and work with a [Simple environment example](./working-heat.md#simple-environment-example)
 
 ####A very basic example
 In this section we are going to implement a simple HOT template example for starting an instance. This is not so useful but it helps to understand the basics. Here the example:
