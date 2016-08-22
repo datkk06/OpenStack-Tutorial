@@ -171,3 +171,93 @@ Hello 192.168.1.52 !
 In the next section, we are going to make this process automatic by leveraging on the Ceilometer Metering service.
 
 ####Automatic Horizontal Scaling
+
+```
+# cat autoscale-heat-stack.yaml
+heat_template_version: 2015-10-15
+description: template to create a webserver instance
+
+parameters:
+  server_image:
+    type: string
+    label: Image name or ID
+    description: Image to be used for compute instance
+    default: cirros
+  server_flavor:
+    type: string
+    label: Flavor
+    description: Type of flavor to be used
+    default: small
+  server_key:
+    type: string
+    label: Key name
+    description: Name of key-pair to be used for compute instance
+    default: demokey
+  server_network:
+    type: string
+    label: Private network name or ID
+    description: Network to attach instance to.
+    default: tenant-network
+
+resources:
+
+  group:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      cooldown: 60
+      desired_capacity: 1
+      max_size: 5
+      min_size: 1
+      resource:
+        type: OS::Nova::Server
+        properties:
+          image: { get_param: server_image }
+          flavor: { get_param: server_flavor }
+          key_name: { get_param: server_key }
+          networks:
+            - network: { get_param: server_network }
+          metadata: {"metering.stack": {get_param: "OS::stack_id"}}
+
+  scaleup_policy:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id: { get_resource: group }
+      cooldown: 60
+      scaling_adjustment: 1
+
+  scaledown_policy:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id: { get_resource: group }
+      cooldown: 60
+      scaling_adjustment: -1
+
+  cpu_alarm_high:
+    type: OS::Ceilometer::Alarm
+    properties:
+      meter_name: cpu_util
+      statistic: avg
+      period: 20
+      evaluation_periods: 1
+      threshold: 30
+      alarm_actions:
+        - {get_attr: [scaleup_policy, alarm_url]}
+      matching_metadata: {'metadata.user_metadata.stack': {get_param: "OS::stack_id"}}
+      comparison_operator: gt
+
+  cpu_alarm_low:
+    type: OS::Ceilometer::Alarm
+    properties:
+      meter_name: cpu_util
+      statistic: avg
+      period: 20
+      evaluation_periods: 1
+      threshold: 20
+      alarm_actions:
+        - {get_attr: [scaledown_policy, alarm_url]}
+      matching_metadata: {'metadata.user_metadata.stack': {get_param: "OS::stack_id"}}
+      comparison_operator: lt
+
+```
