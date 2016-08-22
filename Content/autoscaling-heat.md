@@ -114,7 +114,7 @@ outputs:
    value: { get_attr: [vip_floating_ip, floating_ip_address] }
 ```
 
-The complete template file can be found here: (cluster-heat-stack.yaml)[../heat/cluster-heat-stack.yaml].
+The complete template file can be found here: [cluster-heat-stack.yaml](../heat/cluster-heat-stack.yaml).
 
 To check things work as espected, create a simple bash script sending an http GET request every 3 seconds:
 ```
@@ -151,7 +151,22 @@ Hello 192.168.1.51 !
 ^C
 ```
 
-As we see the Load Balancer is fully working sending the client requests to all the Apache server instances in a Round Robin fashion. Howewer, this form of scaling is not so useful since in case of increased load we have to manually delete the stack and manually start a new stack with more servers.
+As we see the Load Balancer is fully working sending the client requests to all the Apache server instances in a Round Robin fashion. Howewer, this form of scaling is not so useful since in case of increased load we have to manually update the stack with more servers.
+```
+# heat stack-update cluster-heat-stack \
+-f cluster-heat-stack.yaml \
+-P "cluster_size=4"
+
+# ./httpget.sh $PublicIP
+Getting web page from 172.120.1.206
+Hello 192.168.1.53 !
+Hello 192.168.1.52 !
+Hello 192.168.1.51 !
+Hello 192.168.1.54 !
+Hello 192.168.1.53 !
+Hello 192.168.1.52 !
+^C
+```
 
 In the next section, we are going to make this process automatic.
 
