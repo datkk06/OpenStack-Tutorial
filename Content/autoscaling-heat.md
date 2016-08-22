@@ -81,13 +81,78 @@ resources:
 
 The ``loadbalancer`` resource creates a Load Balancer application based on the HAProxy relying on the OpenStack LBaaS Neutron plugin. Make sure to enable that pluging before to attemp to run the stack, see [LBaaS Configuration](./load-balancer.md). The Load Balancer takes the server list provided by the ResourceGroup cluster servers as its members.
 
-Also the Load Balancer requires a Load Balancer ``pool`` resource where we specify:
+Also we defined a Load Balancer ``pool`` resource where we specify:
 * the load balance method (ROUND_ROBIN)
 * the protocol (HTTP)
 * the Virtual IP (VIP) where it is listening for
 * the port where it is listening for (80)
 
-**Note**: when not specified, as in the above case, the Virtual IP address of the Load Balancer is automatically picked up from the subnet.
+**Note**: when not specified in the pool, as in the above case, the Virtual IP address of the Load Balancer is automatically picked up from the subnet parameter.
 
+To make the Load Balancer addressable from the external network, we allocate a Floating IP address and assign it to the Load Balancer:
+```
+resources:
+...
+vip_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: { get_param: public_network }
+
+  vip_floating_association:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: vip_floating_ip }
+      port_id: { get_attr: [ pool, vip, port_id ] }
+      fixed_ip_address: { get_attr: [ pool, vip, address ] }
+```
+
+Add some useful output for the user:
+```
+outputs:
+ floating_ip:
+   description: Floating IP address assigned to the instance
+   value: { get_attr: [vip_floating_ip, floating_ip_address] }
+```
+
+The complete template file can be found here: (cluster-heat-stack.yaml)[../heat/cluster-heat-stack.yaml].
+
+To check things work as espected, create a simple bash script sending an http GET request every 3 seconds:
+```
+# vi httpget.sh
+#!/bin/bash
+address=$1
+echo "Getting web page from "$address
+while true; do
+ curl http://$address
+ sleep 3
+done
+```
+
+Cretate the stack with 3 Apache servers and run the script against the public IP address of the Load Balancer
+```
+# heat stack-create cluster-heat-stack \
+-f cluster-heat-stack.yaml \
+-P "cluster_size=3"
+
+# heat stack-show cluster-heat-stack | grep output
+|     "output_key": "floating_ip",
+|     "output_value": "172.120.1.206"
+
+# PublicIP = 172.120.1.206
+
+# ./httpget.sh $PublicIP
+Getting web page from 172.120.1.206
+Hello 192.168.1.53 !
+Hello 192.168.1.52 !
+Hello 192.168.1.51 !
+Hello 192.168.1.52 !
+Hello 192.168.1.53 !
+Hello 192.168.1.51 !
+^C
+```
+
+As we see the Load Balancer is fully working sending the client requests to all the Apache server instances in a Round Robin fashion. Howewer, this form of scaling is not so useful since in case of increased load we have to manually delete the stack and manually start a new stack with more servers.
+
+In the next section, we are going to make this process automatic.
 
 ####Automatic Horizontal Scaling
