@@ -168,6 +168,6 @@ Hello 192.168.1.52 !
 ^C
 ```
 
-In the next section, we are going to make this process automatic.
+In the next section, we are going to make this process automatic by leveraging on the Ceilometer Metering service.
 
 ####Automatic Horizontal Scaling
