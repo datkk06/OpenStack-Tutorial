@@ -10,26 +10,24 @@ In this section, we are going to deploy an horizontal scaling stack by mean of H
 ####Manual Horizontal Scaling
 Manual scaling requires the user scales the cluster manually when the load from clients reach the cluster limits. We start by writing a simple Heat template to deploy an Apache webserver on Ubuntu. The most clever part of the template is installing Apache in Ubuntu and customize the home page with the IP address of the server. Connecting to the Apache through the load balancer and refreshing the home page should show a changing IP address, because each time the page will be handled by a different server. We use the *cloudinit* capability to run an user data script at time of the instance start.
 
-Here the snippet of ``apache.yaml`` template:
+Here a snippet of ``cluster-heat-stack.yaml`` template:
 ```
 resources:
   webserver:
     type: OS::Nova::Server
     properties:
-      image: { get_param: image }
-      key_name: { get_param: key }
-      flavor: { get_param: flavor }
+      image: ubuntu
+      flavor: small
+      key_name: demokey
       networks:
         - network: { get_param: private_network }
       user_data: |
         #!/bin/bash
         apt-get install apache2 -y
-        echo "Hello "$(hostname -I)" !" > /var/www/html/index.html
+        echo "Hello "$(hostname -I)"!" > /var/www/html/index.html
 ```
 
-Then we write a main template creates multiple identical copies of the server. This Heat template is based on a resource type called ``OS::Heat::ResourceGroup``. This resource wraps a standard resource definition and creates multiple identical copies of the resource.
-
-Here the core snippet of ``cluster-heat-stack.yaml`` template:
+Then we need for a way to create multiple identical copies of the Apache webserver. Heat provides a resource type called ``OS::Heat::ResourceGroup``. This resource wraps any standard resource definition, like a compute server, and creates multiple identical copies of that resource. So, change the snippet above as following:
 ```
 parameters:
   cluster_size:
@@ -44,18 +42,44 @@ resources:
     properties:
       count: { get_param: cluster_size }
       resource_def:
-        type: ./apache.yaml
+        type: OS::Nova::Server
         properties:
           image: ubuntu
           flavor: small
-          key: demokey
-          private_network: { get_param: private_network }
+          key_name: demokey
+          networks:
+            - network: { get_param: private_network }
+          user_data: |
+            #!/bin/bash
+            apt-get install apache2 -y
+            echo "Hello "$(hostname -I)"!" > /var/www/html/index.html
 ```
 
 The ``count`` property defines how many copies of the application to start. We set this value from a parameter ``cluster_size``, which the user can set. The ``resource_def`` property is where the resource that is getting scaled is configured.
 
 Once we have the application running on multiple instances, we need for a load balancer that presents itself as the entry point to clients. The load balancer will accept the requests from clients and internally dispatch them to the actual servers.
 
+Add the following to the template:
+```
+resources:
+...
+  loadbalancer:
+    type: OS::Neutron::LoadBalancer
+    properties:
+      members: { get_attr: [cluster, refs] }
+      pool_id: { get_resource: pool }
+      protocol_port: { get_attr: [pool, vip, protocol_port] }
+
+  pool:
+    type: OS::Neutron::Pool
+    properties:
+      lb_method: ROUND_ROBIN
+      protocol: HTTP
+      subnet: { get_param: private_subnet }
+      vip: { "protocol_port": 80 }
+```
+
+The ``loadbalancer`` resource creates a Load Balancer application based on the HAProxy relying on the OpenStack LBaaS Neutron plugin. Make sure to enable that pluging before to attemp to run the stack. The Load Balancer takes the server list provided by the ResourceGroup cluster servers as its members. It also requires to specify the port number on which the servers are running on the members. Also the Load Balancer requires a Load Balancer ``pool`` resource where we specify the load balance method (ROUND_ROBIN), the protocol (HTTP), the port (80) and the subnet where the Load Balancer has to run.
 
 
 ####Automatic Horizontal Scaling
