@@ -79,7 +79,13 @@ resources:
       vip: { "protocol_port": 80 }
 ```
 
-The ``loadbalancer`` resource creates a Load Balancer application based on the HAProxy relying on the OpenStack LBaaS Neutron plugin. Make sure to enable that pluging before to attemp to run the stack. The Load Balancer takes the server list provided by the ResourceGroup cluster servers as its members. It also requires to specify the port number on which the servers are running on the members. Also the Load Balancer requires a Load Balancer ``pool`` resource where we specify the load balance method (ROUND_ROBIN), the protocol (HTTP), the port (80) and the subnet where the Load Balancer has to run.
+The ``loadbalancer`` resource creates a Load Balancer application based on the HAProxy relying on the OpenStack LBaaS Neutron plugin. Make sure to enable that pluging before to attemp to run the stack. The Load Balancer takes the server list provided by the ResourceGroup cluster servers as its members.
+
+Also the Load Balancer requires a Load Balancer ``pool`` resource where we specify:
+* the load balance method (ROUND_ROBIN)
+* the protocol (HTTP)
+* the port (80)
+* the subnet where the Load Balancer has to run
 
 
 ####Automatic Horizontal Scaling
