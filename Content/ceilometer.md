@@ -147,6 +147,8 @@ For example, if we want to define an alarm when the CPU utilization of a given c
         --alarm-action 'log://' \
         --query resource_id=<Instance_ID>
 
+In our case, the action associated to the state transition to "alarm" (i.e. the alarm is on) is simply logging to a file. In other cases, we can trigger a more complex action as strart a new virtual machine or scale up a cluster.
+
 Display all the alarms
 ```
 # ceilometer alarm-list
@@ -167,24 +169,24 @@ To update any of the alarm parameters, use the following:
 
     # ceilometer alarm-update --period 900 <Alarm_ID>
 
-**Note**: period of evaluation should be >= than configured pipeline interval for collection of underlying metric.
+**Note**: period of evaluation should be >= than configured pipeline interval for collection in ``/etc/ceilometer/pipeline.yaml`` file.
 
 To see the history of alarm:
 ```
 # ceilometer alarm-history <Alarm_ID>
-+-------------+----------------------------+----------------------------------------------------------------------+
-| Type        | Timestamp                  | Detail                                                               |
-+-------------+----------------------------+----------------------------------------------------------------------+
-| rule change | 2016-08-23T20:53:48.732000 | rule: cpu_util > 75.0 during 2 x 900s                                |
-| rule change | 2016-08-23T17:21:14.122000 | rule: cpu_util > 75.0 during 2 x 600s                                |
-|             |                            | repeat_actions: False                                                |
-| creation    | 2016-08-23T15:46:11.082000 | name: autoscale-heat-stack-cpu_alarm_high                            |
-|             |                            | description: Hot CPU                                                 |
-|             |                            | type: threshold                                                      |
-|             |                            | rule: cpu_util > 75.0 during 2 x 900s                                |
-|             |                            | severity: low                                                        |
-|             |                            | time_constraints: None                                               |
-+-------------+----------------------------+----------------------------------------------------------------------+
++-------------+----------------------------+-------------------------------------------------+
+| Type        | Timestamp                  | Detail                                          |
++-------------+----------------------------+-------------------------------------------------+
+| rule change | 2016-08-23T20:53:48.732000 | rule: cpu_util > 75.0 during 2 x 900s           |
+| rule change | 2016-08-23T17:21:14.122000 | rule: cpu_util > 75.0 during 2 x 600s           |
+|             |                            | repeat_actions: False                           |
+| creation    | 2016-08-23T15:46:11.082000 | name: autoscale-heat-stack-cpu_alarm_high       |
+|             |                            | description: Hot CPU                            |
+|             |                            | type: threshold                                 |
+|             |                            | rule: cpu_util > 75.0 during 2 x 900s           |
+|             |                            | severity: low                                   |
+|             |                            | time_constraints: None                          |
++-------------+----------------------------+-------------------------------------------------+
 ```
 
 Finally, an alarm no longer required can be disabled
