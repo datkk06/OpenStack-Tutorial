@@ -28,7 +28,48 @@ In this section we are going to work with few basic concepts of the metering ser
 * [Pipelines](./ceilometer.md#pipelines)
 
 ##### Meters
+A meters measures a particular aspect of resource usage as for example, the current CPU utilization % for an instance. The lifecycle of meters is decoupled from the existence of the related resources, in the sense that the meter continues to exist after the resource has been terminated. All meters have a string name, an unit of measurement, and a type indicating whether values are monotonically increasing (i.e. *cumulative*), interpreted as a change from the previous value (i.e. *delta*), or a standalone value relating only to the current duration (i.e. *gauge*).
+
+The following returns all meters available on the system
+
+    # ceilometer meter-list
+    +---------------------------------+------------+-----------+------------------------------------------
+    | Name                            | Type       | Unit      | Resource ID
+    +---------------------------------+------------+-----------+------------------------------------------
+    | cpu                             | cumulative | ns        | 9d29e3bd-caa1-4c04-b570-9dec555c8adc
+    | cpu.delta                       | delta      | ns        | 9d29e3bd-caa1-4c04-b570-9dec555c8adc
+    | cpu_util                        | gauge      | %         | 9d29e3bd-caa1-4c04-b570-9dec555c8adc
+    | disk.allocation                 | gauge      | B         | 9d29e3bd-caa1-4c04-b570-9dec555c8adc
+    | disk.capacity                   | gauge      | B         | 9d29e3bd-caa1-4c04-b570-9dec555c8adc 
+    ...
+
+To query for a specific resource or project or user
+
+    # ceilometer meter-list --query resource=<resource_id>
+    # ceilometer meter-list --query project=<project_id>
+    # ceilometer meter-list --query user=<user_id>
+
 ##### Samples
+A sample is the individual datapoints associated with a particular meter. As such, all samples encompass the same attributes as the meter itself, but with the addition of a timestamp and and a value, also called the sample volume.
+
+Here to show last 10 samples associated with a given meter
+
+    # ceilometer sample-list --meter cpu_util --limit 10
+    +--------------------------------------+----------+-------+---------------+------+----------------------------+
+    | Resource ID                          | Name     | Type  | Volume        | Unit | Timestamp                  |
+    +--------------------------------------+----------+-------+---------------+------+----------------------------+
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu_util | gauge | 93.5923854989 | %    | 2016-08-23T17:57:27.681000 |
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu_util | gauge | 93.6333676252 | %    | 2016-08-23T17:56:27.922000 |
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu_util | gauge | 93.6422183317 | %    | 2016-08-23T17:55:27.687000 |
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu_util | gauge | 93.6170192908 | %    | 2016-08-23T17:54:27.682000 |
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu_util | gauge | 93.5867382656 | %    | 2016-08-23T17:53:27.683000 |
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu_util | gauge | 93.6299362877 | %    | 2016-08-23T17:52:27.920000 |
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu_util | gauge | 93.6039615059 | %    | 2016-08-23T17:51:27.822000 |
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu_util | gauge | 93.6117520497 | %    | 2016-08-23T17:50:27.674000 |
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu_util | gauge | 93.6477669865 | %    | 2016-08-23T17:49:27.671000 |
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu_util | gauge | 93.9214347448 | %    | 2016-08-23T17:48:27.659000 |
+    +--------------------------------------+----------+-------+---------------+------+----------------------------+
+
 ##### Statistics
 ##### Alarms
 ##### Pipelines
