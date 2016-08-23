@@ -171,9 +171,9 @@ Hello 192.168.1.51 !
 In the next section, we are going to make this process automatic by leveraging on the Ceilometer Metering service.
 
 ####Automatic Horizontal Scaling
-The Ceilometer metering service, along with the Heat orchestration service can be combined to achieve the autoscaling based on infrastructure events like high CPU usage, memory exhaustion and/or network overload. In this section we are going to modify the Heat template of the previous section in order to achieve the autoscaling. Make sure both the Ceilometer metering service is enabled and properly configured.
+The Ceilometer metering service, along with the Heat orchestration service can be combined to achieve the autoscaling based on infrastructure events like high CPU usage, memory exhaustion and/or network overload.
 
-The condition to trigger the autoscaling of the infrastructure will be the High CPU usage, defined by a threshold. When any of the cluster servers will suffer an high CPU usage, an High CPU alarm is rised triggering a policy to scale up the cluster. In the same way, when the CPU usage will back under the treshold, a Low CPU alarm is rised triggering another policy to scale down the cluster.
+In this section, we are going to implement a simple autoscaling template to scale up and down a cluster of compute instance. The condition to trigger the autoscaling of the infrastructure will be the High CPU usage, defined by a threshold. When any of the cluster servers will suffer an high CPU usage, an High CPU alarm is rised triggering a policy to scale up the cluster. In the same way, when the CPU usage will back under the treshold, a Low CPU alarm is rised triggering another policy to scale down the cluster.
 
 To keep things simple, we start with a Heat template creating a compute server into an Heat resource of type ``OS::Heat::AutoScalingGroup``. The autoscaling group wraps any standard resource definition, like a compute server, and creates multiple identical copies of that resource. Here the snippet: 
 ```
