@@ -14,4 +14,16 @@ Ceilometer main components are:
 Only the collector and the API services have access to the data store. Ceilometer service uses a NoSQL database as datastore.
 
 ####Implementing Ceilometer
+On the Controller node, setup the Ceilometer service as described in OpenStack official documentation, [here](http://docs.openstack.org/liberty/install-guide-rdo/ceilometer-install.html).
 
+To keep things simple, we are going to install only the compute agent on any of the Compute node. This agent will be able to acquire performance and metering data only from the virtual machines running on that compute node. In this sectionwe are not going to monitor other resources as Images, Storage and Networking. On each Compute node we want metwer, install the component as reported [here](http://docs.openstack.org/liberty/install-guide-rdo/ceilometer-nova.html).
+
+####Working with the metering service
+
+
+
+
+
+
+
+    
