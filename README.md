@@ -1,5 +1,7 @@
 # OpenStack-Tutorial
-OpenStack Tutorial based on both the RDO and the RedHat OpenStack distributions.
+OpenStack Tutorial based on CentOS and RedHat OpenStack distributions. Target OpenStack releases are: Kilo, Liberty and Mitaka. Differences between these relase should not impact the tutorial.
+
+The Linux releases used during this tutorial are CentOS 7.2 and RHEL 7.2.
 
 ###The Basics
 1. [Setup](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/preflight.md)
