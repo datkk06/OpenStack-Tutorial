@@ -1,5 +1,5 @@
 # OpenStack-Tutorial
-OpenStack Tutorial based on CentOS and RedHat OpenStack distributions. Target OpenStack releases are: Kilo, Liberty and Mitaka. Differences between these relase should not impact the tutorial.
+OpenStack Tutorial based on CentOS and RedHat OpenStack distributions. Target OpenStack releases are: Kilo, Liberty and Mitaka. Differences between these releases should not impact the material covered in the tutorial.
 
 The Linux releases used during this tutorial are CentOS 7.2 and RHEL 7.2.
 
