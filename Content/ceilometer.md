@@ -11,7 +11,7 @@ Ceilometer main components are:
 6.  The **ceilometer-alarm-notifier**, running on the controller, responsible for notify alarms and trigger actions.
 7.  The **ceilometer-api**, running on the controller providing access to the users.
 
-Only the collector and the API services have access to the data store. Ceilometer service uses a NoSQL database as datastore.
+Only the collector and the API services have access to the data store. Ceilometer service uses a MongoDB as datastore.
 
 ####Implementing Ceilometer
 On the Controller node, setup the Ceilometer service as described in OpenStack official documentation, [here](http://docs.openstack.org/liberty/install-guide-rdo/ceilometer-install.html).
