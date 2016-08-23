@@ -162,50 +162,27 @@ Getting web page from 172.120.1.206
 Hello 192.168.1.53 !
 Hello 192.168.1.52 !
 Hello 192.168.1.51 !
-Hello 192.168.1.54 !
 Hello 192.168.1.53 !
 Hello 192.168.1.52 !
+Hello 192.168.1.51 !
 ^C
 ```
 
 In the next section, we are going to make this process automatic by leveraging on the Ceilometer Metering service.
 
 ####Automatic Horizontal Scaling
+The Ceilometer metering service, along with the Heat orchestration service can be combined to achieve the autoscaling based on infrastructure events like high CPU usage, memory exhaustion and/or network overload. In this section we are going to modify the Heat template of the previous section in order to achieve the autoscaling. Make sure both the Ceilometer metering service is enabled and properly configured.
 
+The condition to trigger the autoscaling of the infrastructure will be the High CPU usage, defined by a threshold. When any of the cluster servers will suffer an high CPU usage, an High CPU alarm is rised triggering a policy to scale up the cluster. In the same way, when the CPU usage will back under the treshold, a Low CPU alarm is rised triggering another policy to scale down the cluster.
+
+To keep things simple, we start with a Heat template creating a compute server into an Heat resource of type ``OS::Heat::AutoScalingGroup``. The autoscaling group wraps any standard resource definition, like a compute server, and creates multiple identical copies of that resource. Here the snippet: 
 ```
-# cat autoscale-heat-stack.yaml
-heat_template_version: 2015-10-15
-description: template to create a webserver instance
-
-parameters:
-  server_image:
-    type: string
-    label: Image name or ID
-    description: Image to be used for compute instance
-    default: cirros
-  server_flavor:
-    type: string
-    label: Flavor
-    description: Type of flavor to be used
-    default: small
-  server_key:
-    type: string
-    label: Key name
-    description: Name of key-pair to be used for compute instance
-    default: demokey
-  server_network:
-    type: string
-    label: Private network name or ID
-    description: Network to attach instance to.
-    default: tenant-network
-
 resources:
-
+...
   group:
     type: OS::Heat::AutoScalingGroup
     properties:
-      cooldown: 60
-      desired_capacity: 1
+      desired_capacity: 2
       max_size: 5
       min_size: 1
       resource:
@@ -216,8 +193,14 @@ resources:
           key_name: { get_param: server_key }
           networks:
             - network: { get_param: server_network }
-          metadata: {"metering.stack": {get_param: "OS::stack_id"}}
+```
 
+The autoscaling group require the max and min number of resource instances and the desired capacity in normal conditions. In our case, we set min to 1 instance and max to 5 server instances. The desired capacity is set to 2 meaning the autoscaling group keeps only two servers during normal conditions.
+
+Then we define the scaling policies, one for the scale up and another one for the scale down
+```
+resources:
+...
   scaleup_policy:
     type: OS::Heat::ScalingPolicy
     properties:
@@ -233,18 +216,20 @@ resources:
       auto_scaling_group_id: { get_resource: group }
       cooldown: 60
       scaling_adjustment: -1
+```
 
+The Ceilometer service alarms will be used as trigger conditions for the above policies. Adding the following alarm resources to the template:
+```
   cpu_alarm_high:
     type: OS::Ceilometer::Alarm
     properties:
       meter_name: cpu_util
       statistic: avg
-      period: 20
+      period: 60
       evaluation_periods: 1
-      threshold: 30
+      threshold: 75
       alarm_actions:
         - {get_attr: [scaleup_policy, alarm_url]}
-      matching_metadata: {'metadata.user_metadata.stack': {get_param: "OS::stack_id"}}
       comparison_operator: gt
 
   cpu_alarm_low:
@@ -252,12 +237,14 @@ resources:
     properties:
       meter_name: cpu_util
       statistic: avg
-      period: 20
+      period: 60
       evaluation_periods: 1
-      threshold: 20
+      threshold: 25
       alarm_actions:
         - {get_attr: [scaledown_policy, alarm_url]}
-      matching_metadata: {'metadata.user_metadata.stack': {get_param: "OS::stack_id"}}
       comparison_operator: lt
-
 ```
+
+The metering service will raise an ``cpu_alarm_high`` alarm when the average ``avg`` cpu utilization ``cpu_util``  in percentage, will be greater ``gt`` than the treshold ``75`` during the number of evaluation periods ``1`` of ``600`` seconds. The alarm action will trigger the scale up defined policy that will increase the autoscaling group as specified by the ``scaling_adjustment`` policy parameter. Similar logic will be applied for the scaling down.
+
+The complete template file can be found here: [autoscale-heat-stack.yaml](../heat/autoscale-heat-stack.yaml).
