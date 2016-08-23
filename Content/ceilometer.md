@@ -84,7 +84,7 @@ We can rely on the query option to constrain the query, for example by timestamp
     +--------------------------------------+------+------------+-------------+------+----------------------------+
 
 ##### Statistics
-A statistic is set of samples aggregates over a given time window. Ceilometer currently employs 5 different aggregation functions:
+A statistic is set of samples aggregates over a given time window called period. Ceilometer currently employs 5 different aggregation functions:
 
 1. **count**: the number of samples in each period
 2. **max**: the maximum of the sample volumes in each period
@@ -92,7 +92,21 @@ A statistic is set of samples aggregates over a given time window. Ceilometer cu
 4. **avg**: the average of the sample volumes over each period
 5. **sum**: the sum of the sample volumes over each period
 
-Also there is some potential confusion in there being both a duration and a period associated with these statistics. The duration is simply the overall time-span over which a single query applies, whereas the period is the time-slice length into which this duration is divided for aggregation purposes. So for example, if I was interested in the hourly average CPU utilization over a day, I would provide midnight-to-midnight start and end timestamps on my query giving a duration of 24 hours, while also specifying a period of 3600 seconds to indicate that the finegrained samples should be aggregated over each hour within that day.
+For example, if we are interested in average CPU utilization samples aggregated by period of 5 minutes, we can query for statistics as following:
+
+# ceilometer statistics --period 300 --meter cpu_util --aggregate avg
++--------+----------------------------+----------------------------+---------------+----------+----------------------------+----------------------------+
+| Period | Period Start               | Period End                 | Avg           | Duration | Duration Start             | Duration End               |
++--------+----------------------------+----------------------------+---------------+----------+----------------------------+----------------------------+
+| 300    | 2016-08-22T15:15:35.874000 | 2016-08-22T15:20:35.874000 | 1.02116748717 | 0.0      | 2016-08-22T15:16:53.842000 | 2016-08-22T15:16:53.842000 |
+| 300    | 2016-08-22T15:25:35.874000 | 2016-08-22T15:30:35.874000 | 1.08469925267 | 0.0      | 2016-08-22T15:26:54.008000 | 2016-08-22T15:26:54.008000 |
+| 300    | 2016-08-22T16:15:35.874000 | 2016-08-22T16:20:35.874000 | 10.7021343894 | 0.001    | 2016-08-22T16:16:53.855000 | 2016-08-22T16:16:53.856000 |
+| 300    | 2016-08-22T16:25:35.874000 | 2016-08-22T16:30:35.874000 | 46.3678514945 | 0.002    | 2016-08-22T16:26:54.033000 | 2016-08-22T16:26:54.035000 |
+| 300    | 2016-08-22T16:35:35.874000 | 2016-08-22T16:40:35.874000 | 38.2137658871 | 188.705  | 2016-08-22T16:36:53.882000 | 2016-08-22T16:40:02.587000 |
+| 300    | 2016-08-22T16:40:35.874000 | 2016-08-22T16:45:35.874000 | 43.1203780243 | 0.002    | 2016-08-22T16:43:00.210000 | 2016-08-22T16:43:00.212000 |
+| 300    | 2016-08-22T16:45:35.874000 | 2016-08-22T16:50:35.874000 | 44.839546195  | 179.438  | 2016-08-22T16:47:00.975000 | 2016-08-22T16:50:00.413000 |
+| 300    | 2016-08-22T16:50:35.874000 | 2016-08-22T16:55:35.874000 | 92.7558238772 | 240.019  | 2016-08-22T16:51:00.224000 | 2016-08-22T16:55:00.243000 |
+| 300    | 2016-08-22T16:55:35.874000 | 2016-08-22T17:00:35.874000 | 92.8823971135 | 120.131  | 2016-08-22T16:56:00.243000 | 2016-08-22T16:58:00.374000 |
 
 
 
