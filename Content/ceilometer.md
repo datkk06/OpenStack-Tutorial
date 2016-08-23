@@ -24,8 +24,8 @@ In this section we are going to work with few basic concepts of the metering ser
 * [Meters](./ceilometer.md#meters)
 * [Samples](./ceilometer.md#samples)
 * [Statistics](./ceilometer.md#statistics)
-* [Alarms](./ceilometer.md#alarms)
 * [Pipelines](./ceilometer.md#pipelines)
+* [Alarms](./ceilometer.md#alarms)
 
 ##### Meters
 A meters measures a particular aspect of resource usage as for example, the current CPU utilization % for an instance. The lifecycle of meters is decoupled from the existence of the related resources, in the sense that the meter continues to exist after the resource has been terminated. All meters have a string name, an unit of measurement, and a type indicating whether values are monotonically increasing (i.e. *cumulative*), interpreted as a change from the previous value (i.e. *delta*), or a standalone value relating only to the current duration (i.e. *gauge*).
@@ -121,13 +121,51 @@ As before, we can narrow the query by timestamp
 | 300    | 2016-08-23T18:40:00 | 2016-08-23T18:45:00 | 93.6032581169 | 240.008  | 2016-08-23T18:40:27.808000 | 2016-08-23T18:44:27.816000 |
 +--------+---------------------+---------------------+---------------+----------+----------------------------+----------------------------+
 ```
-
-
-
+##### Pipelines
+Pipelines are a method to transform the source of metered data in various ways, before being published to a data collector. Examples of transformations are: unit conversion, rate of change, collection of data before emitting in batch, etc.. The pipelines are configured via the ``/etc/ceilometer/pipeline.yaml`` file.
 
 ##### Alarms
-##### Pipelines
+In Ceilometer, an alarm is a set of rules defining a condition, a current state and an action associated with the state. These alarms follow a three states model of:
 
+1. **Ok**: the condition is not met
+2. **Alarm**: the condition is met
+3. **Insufficient data**: no enough data to make a decision regarding alarm's state
+
+For threshold-oriented alarms, state transitions are governed by a static threshold value and comparison operator against which a selected meter statistic is compared over an evaluation time window.
+
+For example, if we want to define an alarm when the CPU utilization of a given compute instance is over a given threshold for a given period of time, use the following:
+
+    # ceilometer alarm-threshold-create \
+        --name cpu_high \
+        --description 'Hot CPU'  \
+        --meter-name cpu_util  \
+        --threshold 75 \
+        --comparison-operator gt \
+        --statistic avg \
+        --period 600 \
+        --evaluation-periods 3 \
+        --alarm-action 'log://' \
+        --query resource_id=<Instance_ID>
+
+Display all the alarms
+
+    # ceilometer alarm-list
+    +----------+--------------+-------------------+----------+---------+------------+--------------------------------+------------------+
+    | Alarm ID | Name         | State             | Severity | Enabled | Continuous | Alarm condition                | Time constraints |
+    +----------+--------------+-------------------+----------+---------+------------+--------------------------------+------------------+
+    | ID       | Hot CPU      | insufficient data | low      | True    | False      | cpu_util > 75.0 during 2 x 60s | None             |
+    +----------+--------------+-------------------+----------+---------+------------+--------------------------------+------------------+
+
+
+
+To update the alarm, use the following:
+
+
+
+
+Period of evaluation cycle, should be >= than configured
+# pipeline interval for collection of underlying metrics.
+# (integer value)
 
 
 
