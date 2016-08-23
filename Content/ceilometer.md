@@ -70,7 +70,37 @@ Here to show last 10 samples associated with a given meter
     | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu_util | gauge | 93.9214347448 | %    | 2016-08-23T17:48:27.659000 |
     +--------------------------------------+----------+-------+---------------+------+----------------------------+
 
+We can rely on the query option to constrain the query, for example by timestamp:
+
+    # ceilometer sample-list --meter cpu -q 'timestamp>2016-08-23T18:40:00;timestamp<=2016-08-23T18:45:00'
+    +--------------------------------------+------+------------+-------------+------+----------------------------+
+    | Resource ID                          | Name | Type       | Volume      | Unit | Timestamp                  |
+    +--------------------------------------+------+------------+-------------+------+----------------------------+
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu  | cumulative | 8.37122e+12 | ns   | 2016-08-23T18:44:27.816000 |
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu  | cumulative | 8.31506e+12 | ns   | 2016-08-23T18:43:27.823000 |
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu  | cumulative | 8.25889e+12 | ns   | 2016-08-23T18:42:27.814000 |
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu  | cumulative | 8.20286e+12 | ns   | 2016-08-23T18:41:27.925000 |
+    | 377b756d-ffdc-4881-a5da-d027f4c53877 | cpu  | cumulative | 8.14657e+12 | ns   | 2016-08-23T18:40:27.808000 |
+    +--------------------------------------+------+------------+-------------+------+----------------------------+
+
 ##### Statistics
+A statistic is set of samples aggregates over a given time window. Ceilometer currently employs 5 different aggregation functions:
+
+1. **count**: the number of samples in each period
+2. **max**: the maximum of the sample volumes in each period
+3. **min**: the minimum of the sample volumes in each period
+4. **avg**: the average of the sample volumes over each period
+5. **sum**: the sum of the sample volumes over each period
+
+Also there is some potential confusion in there being both a duration and a period associated with these statistics. The duration is simply the overall time-span over which a single query applies, whereas the period is the time-slice length into which this duration is divided for aggregation purposes. So for example, if I was interested in the hourly average CPU utilization over a day, I would provide midnight-to-midnight start and end timestamps on my query giving a duration of 24 hours, while also specifying a period of 3600 seconds to indicate that the finegrained samples should be aggregated over each hour within that day.
+
+
+
+
+
+
+
+
 ##### Alarms
 ##### Pipelines
 
