@@ -143,31 +143,54 @@ For example, if we want to define an alarm when the CPU utilization of a given c
         --comparison-operator gt \
         --statistic avg \
         --period 600 \
-        --evaluation-periods 3 \
+        --evaluation-periods 2 \
         --alarm-action 'log://' \
         --query resource_id=<Instance_ID>
 
 Display all the alarms
+```
+# ceilometer alarm-list
++----------+--------------+-------------------+----------+---------+------------+--------------------------------+------------------+
+| Alarm ID | Name         | State             | Severity | Enabled | Continuous | Alarm condition                | Time constraints |
++----------+--------------+-------------------+----------+---------+------------+--------------------------------+------------------+
+| ID       | Hot CPU      | insufficient data | low      | True    | False      | cpu_util > 75.0 during 2 x 600 | None             |
++----------+--------------+-------------------+----------+---------+------------+--------------------------------+------------------+
+```
 
-    # ceilometer alarm-list
-    +----------+--------------+-------------------+----------+---------+------------+--------------------------------+------------------+
-    | Alarm ID | Name         | State             | Severity | Enabled | Continuous | Alarm condition                | Time constraints |
-    +----------+--------------+-------------------+----------+---------+------------+--------------------------------+------------------+
-    | ID       | Hot CPU      | insufficient data | low      | True    | False      | cpu_util > 75.0 during 2 x 60s | None             |
-    +----------+--------------+-------------------+----------+---------+------------+--------------------------------+------------------+
+In the case above, the state is reported as insufficient data which could indicate that:
 
+* metrics have not yet been gathered over the evaluation window into the recent past
+* the identified instance is not visible to the user owning the alarm
+* the alarm evaluation cycle hasn't started since the alarm was created (by default, alarms are evaluated once per minute)
 
+To update any of the alarm parameters, use the following:
 
-To update the alarm, use the following:
+    # ceilometer alarm-update --period 900 <Alarm_ID>
 
+**Note**: period of evaluation should be >= than configured pipeline interval for collection of underlying metric.
 
+To see the history of alarm:
+```
+# ceilometer alarm-history <Alarm_ID>
++-------------+----------------------------+----------------------------------------------------------------------+
+| Type        | Timestamp                  | Detail                                                               |
++-------------+----------------------------+----------------------------------------------------------------------+
+| rule change | 2016-08-23T20:53:48.732000 | rule: cpu_util > 75.0 during 2 x 900s                                |
+| rule change | 2016-08-23T17:21:14.122000 | rule: cpu_util > 75.0 during 2 x 600s                                |
+|             |                            | repeat_actions: False                                                |
+| creation    | 2016-08-23T15:46:11.082000 | name: autoscale-heat-stack-cpu_alarm_high                            |
+|             |                            | description: Hot CPU                                                 |
+|             |                            | type: threshold                                                      |
+|             |                            | rule: cpu_util > 75.0 during 2 x 900s                                |
+|             |                            | severity: low                                                        |
+|             |                            | time_constraints: None                                               |
++-------------+----------------------------+----------------------------------------------------------------------+
+```
 
+Finally, an alarm no longer required can be disabled
 
-Period of evaluation cycle, should be >= than configured
-# pipeline interval for collection of underlying metrics.
-# (integer value)
-
-
-
-
+    # ceilometer alarm-update --enabled False <Alarm_ID>
     
+and/or deleted permanently
+
+    # ceilometer alarm-delete <Alarm_ID>
