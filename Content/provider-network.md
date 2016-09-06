@@ -399,6 +399,3 @@ We see the VMs getting IP address on the providers networks
 | bc9a443b-4515-4c82-9bec-caaf001b4262 | instance_on_120_vlan | ACTIVE | -          | Running     | provider-vlan120=172.120.1.201 |
 | 20462abd-41df-4bbc-8192-57305be4dfcc | instance_on_121_vlan | ACTIVE | -          | Running     | provider-vlan121=172.121.1.201 |
 +--------------------------------------+----------------------+--------+------------+-------------+--------------------------------+
-```
-
-Please, note that at time of writing, tenant level segregation of provider networks is not yet possible. This means that it is not possible to assign only a provider network (VLAN) for each tenant. See https://access.redhat.com/solutions/2022533
