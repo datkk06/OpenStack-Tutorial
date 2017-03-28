@@ -1,4 +1,4 @@
-###Keystone Authentication Service
+# Keystone Authentication Service
 The Keystone identity service is a project providing identity, token, catalog, and policy services for use with OpenStack. Keystone provides token and password-based authentication and high-level authorization, and a central directory of users mapped to the services they can access. The following commands should be available on the command-line path:
 
 * **keystone** the Keystone client, used to interact with Keystone
@@ -7,7 +7,7 @@ The Keystone identity service is a project providing identity, token, catalog, a
 
 You will find the configuration file in /etc/keystone/keystone.conf
 
-###Deploying the Keystone Identity Service
+## Deploying the Keystone Identity Service
 
 Install the openstack-keystone package and the openstack-selinux package that will provide the SELinux policy.
 
@@ -73,7 +73,7 @@ Check the output carefully for mistakes. If needed, delete the end point, then r
 
 ``# keystone endpoint-delete fc9f35131ae749f8b1577013d62f6d38 ``
 
-###Managing Users with the keystone command
+## Managing Users with the keystone command
 To setup of the Keystone environment, create an admin user. The admin user of the admin tenant has to be associated with an admin role. A keystonerc_admin script makes authentication as the admin user easy.
 
 Create the admin user with a corresponding password <password>
@@ -208,7 +208,7 @@ Delete the /root/keystonerc_myuser file
 
 ``[~(keystone_admin)]$ rm -rf /root/keystonerc_myuser``
 
-###Hack the Keystone Identity Service
+## Hack the Keystone Identity Service
 
 Check the status of the keystone service
 
@@ -285,7 +285,7 @@ MariaDB [keystone]> quit
 Bye
 ```
 
-###Remove the Keystone Identity Service
+## Remove the Keystone Identity Service
 To remove the Keystone service, first stop the service, then drop the keystone database and disable it
 
 ```
