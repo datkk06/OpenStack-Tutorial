@@ -1,4 +1,4 @@
-###Nova Computing Service
+# Nova Computing Service
 The OpenStack Compute service allows to control an Infrastructure-as-a-Service (IaaS) Cloud Computing platform. It provides control over instances and networks, and allows to manage the cloud through users and projects. The Nova Compute Service in OpenStack does not include virtualization software. Instead, it defines drivers that interact with underlying virtualization mechanisms running on host operating systems, and exposes functionality over a web-based API.
 
 The Compute Service provides:
@@ -11,7 +11,7 @@ The Compute Service provides:
 
 4. **openstack-nova-conductor**. Handles database requests made by Compute nodes, ensuring that individual Compute node do not require direct database access. 
 
-###Implementing the Nova service
+## Implementing the Nova service
 The Controller node is the node that runs most of the Nova services, especially the nova-scheduler, which coordinates the activities of the various Nova services. The Compute node runs the virtualization software to launch and manage instances for OpenStack.
 
 Install and configure the Nova components on the Controller node
@@ -171,7 +171,7 @@ Check all services are up and running
 +----+------------------+------------+----------+---------+-------+----------------------------+-----------------+
 ```
 
-###Add a Compute node
+## Add a Compute node
 On the Compute node, install and start the KVM hypervisor
 ```
 # yum install -y libvirt qemu-kvm
