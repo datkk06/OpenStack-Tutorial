@@ -1,9 +1,9 @@
-###Managing Block Storage Service
+# Managing Block Storage Service
 Volumes are block storage devices that you attach to instances to enable persistent storage. Persistent storage is not deleted when you terminate an instance. You can attach a volume to a running instance or detach a volume and attach it to another instance at any time. You can also delete a volume. Only administrative users can create volume types.
 
 On the other side, the disks associated with the instances are ephemeral, meaning that the data is deleted when the instance is terminated. Snapshots created from a running instance will remain, but any additional data added to the ephemeral storage since last snapshot will be lost.
 
-####Create a non bootable volume
+## Create a non bootable volume
 In this example, boot an instance from an image and attach a non-bootable volume
 ```
 # nova image-list
@@ -41,7 +41,7 @@ To detach the volume from the image, specify the instance name and the volume ID
 # nova volume-detach myInstanceWithVolume f3af9952-8658-4cc1-ae72-2cb1574a1e28
 ```
 
-####Create a bootable volume
+## Create a bootable volume
 In this example, create a bootable volume from an image and boot a persistent instance.
 
 Make sure to specify:
@@ -85,7 +85,7 @@ Make sure to specify:
 +--------------------------------------+----------------------+--------+------------+-------------+-----------------------------+
 ```
 
-####Migrate a volume
+## Migrate a volume
 In this section we create a volume of a given type and then migrate the volume from a backend to another one defined on a different node. The requirement for volume migration is that the destination backend must support the same volume type of the source backend.
 
 Check the service list
@@ -227,7 +227,7 @@ The migration is not visible to non-admin users. However, some operations are no
 
 Please, note you can migrate only detached volumes with no snapshots.
 
-####Extend a volume
+## Extend a volume
 A volume can be extended in size. To resize your volume, you must first detach it from the server. Check if the volume is not attached to any server, then extend it
 ```
 # cinder list
@@ -246,7 +246,7 @@ A volume can be extended in size. To resize your volume, you must first detach i
 +--------------------------------------+-----------+--------------+------+-------------+----------+-------------+---------------------
 ```
 
-####Create a volume snapshot
+## Create a volume snapshot
 Volume snapshots capture the point in time state of a volume. A volume from which snapshots have been created cannot be deleted while any of these snapshots exist. Volumes must be in an unattached state before a snapshot can be taken from them. To use a snapshot, a new volume must be created from a snapshot since volume snapshots cannot be attached or used directly.
 
 Volume snapshots are different from volume backups. Backups are full copies of volumes stored in Object Storage repository while snapshots are like a photo in time of a volume. Since backups are full copies of the volume, they take longer to create than snapshots. Once created, backups are independent of the original volume.
@@ -293,7 +293,7 @@ To use the snapshot above, create a new volume from it
 
 Snapshot backends are typically colocated with volume backends in order to minimize latency during cloning. By contrast, a backup repository is usually located in a different location to protect the backup repository from any damage that might occur to the volume backend.
 
-####Create a volume backup
+## Create a volume backup
 By default, the Swift Object Store is used as the backup repository. Create a first volume backup. The first backup of a volume is always a full backup. Further backups of the same volume can be incremental. Attempting to do an incremental backup without any existing backups will fail.
 ```
 # cinder list 
