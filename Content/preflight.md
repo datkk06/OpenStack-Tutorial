@@ -1,4 +1,4 @@
-###Initial server setup for an OpenStack deployment
+# Initial server setup for an OpenStack deployment
 
 The x86_64 platform is currently the only supported architecture. Machine with at least 4GB RAM, processors with hardware virtualization extensions (for compute nodes), and one or more network adapters. Both Intel and AMD CPU support virtualization technology which allows multiple operating systems to run simultaneously on an x86 computer in a safe and efficient manner using hardware virtualization. Use the following commands to verify that if hardware virtualization extensions is enabled or not in your BIOS. On the compute nodes type the following commands as root to verify that host cpu has support for Intel VT or AMD-V technology.
 
@@ -7,7 +7,7 @@ The x86_64 platform is currently the only supported architecture. Machine with a
 # grep --color svm /proc/cpuinfo
 ```
 
-####Install CentOS 7.2 Operating System
+## Install CentOS 7.2 Operating System
 Install CentOS 7.2 minimal on all the target servers. This tutorial refers to a setup made of the following machines
 
 |Management IP|Hostname|Usage|
