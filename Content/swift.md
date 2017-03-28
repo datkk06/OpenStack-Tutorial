@@ -1,4 +1,4 @@
-###Swift Object Storage
+# Swift Object Storage
 
 The object storage service provides object storage in virtual containers, allowing users to store and retrieve objects such as files without a filesystem interface. The service's distributed architecture supports horizontal scaling; object redundancy is provided through software-based data replication. By supporting eventual consistency through asynchronous replication, it is well-suited to multiple datacenter deployment.
 Object storage uses the concept of:
@@ -19,7 +19,7 @@ The OpenStack object storage service is a modular service with the following com
 
 * _openstack-swift-account_: the account service maintains databases of all of the containers accessible by any given account. There is one database file for each account, and they are replicated across the cluster. Any account has access to a particular group of containers. An account maps to a tenant in the identity service. The account service handles listings of objects (what objects are in a specific container) using the container database.
 
-###Implementing the Swift Object Storage Service
+## Implementing the Swift Object Storage Service
 On the Controller node, install the necessary components for the Swift object storage service, including the swift client and memcached. In a production envinronment, the Swift proxy server shoud spawn on a couple of standalone nodes for redundancy reason. If a proxy fails, the other will take over. Howewer, in this example, we are going to install the proxy service on the Controller node. 
 
 ```
@@ -83,7 +83,7 @@ password = <service password>
 delay_auth_decision = true
 ```
 
-###Deploying the Swift Object Storage Service
+## Deploying the Swift Object Storage Service
 The object storage service stores objects on the file system, usually on a number of connected physical storage devices. All of the devices that will be used for object storage must be formatted with XFS, and mounted under the ``/srv/node/`` directory of each Storage node. 
 
 In this section, we are going to configure the Storage node of the OpenStack setup as a Swift cluster. In a production envinronment, the Swift cluster should be made of minimum 3 separate nodes, each containing one or more zones. Each piece of data is placed in three zones for redundancy. If a zone goes down, data is replicated to other zones. To keep things simple, our demo cluster will be made of only one node containing 3 separate zones. Each zone is backed by a separate logical volume of the Storage node. 
