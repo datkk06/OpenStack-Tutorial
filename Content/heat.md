@@ -1,4 +1,4 @@
-###Heat Orchestration Service
+# Heat Orchestration Service
 Orchestration is the ability to automate the deployment and configuration of IT infrastructure. OpenStack Heat is the orchestration service that allow to spin up multiple instances, logical networks, and other cloud services in an automated fashion. More than just standing up virtual servers, Heat also manages scripts used to add VMs to networks, stands up multiple servers together as a stack and even installs application software.
 
 Heat major components are:
@@ -13,7 +13,7 @@ All of these components would typically be installed on the Controller node even
 
 The Heat Orchestration service is compatible with AWS CloudFormation by running the same CFN templates simplifying application portability between AWS and OpenStack. CFN templates are usually written in JSON language. The Heat Orchestration service also runs **Heat Orchestration Template** templates that are written in **YAML**. YAML is a non procedural notation that are similar to Python or Ruby. Therefore, it is easier to write, parse, grep, generate with tools, and maintain source-code management systems.
 
-####Authorization model for orchestration
+## Authorization model for orchestration
 The Orchestration authorization model defines the authorization process for requests during its operations. For example during the auto-scaling procedure, the Orchestration service requests resources of other components, such as servers from compute or networks to extend or reduce the capacity of an auto-scaling group. The orchestration service needs for authorization to accomplish deferred operations like an auto-scaling. Authorization is based on two different models:
 
   1. Password authorization
@@ -21,7 +21,7 @@ The Orchestration authorization model defines the authorization process for requ
 
 The default is based on trusts authorization as specified in the ``heat.conf`` configuration file. To enable the trusts authorization model set ``deferred_auth_method=trusts`` or to enable the password authorization model set ``deferred_auth_method=password``.
 
-####Implementing Heat
+## Implementing Heat
 On the Controller node, install the Heat components
 
     # yum -y install openstack-heat-common openstack-heat-api openstack-heat-api-cfn openstack-heat-engine
