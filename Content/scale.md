@@ -1,4 +1,4 @@
-###Cloud Scaling
+# Cloud Scaling
 When a new OpenStack cloud is started, all servers run over the same hardware and all servers are in the same building, room, rack, even a chassis when the cloud is in the first growth paces. After a while, workloads increase and the current hardware set is not enough to process that workloads and new hardware is bought. This hardware has different storage disks, CPU, RAM and so on. Also racks, rooms and buildings are too small and the growing cloud needs redundancy between cities or regions.
 
 OpenStack offers solutions for scaling the Cloud, called **Regions**, **Cells**, **Availability Zones** and **Host Aggregates**. Each method provides different functionality and can be best divided into two groups:
@@ -15,7 +15,7 @@ OpenStack offers solutions for scaling the Cloud, called **Regions**, **Cells**,
 **Host Aggregates** represent a logical set of properties/characteristics a group of hosts owns in the form of metadata. For example, if some of servers have SSD and the other have SATA, you can map those properties to a group of hosts, when a image or flavor with the meta parameter associated is started, the Nova Scheduler will filter the available hosts with the meta parameter value and boot the instance on hosts with the desired property. Host Aggregates are managed by OpenStack admins only.
 
 
-###Implementing Availability Zones and Host Aggregates
+### Implementing Availability Zones and Host Aggregates
 Considering an OpenStack Cloud made of a single Compute deployment. Default Availability Zone (AZ) is the _nova_ zone.
 ```
 # nova availability-zone-list
