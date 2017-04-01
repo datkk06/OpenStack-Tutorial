@@ -1,7 +1,7 @@
-###Provider Network Scenario
+# Provider Network Scenario
 The basic Neutron configuration uses tenant networks to provide internet access to the instances. All traffic coming from the Compute nodes is routed through the Network node. In this sections we are going to change the basic scenario by introducing Provider networks where instances on Compute nodes are directly attached to the physical network.
 
-####Flat Provider network scenario
+#### Flat Provider network scenario
 Provider networks are created by the OpenStack administrator and map directly to an existing physical network in the data center. Use flat provider networks to connect instances directly to the external network. 
 
 On the Controller node, edit the ``/etc/neutron/plugin.ini`` initialization file
@@ -167,7 +167,7 @@ We see the new VM getting IP address on the provider network
 Please note that the external network is a network outside the domain of the OpenStack setup. The IP addressing schema, the default gateway and DNS server are defined by the network administrator of the organization. Only the DHCP server is provided by Neutron. When we are going to spawn an instance it will pick the address from Network node instead of external DHCP server. With external DHCP server Neutron will not have any control over the IP address assigned to instance hence the command output ```nova list``` and actual instance IP will mismatch.  
 
 
-####Enable compute metadata in Provider networks scenario
+#### Enable compute metadata in Provider networks scenario
 In the Provider networks scenario, the instances are directly attached to the provider external networks, and have an external routers configured as their default gateway. No Neutron routers are used. This means that neutron routers cannot be used to proxy metadata requests from instances to the metadata server, which may result in failures while running the cloud init initial task. However, this issue can be resolved by configuring the Neutron DHCP Agent to proxy metadata requests.
 
 To enable this functionality, edit the ``/etc/neutron/dhcp_agent.ini`` initialization file on the Network node
@@ -177,7 +177,7 @@ enable_isolated_metadata = True
 ...
 ```
 
-####VLAN based Provider networks scenario
+#### VLAN based Provider networks scenario
 In this section, we are going to create multiple VLAN provider networks that can connect instances directly to the external network. This is required if you want to connect multiple VLAN tagged interfaces, on a single NIC, to multiple provider networks. This example uses a physical network VLAN tagged with a range of VLAN ID 120-121. The Network node and all Compute nodes are connected to the physical network using a physical interface on them called ``ens36``. The switch ports to which these interfaces are connected must be configured to trunk the required VLAN ranges.
 
 
