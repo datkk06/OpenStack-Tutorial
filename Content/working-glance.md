@@ -1,4 +1,4 @@
-###Working with Glance Service
+# Working with Glance Service
 The glance command can be used to manage images. If the image is already available in the desired format, get an image
 ```
 # cd /data
