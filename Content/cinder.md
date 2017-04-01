@@ -1,4 +1,4 @@
-## Cinder Storage Service
+# Cinder Storage Service
 The OpenStack Block Storage service provides persistent block storage resources that OpenStack Compute instances can consume. This includes secondary attached storage similar to the Amazon Elastic Block Storage (EBS) offering. In addition, you can write images to a Block Storage device for Compute to use as a bootable persistent instance. With the Block Storage service, you can attach a device to only one instance.
 
 The Block Storage service provides:
