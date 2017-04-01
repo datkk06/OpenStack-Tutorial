@@ -1,4 +1,4 @@
-###Open vSwitch Layout
+# Open vSwitch Layout
 The OpenStack framework is able to use different Software Defined Storage solutions. The default option is the Open vSwitch as per ``/etc/neutron/plugin.ini`` configuration file on the Controller node. The Open vSwitch installed on the Network node and all the Compute nodes is controlled by the Neutron service via the Open vSwitch Neutron Agents wich settings are in configuration file ``/etc/neutron/plugins/ml2/openvswitch_agent.ini``.
 
 On the Controller node
@@ -38,7 +38,7 @@ Making changes to the Open vSwitch Agent configuration requires always the agent
 # systemctl restart neutron-openvswitch-agent
 ```
 
-####Layout in Tenant network scenario
+#### Layout in Tenant network scenario
 We assume a Network node providing access to the outside and two Compute nodes for VMs. Tenant networks connectivity is based on VxLAN tunnels. GRE Tunnel has the same OVS layout with GRE tunnel endpoints instead of VxLAN endpoints.
 
 Starting with an empty layout without VMs. Figure below shows the layout
@@ -233,7 +233,7 @@ The OVS Layout should look like the following picture
 
 Packet flow between the two VMs will happen between the two Compute nodes without passing through the Network node.
 
-####Layout in Tenant VLAN scenario
+#### Layout in Tenant VLAN scenario
 The OVS Layout in Tenant networks scenario is similar when using a tunneled tecnology like VxLAN or GRE encapsulation. In this section, we are going to check the layout when using VLAN based tenant networks. All the Compute and the Nework nodes have a dedicated physical interface attached to the VLAN L2 switch. This interface can be different from the physical interface used for the external network. The external network is flat or VLAN based.
 
 In our case, we are going to use two separate physical interfaces:
@@ -246,7 +246,7 @@ Create the network infrastructure as per Tenant VLAN scenario and start a VM on 
 ![](../img/ovs-layout-05.png)
 
 
-####Layout in Provider networks scenario
+#### Layout in Provider networks scenario
 In the Tenant networks scenario, the traffic from/to the external network passes through the Network node, so the Compute nodes do not need to have access to the external network. In the Provider networks scenario, the Compute nodes are directly attached to the external physical network.
 
 Configure the setup as in [Provider Network Scenario](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/provider-network.md) and start a VM on the provider network
