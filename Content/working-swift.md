@@ -1,5 +1,5 @@
 
-###Working with the Swift Object Storage Service
+# Working with the Swift Object Storage Service
 After starting succesfully the Swift Object Storage Service, it is possible to store and retrive data in containers using the CLI Swift client.
 
 Source the user credentials and query the service using the CLI client
