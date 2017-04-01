@@ -1,4 +1,4 @@
-###Ceilometer Metering Service
+# Ceilometer Metering Service
 OpenStack Ceilometer services provides metering data related to OpenStack services. It collects events and metering data by monitoring notifications from the other service services and publishes collected data to various targets including data stores and message queues.
 
 Ceilometer main components are:
@@ -13,12 +13,12 @@ Ceilometer main components are:
 
 Only the collector and the API services have access to the data store. Ceilometer service uses a MongoDB as datastore.
 
-####Implementing Ceilometer
+#### Implementing Ceilometer
 On the Controller node, setup the Ceilometer service as described in OpenStack official documentation, [here](http://docs.openstack.org/liberty/install-guide-rdo/ceilometer-install.html).
 
 To keep things simple, we are going to install only the compute agent on any of the Compute node. This agent will be able to acquire performance and metering data only from the virtual machines running on that compute node. In this sectionwe are not going to monitor other resources as Images, Storage and Networking. On each Compute node we want metwer, install the component as reported [here](http://docs.openstack.org/liberty/install-guide-rdo/ceilometer-nova.html).
 
-####Working with the metering service
+#### Working with the metering service
 In this section we are going to work with few basic concepts of the metering service:
 
 * [Meters](./ceilometer.md#meters)
