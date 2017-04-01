@@ -1,4 +1,4 @@
-###High Availability in OpenStack
+# High Availability in OpenStack
 OpenStack framework currently meets high availability requirements for its own infrastructure services like MySQL backend database, RabbitMQ messaging server, Neutron services, Nova services, Cinder services, etc. However, OpenStack does not guarantee high availability for individual guest instances. This section reports some common methods of implementing highly available systems, with an emphasis on the core OpenStack services and other open source services that are closely aligned with the OpenStack framework.
 
 In an High Availability system, preventing single points of failure can depend on whether or not a service is stateless.
@@ -18,7 +18,7 @@ By combining the Cluster Manager and the Proxy Server capabilities, the OpenStac
   1. **active/active**: in this mode, the same service is running on multiple controller nodes with Pacemaker, then traffic can either be distributed across the nodes running the requested service by HAProxy or directed to a particular controller via a single IP address. In some cases, HAProxy distributes traffic to active/active services in a round robin fashion.
   2. **active/passive**: services that are not capable of or reliable enough to run in active/active mode are run in active/passive mode. This means that only one instance of the service is active at a time.
   
-###Pacemaker usage
+### Pacemaker usage
 In OpenStack, the Pacemaker application is used as Cluster Manager for all the HA functions. In general, an HA deployment of OpenStack uses three Controller nodes as result of TripleO installation.
 
 Pacemaker relies on the Corosync messaging layer for reliable cluster communications. Corosync implements the Totem single-ring ordering and membership protocol. Pacemaker does not understand the applications it manages. Instead, it relies on resource agents, scripts that encapsulate the knowledge of how to start, stop, and check the health of each application managed by the cluster. These agents must conform to the OCF or systemd standards. Pacemaker ships with a large set of Open Cluster Format and systemd agents.
