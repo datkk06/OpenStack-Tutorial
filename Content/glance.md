@@ -1,4 +1,4 @@
-###The Glance Image Service
+# The Glance Image Service
 The Glance image server requires Keystone to be in place for identity management and authorization. It uses a MySQL database to store the metadata information for the images, such as their types, location, or size. Glance supports a variety of disk formats, such as:
 
 |Format|Description|
@@ -24,7 +24,7 @@ Glance also supports a variety of container formats:
 |ari	|This indicates what is stored in Glance is an Amazon ramdisk image.|
 |ami	|This indicates what is stored in Glance is an Amazon machine image.|
 
-###Implementing the Glance Image Service
+### Implementing the Glance Image Service
 
 On the Controller node, install and init the Image service
 
@@ -85,7 +85,7 @@ Start and enable the services
 # systemctl enable openstack-glance-api
 ```
 
-###Configure Glance to use the Swift Storage Backend
+### Configure Glance to use the Swift Storage Backend
 In this section, we are going to re-configure the Glance image service to use backend store as Swift object storage. By default, Image service will use the local filesystem to store the images when uploading it. The default local filesystem store directory is ``/var/lib/glance/images/`` on the Controller node where the Glance image service is configured. The local filesystem store will not be helpful when scaling the environment.
 
 On the Controller node, change the ``/etc/glance/glance-api.conf`` configuration file
