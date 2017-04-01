@@ -1,7 +1,7 @@
-###Tenant Netwoks Scenario
+# Tenant Netwoks Scenario
 The basic Neutron configuration uses tenant networks to provide internet access to the instances through an external physical network. All traffic coming from/to the Compute nodes is routed through the Network node that is attached on the external network. In this sections we are going to implement the basic scenario by configuring the tenant and the external networks.
 
-####Configure the external network
+#### Configure the external network
 In the basic networking scenario with a single flat external network, only administrative users can manage external networks because they use the physical network infrastructure.
 
 On the Control node, login as ``admin`` user and create the external network
@@ -69,7 +69,7 @@ Created a new subnet:
 +-------------------+---------------------------------------------------+
 ```
 
-####Configure VxLAN encapsulation for Tenant networks
+#### Configure VxLAN encapsulation for Tenant networks
 In this section, we are going to configure the tenant network encapsulation based on **VxLAN** as tunneling protocol. Other options are: **VLAN** and **GRE**. The **Virtual extensible LAN** tunnels realize a L2 network on top of IP routed interfaces. Each L2 frame is tagged with an appropriate **Virtual Network Identifier** and wrapped into UDP packets. Tunnel endpoints listen on 4789 port, by default. IP Multicast is used to flood broadcast and unknown L2 traffic.
 
 On the Control node, change the settings
@@ -196,7 +196,7 @@ vxlan-c0a80121
 vxlan-c0a80122
 ```
 
-####Configure Tenant networks
+#### Configure Tenant networks
 The tenant networks are created by the tenant users. Login as a tenant user and create a tenant network
 ```
 # source keystonerc_demo
@@ -296,7 +296,7 @@ qr-9c0083e4-0a: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet 192.168.1.1  netmask 255.255.255.0  broadcast 192.168.1.255
 ```
 
-####Configure Security Groups
+#### Configure Security Groups
 Security Groups control traffic incoming and outcoming to and from virtual machines. As tenant user, add rules to the default security group
 ```
 # neutron security-group-list
@@ -328,7 +328,7 @@ default
 +--------------------------------------+----------------+-----------+-----------+---------------+--------+
 ```
 
-####Start a VM on the tenant network
+#### Start a VM on the tenant network
 As tenant user, start a VM on the provisioned tenant network
 
 ```
@@ -351,7 +351,7 @@ Check that the VM gets IP Address from the tenant network IP allocation pool
 +--------------------------------------+-------+--------+------------+-------------+-----------------------------+
 ```
 
-####Configure GRE encapsulation for Tenant networks
+#### Configure GRE encapsulation for Tenant networks
 In this section we are going to set the tunnel type used for the Tenant networks from the VxLAN to the **GRE** encapsulation. **Generic Routing Encapsulation** is a tunneling protocol (RFC2784) developed by **Cisco Systems** that can encapsulate a wide variety of network layer protocols inside virtual point-to-point links over an Internet Protocol network. In OpenStack, the GRE can be used as method to implement L2 Tenant networks over a L3 routed network.
 
 On the Control node, change the settings
@@ -480,7 +480,7 @@ patch-int
 
 Create tenant and external networks as above and start a new VM in order to check things happen as expected.
 
-###Configure VLANs for Tenant networks
+### Configure VLANs for Tenant networks
 In this section we are going to use a VLAN L2 switch to implement the Tenant networks. The switch must support the VLAN trunking in order to get working. All the Compute and the Nework nodes have a dedicated physical interface attached to the VLAN L2 switch. This interface can be different from the physical interface used for the external network. The external network is flat or VLAN based.
 
 In our case, we are going to use two separate physical interfaces:
