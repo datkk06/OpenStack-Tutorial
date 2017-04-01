@@ -1,4 +1,4 @@
-###Multiple Cinder Storage Backends
+# Multiple Cinder Storage Backends
 Configuring multiple-storage backends, allows to create several backend storage solutions that serve the same OpenStack configuration and one cinder-volume service is launched for each backend storage. Multiple backends can reside on the same Storage node or they can be distributed on different Storage nodes. For example, a Storage node can have both SSD and SATA disks. The Cinder configuration can define two different backends, one for SSD disks and the other one for SATA disks.
 
 In a multiple-storage configuration, each backend has a name. The name of the backend is declared as an extra-specification of a volume type. When a volume is created, the scheduler chooses an appropriate backend to handle the request, according to the volume type specified by the user.
@@ -93,7 +93,7 @@ cinder-volume    controller@lvm2                       nova             enabled 
 cinder-volume    controller@lvm1                       nova             enabled    :-)   2015-05-18 18:05:27
 ```
 
-###Multiple Cinder Storage Nodes
+### Multiple Cinder Storage Nodes
 In an OpenStack production setup, one or more Storage nodes are used. This section describes how to install and configure two storage nodes for the Block Storage service. The service provisions logical volumes on this device using the LVM driver and provides them to instances via iSCSI transport. In this example, each Storage node defines a different storage backend with different performances. Basing on the volume type specificed in the volume creation request, the Cinder scheduler will chose the backend where to deploy the volume.
 
 Install the Storage nodes and connect them with Controller node and Compute nodes using an isolate Storage network. In this example, the storage network is 192.168.2.0/24, the Management network is 10.10.10.0/24 and the Tenant network is 192.168.1.0/24.
@@ -298,7 +298,7 @@ cinder-volume    osstorage02@lvm2                       nova             enabled
 We see the same storage type running on different Storage nodes. The above configuration permits to migrate a volume of the same type (e.g. ``lvm_silver``) from the first Storage node to the second one.
 
 
-###Default volume type
+### Default volume type
 When creating volumes, Cinder set the volume type to ``none`` if not specified.
 To specify the volume type
 ```
@@ -356,7 +356,7 @@ Starting from now, the new volumes will be created with default type ``lvm_silve
 +---------------------------------------+--------------------------------------+
 ```
 
-###NFS Cinder Storage Backend
+### NFS Cinder Storage Backend
 Cinder Storage Service can use a Network File System storage as backend. Howewer, the Cinder service provides Block Storage devices (i.e. volumes) to the users even if the backend is NFS. This section explains how to configure OpenStack Block Storage to use NFS storage.
 
 We are assuming a NFS server is already available on the Storage Network with IP 192.168.2.20 and the server is sharing the ``/var/shared`` folder. On the Storage node 192.168.2.36 install the NFS client.
@@ -424,7 +424,7 @@ Create new volumes on NFS Storage backend
 ```
 The above volume can be attached as Block Storage device to the VM instances.
 
-###Configure Volumes Backup Service
+### Configure Volumes Backup Service
 By default, Cinder uses the Object Storage service to backup the volumes. To achieve volumes backups, install first and start the Swift Object Storage service. 
 
 On each Storage node, configure the backup service by editing the ``cinder.conf`` configuration file
