@@ -1,4 +1,4 @@
-###Neutron Networking Service
+# Neutron Networking Service
 OpenStack administrators can configure rich network topologies by creating and configuring networks and subnets. In particular, OpenStack networking supports each tenant having multiple private networks, and allows tenants to choose their own IP addressing space, even if those IP addresses overlap with those used by other tenants. This enables advanced cloud networking use cases, such as building multitiered web applications and allowing applications to be migrated to the cloud without changing IP addresses.
 
 OpenStack networking uses the concept of a plug-in, which is a pluggable back-end implementation of the OpenStack networking API. A plug-in can use a variety of technologies. Some OpenStack networking plug-ins might use basic Linux networking, while others might use more advanced technologies, such as Open vSwitch, to provide similar benefits.
@@ -38,7 +38,7 @@ The basic network implementation in OpenStack is made of a self-service virtual 
 
   * **Provider networks**: networks providing connectivity to instances by mapping directly to an existing physical network in the data center. Provider networks generally offer simplicity, performance, and reliability at the cost of flexibility. Unlike tenant networks, only administrators can manage provider networks because they require configuration of physical network infrastructure. Also, provider networks lack the concept of fixed and floating IP addresses because they only handle layer-2 connectivity for the instances running on Compute nodes. Network types for provider networks are flat (untagged) and VLAN (tagged). It is possible to allow provider networks to be shared among tenants as part of the network creation process.
 
-###Setup Neutron networking
+### Setup Neutron networking
 Install and configure Neutron services as follow
 
 |Service|Configuration File(s)|Host Role
