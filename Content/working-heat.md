@@ -1,4 +1,4 @@
-###Working with Heat Templates
+# Working with Heat Templates
 In addition to the AWS CloudFormation templates, the OpenbStack Heat Orchestration service uses the Heat OpenStack Templates (**HOT**) written in **YAML**. YAML stands for “Yet Another Markup Language” and is refreshingly easy to read and understand by everyone.
 
 Some basic terminology is in order to help navigate the YAML structure:
@@ -23,7 +23,7 @@ In the following sections, we are going to work with examples of heat templates:
 
 Also we introduce the Heat Environment files and work with a [Simple environment example](./working-heat.md#simple-environment-example)
 
-####A very basic example
+#### A very basic example
 In this section we are going to implement a simple HOT template example for starting an instance. This is not so useful but it helps to understand the basics. Here the example:
 
 ```
@@ -102,7 +102,7 @@ The stack can be deleted including all resources created
 The complete first_heat_stack.yaml file can be found [here](../heat/first-heat-stack.yaml)
 
 
-####An improved Stack example
+#### An improved Stack example
 In the above example, all the properties are hardcoded into the **resources** section. Alternatively, we can specify those values as input parameters in the **parameters** section and ask the user to provide the values. In this way, the user can start different stacks without change the template file
 
 ```
@@ -193,7 +193,7 @@ After stack creation, check the output from the stack
 The complete second_heat_stack.yaml file can be found [here](../heat/second-heat-stack.yaml)
 
 
-####A networking resource example
+#### A networking resource example
 In the examples above, we defined a template creating a single resource of Compute type ``OS::Nova::Server``. In this section, we are going to define other resources of Network type. The new template requires an external network parameter that can be used as a source of floating IP addresses. With just this information (along with the server parameters), the template creates its own private network, plus a router that connects it to the outside world.
 
 Add the external network parameter to the template:
@@ -297,7 +297,7 @@ Note that we created the stack providing only the ``public_network `` parameter.
 The complete net-heat-stack.yaml file can be found [here](../heat/net-heat-stack.yaml)
 
 
-####A volume resource stack example
+#### A volume resource stack example
 With the Heat templates, users can create any type of stacks and any type of cloud resources. In this example we are going to setup a stack made of two server instance, a Web Server and a Database Server with a persistent volume of storage attached. The new template requires (along the servers parameters) the following parameters: private network name where the servers are running and the volume size in GB of the attached storage.
 
 Add the private network parameter to the template:
@@ -400,7 +400,7 @@ Create the stack and check the output
 
 The complete vol-heat-stack.yaml file can be found [here](../heat/vol-heat-stack.yaml)
 
-####A user data stack example
+#### A user data stack example
 In the previous example, we create a volume resource and attached it to a compute server. However, that volume is still not usable from the compute server since it needs to be formatted before to be available. In this section, we are going to create a user data script to format the volume after it has been attached to the instance. To accomplish this task, we are use the *cloud-init* capabilities.
 
 The cloud-init package is the standard for initialization of cloud instances. It comes pre-installed on the cloud images, including the Cirros images used for OpenStack testing. Cloud-init runs during the initial boot of an instance, and it contacts the Nova metadata service to get any actions that need to be executed at boot time. The standard way to interact with the cloud-init service is by providing a bash script to run. The script is executed as the root user, so it has full access to the instance.
@@ -460,7 +460,7 @@ Filesystem     Type      Size  Used Avail Use% Mounted on
 
 The complete template can be found here: [userdata-heat-stack.yaml](../heat/userdata-heat-stack.yaml)
 
-####A nested stack example
+#### A nested stack example
 When need to deploy a multi resources application with Heat, is to just put several resources into the template, along with their parameters and outputs. This approach can work, but it leads to very large template files that are very hard to debug or update. To keep things easier, we can split complex templates into smaller sub-templates, and use nesting to combine the parts into the whole picture. In this section we are going to split a multiserver stack made of a webserver and a database into several small and reusable templates.
 
 In the main template we define two custom resources, one for the webserver and another one for the database
@@ -665,7 +665,7 @@ outputs:
 
 All the main template and sub-templates can be found here [nested-heat-stack.yaml](../heat/nested-heat-stack.yaml), [webserver.yaml](../heat/webserver.yaml) and [database.yaml](../heat/database.yaml) 
 
-####Simple environment example
+#### Simple environment example
 Heat provides an alternative way to nested templates by using the so called **Environment Files**. An environment file is a YAML file that has global definitions that are imported in the Heat engine before the template itself is parsed. An environment file can be used to define custom resource types defined into external template files.
 
 Consider the following ``simple-environment.yaml`` file:
