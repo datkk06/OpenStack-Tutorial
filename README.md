@@ -1,7 +1,7 @@
 # OpenStack-Tutorial
-OpenStack Tutorial based on CentOS and RedHat OpenStack distributions. Target OpenStack releases are: Kilo and Liberty. Differences between these two releases should not impact the material covered in the tutorial.
+OpenStack Tutorial based on CentOS distributions. Target OpenStack releases are: Kilo and Liberty. Differences between the two releases should not impact the material covered in the tutorial.
 
-The Linux releases used during this tutorial are CentOS 7.2 and RHEL 7.2.
+The Linux release used in this tutorial is CentOS 7.2
 
 ### The Basics
 1. [Setup](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/preflight.md)
@@ -37,4 +37,5 @@ The Linux releases used during this tutorial are CentOS 7.2 and RHEL 7.2.
 
 
 ### Disclaimer
-This tutorial is for personal use only.
+This tutorial is for personal use only. This is just a lab guide, not a documentation for OpenStack, please go to their online
+documentation sites for more details about what it is and how does it work.
