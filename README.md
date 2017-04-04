@@ -3,7 +3,7 @@ OpenStack Tutorial based on CentOS distributions. Target OpenStack releases are:
 
 The Linux release used in this tutorial is CentOS 7.2
 
-### The Basics
+## The Basics
 1. [Setup](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/preflight.md)
 2. [Keystone Authentication Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/keystone.md)
 3. [RabbitMQ Message Broker](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/rabbitmq.md)
@@ -21,7 +21,7 @@ The Linux release used in this tutorial is CentOS 7.2
 15. [Open vSwitch layout](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/open-vswitch.md)
 16. [Nova Network Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/novanetwork.md)
 
-### Do More
+## Do More
 17. TripleO Installation
 18. [Heat Orchestration Service](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/heat.md)
 19. [Working with Heat Templates](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/working-heat.md)
@@ -36,6 +36,6 @@ The Linux release used in this tutorial is CentOS 7.2
 26. [Cloud Scaling](https://github.com/kalise/OpenStack-Tutorial/blob/master/Content/scale.md)
 
 
-### Disclaimer
+## Disclaimer
 This tutorial is for personal use only. This is just a lab guide, not a documentation for OpenStack, please go to their online
 documentation sites for more details about what it is and how does it work.
